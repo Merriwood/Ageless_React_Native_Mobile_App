@@ -1,4 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { theme } from '../../theme';
 import { getTodayDate } from '../../lib/utils';
 
 interface DateSelectorProps {
@@ -11,49 +12,43 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#ffffff',
-    padding: 16,
-    borderRadius: 12,
+    backgroundColor: theme.colors.surface,
+    padding: theme.spacing.lg,
+    borderRadius: theme.radius.lg,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    borderColor: theme.colors.border.light,
+    marginBottom: theme.spacing.lg,
+    ...theme.shadows.sm,
   },
   button: {
-    padding: 8,
+    padding: theme.spacing.base,
   },
   arrow: {
     fontSize: 24,
   },
   arrowLeft: {
-    color: '#4b5563',
+    color: theme.colors.text.secondary,
   },
   arrowDisabled: {
-    color: '#d1d5db',
+    color: theme.colors.border.light,
   },
   centerSection: {
     alignItems: 'center',
   },
   dateText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1f2937',
+    ...theme.typography.h2,
+    color: theme.colors.text.primary,
   },
   todayBadge: {
-    backgroundColor: '#dbeafe',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 12,
-    marginTop: 4,
+    backgroundColor: theme.colors.primaryLight,
+    paddingHorizontal: theme.spacing.base,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.radius.xl,
+    marginTop: theme.spacing.xs,
   },
   todayText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#1e40af',
+    ...theme.typography.label,
+    color: theme.colors.primary,
   },
 });
 

@@ -1,21 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, Text, ScrollView, Alert, ActivityIndicator, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack, router } from 'expo-router';
+import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../theme';
 
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
-import { DateSelector } from '../../components/ui/DateSelector';
 import { DatePicker } from '../../components/ui/DatePicker';
-import { WorkoutCard } from '../../components/dashboard/WorkoutCard';
 import { BottomNav } from '../../components/layout/BottomNav';
 import { HistoryModal } from '../../components/modals/HistoryModal';
 import { SummaryModal } from '../../components/modals/SummaryModal';
 import { ScanModal } from '../../components/modals/ScanModal';
 import { MyABSDrawer } from '../../components/layout/MyABSDrawer';
-import { EXERCISES } from '../../lib/constants/exercises';
+import { EXERCISES, Exercise } from '../../lib/constants/exercises';
 import { useOfflineQueue } from '../../hooks/useOfflineQueue';
 import { getTodayDate } from '../../lib/utils';
 
@@ -25,7 +23,6 @@ export default function Dashboard() {
   const [exercises, setExercises] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [lastPayload, setLastPayload] = useState<string>('');
-  const [activeTab, setActiveTab] = useState('home');
 
   // Modal states
   const [historyModalVisible, setHistoryModalVisible] = useState(false);
@@ -44,6 +41,16 @@ export default function Dashboard() {
     return `${year}-${month}-${day}`;
   };
 
+  // Calculate progress percentage
+  const calculateProgress = (): { completed: number; total: number; percentage: number } => {
+    const total = EXERCISES.length;
+    const completed = EXERCISES.filter(
+      (exercise) => (exercises[exercise.id] || 0) >= exercise.maxSets
+    ).length;
+    const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+    return { completed, total, percentage };
+  };
+
   useEffect(() => {
     loadWorkoutForDate();
   }, [selectedDate]);
@@ -53,14 +60,11 @@ export default function Dashboard() {
     try {
       const dateStr = formatDateForApi(selectedDate);
       let currentWeight = '';
-      let currentExercises = {};
+      let currentExercises: Record<string, number> = {};
 
-      // 1. Try to fetch from server (Mocked for now)
-      // In real app: const response = await fetch(...)
-      
-      // 2. Check offline queue for pending changes
+      // Check offline queue for pending changes
       const queue = await getQueue();
-      const pendingEntry = queue.find(entry => {
+      const pendingEntry = queue.find((entry) => {
         if (entry.body && typeof entry.body.date === 'string') {
           return entry.body.date === dateStr;
         }
@@ -68,7 +72,6 @@ export default function Dashboard() {
       });
 
       if (pendingEntry && pendingEntry.body) {
-        console.log('[Dashboard] Applying pending offline changes for', dateStr);
         const body = pendingEntry.body as any;
         if (body.weight !== undefined && body.weight !== null) {
           currentWeight = body.weight.toString();
@@ -80,14 +83,13 @@ export default function Dashboard() {
 
       setWeight(currentWeight);
       setExercises(currentExercises);
-      
+
       const initialPayload = {
         date: dateStr,
         weight: currentWeight ? parseFloat(currentWeight) : null,
         fitnessData: currentExercises,
       };
       setLastPayload(JSON.stringify(initialPayload));
-
     } catch (error) {
       console.error('Failed to load workout:', error);
     } finally {
@@ -107,8 +109,6 @@ export default function Dashboard() {
       const payloadString = JSON.stringify(payload);
       if (payloadString === lastPayload) return;
 
-      console.log('Saving data...', payload);
-      
       // Queue for offline sync
       await enqueue({
         path: '/api/entries',
@@ -132,7 +132,7 @@ export default function Dashboard() {
 
     saveTimerRef.current = setTimeout(() => {
       saveData();
-    }, 1000);
+    }, 2000); // 2 second debounce like Web PWA
 
     return () => {
       if (saveTimerRef.current) {
@@ -141,16 +141,14 @@ export default function Dashboard() {
     };
   }, [weight, exercises]);
 
-  const handleExerciseChange = (id: string, value: string) => {
-    const numValue = parseFloat(value);
-    setExercises(prev => ({
+  const handleExerciseChange = (id: string, value: number) => {
+    setExercises((prev) => ({
       ...prev,
-      [id]: isNaN(numValue) ? 0 : numValue
+      [id]: Math.min(Math.max(value, 0), 4), // Clamp between 0 and maxSets (4)
     }));
   };
 
   const handleNavigate = (tab: string) => {
-    setActiveTab(tab);
     switch (tab) {
       case 'myabs':
         setMyAbsDrawerVisible(true);
@@ -159,7 +157,7 @@ export default function Dashboard() {
         setScanModalVisible(true);
         break;
       case 'listen':
-        // PWANav handles external link
+        // BottomNav handles external link
         break;
       case 'rewards':
         // Navigate to rewards screen
@@ -169,6 +167,56 @@ export default function Dashboard() {
         // Already on home
         break;
     }
+  };
+
+  const progress = calculateProgress();
+
+  const renderExerciseCard = ({ item: exercise }: { item: Exercise }) => {
+    const count = exercises[exercise.id] || 0;
+    const isCompleted = count >= exercise.maxSets;
+
+    return (
+      <Card style={[styles.exerciseCard, isCompleted && styles.exerciseCardCompleted]}>
+        <CardHeader style={styles.exerciseHeader}>
+          <CardTitle style={styles.exerciseName}>{exercise.name}</CardTitle>
+          <Text style={styles.exerciseTarget}>
+            Target: {exercise.targetReps} {exercise.unit}
+          </Text>
+        </CardHeader>
+        <CardContent>
+          {/* Exercise Controls */}
+          <View style={styles.exerciseControls}>
+            <TouchableOpacity
+              style={styles.controlBtn}
+              onPress={() => handleExerciseChange(exercise.id, count - 1)}
+              disabled={count === 0}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.controlBtnText}>−</Text>
+            </TouchableOpacity>
+
+            <View style={styles.countDisplay}>
+              <Text style={styles.countText}>{count}</Text>
+              <Text style={styles.countMax}>/ {exercise.maxSets}</Text>
+            </View>
+
+            <TouchableOpacity
+              style={styles.controlBtn}
+              onPress={() => handleExerciseChange(exercise.id, count + 1)}
+              disabled={count >= exercise.maxSets}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.controlBtnText}>+</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Count Line */}
+          <Text style={styles.countLine}>
+            {count} / {exercise.maxSets} sets
+          </Text>
+        </CardContent>
+      </Card>
+    );
   };
 
   const styles = StyleSheet.create({
@@ -198,19 +246,190 @@ export default function Dashboard() {
     },
     loadingContainer: {
       marginTop: theme.spacing.xl,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     contentContainer: {
       gap: theme.spacing.lg,
       paddingBottom: theme.spacing.xl,
     },
-    quickButton: {
+
+    // DatePicker
+    datePickerLabel: {
+      fontSize: 12,
+      fontWeight: '600',
+      color: theme.colors.text.secondary,
+      marginBottom: theme.spacing.sm,
+    },
+
+    // Progress Section
+    progressSection: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.lg,
+      padding: theme.spacing.lg,
+      ...theme.shadows.md,
+    },
+    progressLabel: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: theme.colors.text.primary,
+      marginBottom: theme.spacing.base,
+    },
+    progressText: {
+      fontSize: 14,
+      color: theme.colors.text.secondary,
+      marginBottom: theme.spacing.md,
+    },
+    progressBar: {
+      height: theme.sizes.progressBar,
+      backgroundColor: theme.colors.border.light,
+      borderRadius: theme.radius.full,
+      overflow: 'hidden',
+    },
+    progressFill: {
+      height: '100%',
+      backgroundColor: theme.colors.primary,
+    },
+
+    // Weight Input Card
+    weightCard: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.lg,
+      padding: theme.spacing.lg,
+      ...theme.shadows.md,
+    },
+    weightLabel: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: theme.colors.text.primary,
+      marginBottom: theme.spacing.md,
+    },
+    weightInputContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.base,
+    },
+    weightInput: {
+      flex: 1,
+      borderWidth: 1,
+      borderColor: theme.colors.border.light,
+      borderRadius: theme.radius.sm,
+      paddingHorizontal: theme.spacing.base,
+      paddingVertical: theme.spacing.sm,
+      fontSize: 14,
+      color: theme.colors.text.primary,
+      backgroundColor: theme.colors.surfaceAlt,
+    },
+    weightUnit: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: theme.colors.text.secondary,
+      minWidth: 40,
+    },
+
+    // Exercise Grid
+    exerciseGridContainer: {
+      marginBottom: theme.spacing.lg,
+    },
+    exerciseGridLabel: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: theme.colors.text.primary,
+      marginBottom: theme.spacing.md,
+    },
+    exerciseGridWrapper: {
+      // FlatList handles the grid layout
+    },
+
+    // Exercise Cards
+    exerciseCard: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.lg,
+      padding: theme.spacing.lg,
+      marginBottom: theme.spacing.base,
+      borderLeftWidth: 3,
+      borderLeftColor: theme.colors.primary,
+      ...theme.shadows.sm,
+    },
+    exerciseCardCompleted: {
+      borderLeftColor: theme.colors.status.success,
+      ...theme.shadows.md,
+    },
+    exerciseHeader: {
+      marginBottom: theme.spacing.md,
+    },
+    exerciseName: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: theme.colors.text.primary,
+      marginBottom: theme.spacing.xs,
+    },
+    exerciseTarget: {
+      fontSize: 13,
+      fontWeight: '500',
+      color: theme.colors.text.secondary,
+    },
+
+    // Exercise Controls
+    exerciseControls: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.base,
+      marginBottom: theme.spacing.md,
+    },
+    controlBtn: {
+      width: theme.sizes.controlButton,
+      height: theme.sizes.controlButton,
+      borderRadius: theme.radius.md,
+      backgroundColor: theme.colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      ...theme.shadows.sm,
+    },
+    controlBtnText: {
+      fontSize: 18,
+      fontWeight: '600',
+      color: theme.colors.text.onPrimary,
+    },
+    countDisplay: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    countText: {
+      fontSize: 22,
+      fontWeight: '700',
+      color: theme.colors.text.primary,
+      lineHeight: 28,
+    },
+    countMax: {
+      fontSize: 12,
+      fontWeight: '500',
+      color: theme.colors.text.secondary,
+      marginTop: 2,
+    },
+    countLine: {
+      fontSize: 12,
+      fontWeight: '500',
+      color: theme.colors.text.secondary,
+      textAlign: 'center',
+    },
+
+    // Quick Action Buttons
+    quickActions: {
+      flexDirection: 'row',
+      gap: theme.spacing.base,
+      marginBottom: theme.spacing.lg,
+    },
+    quickBtn: {
+      flex: 1,
       paddingVertical: theme.spacing.md,
       paddingHorizontal: theme.spacing.lg,
       backgroundColor: theme.colors.primary,
       borderRadius: theme.radius.md,
       alignItems: 'center',
     },
-    quickButtonText: {
+    quickBtnText: {
       fontSize: theme.typography.button.fontSize,
       fontWeight: theme.typography.button.fontWeight,
       color: theme.colors.text.onPrimary,
@@ -221,73 +440,98 @@ export default function Dashboard() {
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <Stack.Screen options={{ headerShown: false }} />
 
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Dashboard</Text>
-        <TouchableOpacity onPress={() => setSummaryModalVisible(true)} style={{ padding: theme.spacing.base }}>
-          <Ionicons name="stats-chart-outline" size={24} color={theme.colors.text.primary} />
+        <TouchableOpacity
+          onPress={() => setSummaryModalVisible(true)}
+          style={{ padding: theme.spacing.base }}
+        >
+          <Ionicons
+            name="stats-chart-outline"
+            size={24}
+            color={theme.colors.text.primary}
+          />
         </TouchableOpacity>
       </View>
 
+      {/* Content */}
       <ScrollView style={styles.scrollView}>
-        <DatePicker selectedDate={selectedDate} onDateChange={setSelectedDate} />
-
         {loading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={theme.colors.primary} />
           </View>
         ) : (
           <View style={styles.contentContainer}>
-            {/* Weight Card */}
-            <Card>
-              <CardHeader style={{ paddingBottom: theme.spacing.xs }}>
-                <CardTitle>Daily Check-in</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Text style={{ ...theme.typography.body, color: theme.colors.text.primary }}>Body Weight</Text>
-                  <View style={{ width: 96, flexDirection: 'row', alignItems: 'center', gap: theme.spacing.base }}>
-                    <Input
-                      keyboardType="numeric"
-                      placeholder="lbs"
-                      value={weight}
-                      onChangeText={setWeight}
-                    />
-                    <Text style={{ color: theme.colors.text.secondary, ...theme.typography.bodySmall }}>lbs</Text>
-                  </View>
-                </View>
-              </CardContent>
-            </Card>
+            {/* DatePicker */}
+            <View>
+              <Text style={styles.datePickerLabel}>Select Date</Text>
+              <DatePicker
+                selectedDate={selectedDate}
+                onDateChange={setSelectedDate}
+              />
+            </View>
 
-            {/* Workout Card */}
-            <Card>
-              <CardHeader style={{ paddingBottom: theme.spacing.xs }}>
-                <CardTitle>Today's Workout</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {EXERCISES.map((exercise) => (
-                  <WorkoutCard
-                    key={exercise.id}
-                    exercise={exercise}
-                    value={exercises[exercise.id]}
-                    onChange={(val) => handleExerciseChange(exercise.id, val)}
-                  />
-                ))}
-              </CardContent>
-            </Card>
+            {/* Progress Section */}
+            <View style={styles.progressSection}>
+              <Text style={styles.progressLabel}>Today's Workout</Text>
+              <Text style={styles.progressText}>
+                {progress.completed}/{progress.total} exercises ({progress.percentage}%)
+              </Text>
+              <View style={styles.progressBar}>
+                <View
+                  style={[
+                    styles.progressFill,
+                    {
+                      width: `${progress.percentage}%`,
+                    },
+                  ]}
+                />
+              </View>
+            </View>
+
+            {/* Weight Input */}
+            <View style={styles.weightCard}>
+              <Text style={styles.weightLabel}>Weight (lbs)</Text>
+              <View style={styles.weightInputContainer}>
+                <Input
+                  keyboardType="decimal-pad"
+                  placeholder="Enter your weight"
+                  value={weight}
+                  onChangeText={setWeight}
+                  style={styles.weightInput}
+                />
+                <Text style={styles.weightUnit}>lbs</Text>
+              </View>
+            </View>
+
+            {/* Exercise Grid */}
+            <View style={styles.exerciseGridContainer}>
+              <Text style={styles.exerciseGridLabel}>Exercises</Text>
+              <FlatList
+                data={EXERCISES}
+                renderItem={renderExerciseCard}
+                keyExtractor={(item) => item.id}
+                scrollEnabled={false}
+                nestedScrollEnabled={false}
+              />
+            </View>
 
             {/* Quick Action Buttons */}
-            <View style={{ flexDirection: 'row', gap: theme.spacing.base }}>
+            <View style={styles.quickActions}>
               <TouchableOpacity
-                style={[styles.quickButton, { flex: 1 }]}
+                style={styles.quickBtn}
                 onPress={() => setHistoryModalVisible(true)}
+                activeOpacity={0.7}
               >
-                <Text style={styles.quickButtonText}>History</Text>
+                <Text style={styles.quickBtnText}>History</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.quickButton, { flex: 1 }]}
+                style={styles.quickBtn}
                 onPress={() => setMyAbsDrawerVisible(true)}
+                activeOpacity={0.7}
               >
-                <Text style={styles.quickButtonText}>My ABS</Text>
+                <Text style={styles.quickBtnText}>My ABS</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -295,7 +539,7 @@ export default function Dashboard() {
       </ScrollView>
 
       {/* Bottom Navigation */}
-      <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />
+      <BottomNav activeTab="home" onNavigate={handleNavigate} />
 
       {/* Modals */}
       <HistoryModal

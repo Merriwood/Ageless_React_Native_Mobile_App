@@ -64,6 +64,23 @@ export const spacing = {
 } as const;
 
 // ═══════════════════════════════════════════════════════════════════════════
+// COMPONENT SIZE TOKENS
+// ═══════════════════════════════════════════════════════════════════════════
+
+export const sizes = {
+  // Interactive touch targets (minimum 44x44pt for accessibility)
+  touchTarget: 44,
+  // Exercise control buttons
+  controlButton: 40,
+  // Progress bar height
+  progressBar: 8,
+  // Icon sizes
+  iconSmall: 16,
+  iconMedium: 24,
+  iconLarge: 32,
+} as const;
+
+// ═══════════════════════════════════════════════════════════════════════════
 // BORDER RADIUS TOKENS
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -160,6 +177,7 @@ export const transitions = {
 export const theme = {
   colors,
   spacing,
+  sizes,
   radius,
   shadows,
   typography,
@@ -169,6 +187,7 @@ export const theme = {
 export type Theme = typeof theme;
 export type Colors = typeof colors;
 export type Spacing = typeof spacing;
+export type Sizes = typeof sizes;
 export type Radius = typeof radius;
 export type Shadows = typeof shadows;
 export type Typography = typeof typography;

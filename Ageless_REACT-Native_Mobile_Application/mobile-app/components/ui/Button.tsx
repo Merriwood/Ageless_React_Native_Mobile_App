@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, TouchableOpacityProps, StyleSheet } from 'react-native';
+import { theme } from '../../theme';
 
 interface ButtonProps extends TouchableOpacityProps {
   variant?: 'default' | 'outline' | 'ghost';
@@ -11,45 +12,45 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 6,
+    borderRadius: theme.radius.md,
   },
   defaultButton: {
-    backgroundColor: '#1f2937',
+    backgroundColor: theme.colors.primary,
   },
   outlineButton: {
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: theme.colors.border.light,
     backgroundColor: 'transparent',
   },
   ghostButton: {
     backgroundColor: 'transparent',
   },
   defaultSize: {
-    height: 40,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    height: 44,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.base,
   },
   smSize: {
-    height: 36,
-    paddingHorizontal: 12,
-    borderRadius: 6,
+    height: 40,
+    paddingHorizontal: theme.spacing.md,
+    borderRadius: theme.radius.md,
   },
   lgSize: {
-    height: 44,
-    paddingHorizontal: 32,
-    borderRadius: 6,
+    height: 48,
+    paddingHorizontal: theme.spacing.xl,
+    borderRadius: theme.radius.md,
   },
   baseText: {
-    fontWeight: '500',
+    fontWeight: '600',
   },
   defaultText: {
-    color: '#ffffff',
+    color: theme.colors.text.onPrimary,
   },
   outlineText: {
-    color: '#1f2937',
+    color: theme.colors.text.primary,
   },
   ghostText: {
-    color: '#1f2937',
+    color: theme.colors.text.primary,
   },
 });
 

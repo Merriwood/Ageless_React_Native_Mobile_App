@@ -1,30 +1,26 @@
 import { View, Text, ViewProps, StyleSheet } from 'react-native';
+import { theme } from '../../theme';
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.lg,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    borderColor: theme.colors.border.light,
+    ...theme.shadows.sm,
   },
   cardHeader: {
-    padding: 24,
+    padding: theme.spacing.xl,
   },
   cardTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+    ...theme.typography.h1,
   },
   cardDescription: {
-    fontSize: 14,
-    color: '#6b7280',
+    ...theme.typography.bodySmall,
+    color: theme.colors.text.secondary,
   },
   cardContent: {
-    padding: 24,
+    padding: theme.spacing.xl,
     paddingTop: 0,
   },
 });

@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ageless React Native Mobile App - UI Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #F7F7F9;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: white;
+            border-radius: 40px;
+            border: 8px solid #111;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* iPhone notch */
+        .phone-frame::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 25px;
+            background: #111;
+            border-radius: 0 0 20px 20px;
+            z-index: 50;
+        }
+
+        .screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #F7F7F9;
+            padding-top: 44px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .status-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 44px;
+            background: transparent;
+            z-index: 40;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 1px solid #E2E3E6;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #111111;
+        }
+
+        .header-icon {
+            width: 24px;
+            height: 24px;
+            background: #C5282F;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .header-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .scroll-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scroll-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .scroll-content::-webkit-scrollbar-thumb {
+            background: #D0D1D4;
+            border-radius: 3px;
+        }
+
+        /* DatePicker Component */
+        .date-picker {
+            background: white;
+            border: 1px solid #E2E3E6;
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .date-picker:hover {
+            border-color: #C5282F;
+        }
+
+        .date-picker-icon {
+            font-size: 18px;
+        }
+
+        .date-picker-text {
+            flex: 1;
+            font-size: 16px;
+            color: #111111;
+        }
+
+        .date-picker-arrow {
+            font-size: 12px;
+            color: #666666;
+            transition: transform 0.2s;
+        }
+
+        /* Card Component */
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111111;
+        }
+
+        .card-content {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .weight-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .weight-label {
+            font-size: 16px;
+            color: #111111;
+            flex: 1;
+        }
+
+        .input-box {
+            width: 96px;
+            padding: 8px;
+            border: 1px solid #E2E3E6;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 14px;
+            background: #F2F2F7;
+        }
+
+        .unit {
+            font-size: 14px;
+            color: #666666;
+        }
+
+        /* Workout Card */
+        .workout-card {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-left: 3px solid #C5282F;
+        }
+
+        .exercise-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111111;
+        }
+
+        .exercise-info {
+            font-size: 13px;
+            color: #666666;
+        }
+
+        .exercise-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .control-btn {
+            width: 36px;
+            height: 36px;
+            background: #C5282F;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+
+        .control-btn:active {
+            opacity: 0.8;
+        }
+
+        .count-display {
+            flex: 1;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: #111111;
+        }
+
+        /* Quick Action Buttons */
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .quick-btn {
+            flex: 1;
+            padding: 12px;
+            background: #C5282F;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .quick-btn:active {
+            background: #b12228;
+        }
+
+        /* Bottom Navigation (BottomNav) */
+        .bottom-nav {
+            background: white;
+            border-top: 1px solid #E2E3E6;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 8px 16px 8px;
+            flex-shrink: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            flex: 1;
+            padding: 8px 4px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .nav-item:active {
+            background: #F2F2F7;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            transition: transform 0.2s;
+        }
+
+        .nav-item.active .nav-icon {
+            transform: scale(1.08);
+        }
+
+        .nav-label {
+            font-size: 11px;
+            font-weight: 500;
+            color: #666666;
+            text-align: center;
+            line-height: 13px;
+        }
+
+        .nav-item.active .nav-label {
+            font-weight: 700;
+            color: #C5282F;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-height: 80%;
+            overflow: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid #E2E3E6;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111111;
+        }
+
+        .modal-close {
+            font-size: 28px;
+            color: #666666;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            padding: 16px;
+        }
+
+        .modal-button {
+            width: 100%;
+            padding: 12px;
+            background: #C5282F;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+
+        .info-box {
+            background: #FFFBEB;
+            border-left: 4px solid #F59E0B;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #666666;
+            margin-bottom: 16px;
+        }
+
+        .component-label {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #E0E7FF;
+            color: #3730A3;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 600px) {
+            .phone-frame {
+                width: 100%;
+                max-width: 375px;
+                height: auto;
+                aspect-ratio: 375 / 812;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar"></div>
+        <div class="screen">
+            <!-- Header -->
+            <div class="header">
+                <h1>Dashboard</h1>
+                <div class="header-icon" onclick="openModal('summaryModal')"></div>
+            </div>
+
+            <!-- Scrollable Content -->
+            <div class="scroll-content" id="scrollContent">
+                <!-- DatePicker Component -->
+                <div class="component-label">📅 DatePicker</div>
+                <div class="date-picker" onclick="toggleDatePicker()">
+                    <span class="date-picker-icon">📅</span>
+                    <span class="date-picker-text" id="dateText">January 5, 2025</span>
+                    <span class="date-picker-arrow">▼</span>
+                </div>
+
+                <!-- Daily Check-in Card -->
+                <div class="component-label">💳 Card Component</div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Daily Check-in</div>
+                    </div>
+                    <div class="card-content">
+                        <div class="weight-input">
+                            <span class="weight-label">Body Weight</span>
+                            <input type="text" class="input-box" value="180" readonly>
+                            <span class="unit">lbs</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workout Card -->
+                <div class="component-label">🏃 Workout Cards</div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Today's Workout</div>
+                    </div>
+                    <div class="card-content">
+                        <div class="workout-card">
+                            <div class="exercise-name">Bike</div>
+                            <div class="exercise-info">Cardio exercise</div>
+                            <div class="exercise-controls">
+                                <button class="control-btn">−</button>
+                                <div class="count-display">60</div>
+                                <button class="control-btn">+</button>
+                            </div>
+                        </div>
+                        <div class="workout-card">
+                            <div class="exercise-name">Treadmill</div>
+                            <div class="exercise-info">Cardio exercise</div>
+                            <div class="exercise-controls">
+                                <button class="control-btn">−</button>
+                                <div class="count-display">45</div>
+                                <button class="control-btn">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="component-label">⚡ Quick Actions</div>
+                <div class="quick-actions">
+                    <button class="quick-btn" onclick="openModal('historyModal')">History</button>
+                    <button class="quick-btn" onclick="openModal('myabsModal')">My ABS</button>
+                </div>
+            </div>
+
+            <!-- Bottom Navigation (BottomNav Component) -->
+            <div class="bottom-nav">
+                <div class="nav-item active" onclick="selectTab(this, 'home')">
+                    <div class="nav-icon">🏠</div>
+                    <div class="nav-label">Home</div>
+                </div>
+                <div class="nav-item" onclick="selectTab(this, 'myabs'); openModal('myabsModal')">
+                    <div class="nav-icon">⭐</div>
+                    <div class="nav-label">My ABS</div>
+                </div>
+                <div class="nav-item" onclick="selectTab(this, 'scan'); openModal('scanModal')">
+                    <div class="nav-icon">📱</div>
+                    <div class="nav-label">Scan</div>
+                </div>
+                <div class="nav-item" onclick="selectTab(this, 'listen')">
+                    <div class="nav-icon">🎧</div>
+                    <div class="nav-label">Listen</div>
+                </div>
+                <div class="nav-item" onclick="selectTab(this, 'rewards')">
+                    <div class="nav-icon">🎁</div>
+                    <div class="nav-label">Rewards</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+
+    <!-- History Modal -->
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Workout History</div>
+                <div class="modal-close" onclick="closeModal('historyModal')">×</div>
+            </div>
+            <div class="modal-content">
+                <div class="component-label">📋 HistoryModal</div>
+                <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                    <thead>
+                        <tr style="background: #F2F2F7; border-bottom: 2px solid #E2E3E6;">
+                            <th style="padding: 8px; text-align: left; color: #666666; font-weight: 600;">Date</th>
+                            <th style="padding: 8px; text-align: center; color: #666666; font-weight: 600;">Weight</th>
+                            <th style="padding: 8px; text-align: center; color: #666666; font-weight: 600;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid #E2E3E6;">
+                            <td style="padding: 8px;">January 5, 2025</td>
+                            <td style="padding: 8px; text-align: center;">180 lbs</td>
+                            <td style="padding: 8px; text-align: center;"><span style="background: #D1FAE5; color: #065F46; padding: 2px 8px; border-radius: 4px; font-size: 11px;">Complete</span></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #E2E3E6;">
+                            <td style="padding: 8px;">January 4, 2025</td>
+                            <td style="padding: 8px; text-align: center;">179 lbs</td>
+                            <td style="padding: 8px; text-align: center;"><span style="background: #FEF3C7; color: #92400E; padding: 2px 8px; border-radius: 4px; font-size: 11px;">Partial</span></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px;">January 3, 2025</td>
+                            <td style="padding: 8px; text-align: center;">179 lbs</td>
+                            <td style="padding: 8px; text-align: center;"><span style="background: #D1FAE5; color: #065F46; padding: 2px 8px; border-radius: 4px; font-size: 11px;">Complete</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class="modal-button" onclick="closeModal('historyModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Modal -->
+    <div class="modal-overlay" id="summaryModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Summary</div>
+                <div class="modal-close" onclick="closeModal('summaryModal')">×</div>
+            </div>
+            <div class="modal-content">
+                <div class="component-label">📊 SummaryModal</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                    <div style="background: #F2F2F7; padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: 700; color: #C5282F;">47</div>
+                        <div style="font-size: 12px; color: #666666; margin-top: 4px;">Total Workouts</div>
+                    </div>
+                    <div style="background: #F2F2F7; padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: 700; color: #C5282F;">16</div>
+                        <div style="font-size: 12px; color: #666666; margin-top: 4px;">This Month</div>
+                    </div>
+                    <div style="background: #F2F2F7; padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: 700; color: #C5282F;">4.5</div>
+                        <div style="font-size: 12px; color: #666666; margin-top: 4px;">Average Weight</div>
+                    </div>
+                    <div style="background: #F2F2F7; padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: 700; color: #C5282F;">4</div>
+                        <div style="font-size: 12px; color: #666666; margin-top: 4px;">Current Streak</div>
+                    </div>
+                </div>
+                <div style="background: #FFFBEB; padding: 12px; border-radius: 8px; border-left: 4px solid #F59E0B;">
+                    <div style="font-size: 12px; color: #92400E; font-weight: 600; margin-bottom: 4px;">Personal Best</div>
+                    <div style="font-size: 32px; font-weight: 700; color: #C5282F;">185 lbs</div>
+                </div>
+                <button class="modal-button" onclick="closeModal('summaryModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scan Modal -->
+    <div class="modal-overlay" id="scanModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Scan QR Code</div>
+                <div class="modal-close" onclick="closeModal('scanModal')">×</div>
+            </div>
+            <div class="modal-content">
+                <div class="component-label">📱 ScanModal</div>
+                <div style="background: #F2F2F7; width: 160px; height: 160px; margin: 16px auto; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 72px; animation: pulse 2s infinite;">
+                    📱
+                </div>
+                <div style="text-align: center; margin-bottom: 12px;">
+                    <div style="font-size: 12px; color: #666666; margin-bottom: 4px;">Your User ID:</div>
+                    <div style="background: #F2F2F7; padding: 8px; border-radius: 4px; font-size: 14px; font-weight: 600; color: #111111; font-family: monospace;">USER_123456</div>
+                </div>
+                <div style="background: #FFF0F5; padding: 12px; border-radius: 8px; border-left: 4px solid #F59E0B; text-align: center;">
+                    <div style="font-size: 20px; margin-bottom: 4px;">👁️</div>
+                    <div style="font-size: 14px; color: #666666;">Scan with another device to sync</div>
+                </div>
+                <button class="modal-button" onclick="closeModal('scanModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- My ABS Drawer Modal -->
+    <div class="modal-overlay" id="myabsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">My ABS</div>
+                <div class="modal-close" onclick="closeModal('myabsModal')">×</div>
+            </div>
+            <div class="modal-content">
+                <div class="component-label">🏋️ MyABSDrawer</div>
+                <div style="margin-bottom: 16px;">
+                    <div style="font-size: 12px; font-weight: 600; color: #666666; margin-bottom: 8px;">Body Weight</div>
+                    <input type="text" class="input-box" placeholder="Enter weight (lbs)" style="width: 100%;" value="180" readonly>
+                </div>
+                <div style="font-size: 12px; font-weight: 600; color: #666666; margin-bottom: 8px;">Select Area</div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="background: #FFF0F5; padding: 12px; border-radius: 8px; display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                        <span style="font-size: 20px;">💪</span>
+                        <span style="flex: 1; font-size: 14px; color: #111111;">Abs</span>
+                        <span style="color: #C5282F; font-weight: 700;">›</span>
+                    </div>
+                    <div style="background: #F2F2F7; padding: 12px; border-radius: 8px; display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                        <span style="font-size: 20px;">🫀</span>
+                        <span style="flex: 1; font-size: 14px; color: #111111;">Chest</span>
+                        <span style="color: #666666;">›</span>
+                    </div>
+                    <div style="background: #F2F2F7; padding: 12px; border-radius: 8px; display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                        <span style="font-size: 20px;">🔙</span>
+                        <span style="flex: 1; font-size: 14px; color: #111111;">Back</span>
+                        <span style="color: #666666;">›</span>
+                    </div>
+                    <div style="background: #F2F2F7; padding: 12px; border-radius: 8px; display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                        <span style="font-size: 20px;">⬆️</span>
+                        <span style="flex: 1; font-size: 14px; color: #111111;">Shoulders</span>
+                        <span style="color: #666666;">›</span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 16px;">
+                    <button style="flex: 1; padding: 12px; background: #F2F2F7; color: #111111; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;" onclick="closeModal('myabsModal')">Cancel</button>
+                    <button style="flex: 1; padding: 12px; background: #C5282F; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;" onclick="closeModal('myabsModal')">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+    </style>
+
+    <script>
+        function selectTab(element, tab) {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function toggleDatePicker() {
+            alert('Calendar would expand here\n\nFeatures:\n• Month/year navigation\n• Day selection\n• Today button');
+        }
+
+        // Close modal on background click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

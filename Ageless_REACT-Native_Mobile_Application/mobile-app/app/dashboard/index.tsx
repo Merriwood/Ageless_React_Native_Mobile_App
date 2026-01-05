@@ -1,0 +1,234 @@
+import { useState, useEffect, useRef } from 'react';
+import { View, Text, ScrollView, Alert, ActivityIndicator, TouchableOpacity, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Stack, router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
+import { Input } from '../../components/ui/Input';
+import { DateSelector } from '../../components/ui/DateSelector';
+import { WorkoutCard } from '../../components/dashboard/WorkoutCard';
+import { EXERCISES } from '../../lib/constants/exercises';
+import { useOfflineQueue } from '../../hooks/useOfflineQueue';
+import { getTodayDate } from '../../lib/utils';
+
+export default function Dashboard() {
+  const [selectedDate, setSelectedDate] = useState(getTodayDate());
+  const [weight, setWeight] = useState('');
+  const [exercises, setExercises] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
+  const [lastPayload, setLastPayload] = useState<string>('');
+  
+  const { enqueue, getQueue } = useOfflineQueue();
+  const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Helper to format date as YYYY-MM-DD
+  const formatDateForApi = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  useEffect(() => {
+    loadWorkoutForDate();
+  }, [selectedDate]);
+
+  const loadWorkoutForDate = async () => {
+    setLoading(true);
+    try {
+      const dateStr = formatDateForApi(selectedDate);
+      let currentWeight = '';
+      let currentExercises = {};
+
+      // 1. Try to fetch from server (Mocked for now)
+      // In real app: const response = await fetch(...)
+      
+      // 2. Check offline queue for pending changes
+      const queue = await getQueue();
+      const pendingEntry = queue.find(entry => {
+        if (entry.body && typeof entry.body.date === 'string') {
+          return entry.body.date === dateStr;
+        }
+        return false;
+      });
+
+      if (pendingEntry && pendingEntry.body) {
+        console.log('[Dashboard] Applying pending offline changes for', dateStr);
+        const body = pendingEntry.body as any;
+        if (body.weight !== undefined && body.weight !== null) {
+          currentWeight = body.weight.toString();
+        }
+        if (body.fitnessData) {
+          currentExercises = body.fitnessData;
+        }
+      }
+
+      setWeight(currentWeight);
+      setExercises(currentExercises);
+      
+      const initialPayload = {
+        date: dateStr,
+        weight: currentWeight ? parseFloat(currentWeight) : null,
+        fitnessData: currentExercises,
+      };
+      setLastPayload(JSON.stringify(initialPayload));
+
+    } catch (error) {
+      console.error('Failed to load workout:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveData = async () => {
+    try {
+      const dateStr = formatDateForApi(selectedDate);
+      const payload = {
+        date: dateStr,
+        weight: weight ? parseFloat(weight) : null,
+        fitnessData: exercises,
+      };
+
+      const payloadString = JSON.stringify(payload);
+      if (payloadString === lastPayload) return;
+
+      console.log('Saving data...', payload);
+      
+      // Queue for offline sync
+      await enqueue({
+        path: '/api/entries',
+        method: 'POST',
+        body: payload,
+      });
+
+      setLastPayload(payloadString);
+    } catch (error) {
+      console.error('Failed to save:', error);
+    }
+  };
+
+  // Auto-save debounce
+  useEffect(() => {
+    if (loading) return;
+
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+    }
+
+    saveTimerRef.current = setTimeout(() => {
+      saveData();
+    }, 1000);
+
+    return () => {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+      }
+    };
+  }, [weight, exercises]);
+
+  const handleExerciseChange = (id: string, value: string) => {
+    const numValue = parseFloat(value);
+    setExercises(prev => ({
+      ...prev,
+      [id]: isNaN(numValue) ? 0 : numValue
+    }));
+  };
+
+  const styles = StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: '#f9fafb',
+    },
+    header: {
+      paddingHorizontal: 16,
+      paddingVertical: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: '#e5e7eb',
+      backgroundColor: '#ffffff',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    headerTitle: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: '#1f2937',
+    },
+    scrollView: {
+      flex: 1,
+      paddingHorizontal: 16,
+      paddingTop: 16,
+    },
+    loadingContainer: {
+      marginTop: 40,
+    },
+    contentContainer: {
+      gap: 16,
+      paddingBottom: 40,
+    },
+  });
+
+  return (
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <Stack.Screen options={{ headerShown: false }} />
+      
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Dashboard</Text>
+        <TouchableOpacity onPress={() => router.push('/history')} style={{ padding: 8 }}>
+          <Ionicons name="time-outline" size={24} color="#0f172a" />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView style={styles.scrollView}>
+        <DateSelector date={selectedDate} onDateChange={setSelectedDate} />
+
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#0000ff" />
+          </View>
+        ) : (
+          <View style={styles.contentContainer}>
+            {/* Weight Card */}
+            <Card>
+              <CardHeader style={{ paddingBottom: 8 }}>
+                <CardTitle>Daily Check-in</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Text style={{ fontSize: 16, fontWeight: '500', color: '#374151' }}>Body Weight</Text>
+                  <View style={{ width: 96, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <Input
+                      keyboardType="numeric"
+                      placeholder="lbs"
+                      value={weight}
+                      onChangeText={setWeight}
+                    />
+                    <Text style={{ color: '#a1aeb8', fontSize: 12 }}>lbs</Text>
+                  </View>
+                </View>
+              </CardContent>
+            </Card>
+
+            {/* Workout Card */}
+            <Card>
+              <CardHeader style={{ paddingBottom: 8 }}>
+                <CardTitle>Today's Workout</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {EXERCISES.map((exercise) => (
+                  <WorkoutCard
+                    key={exercise.id}
+                    exercise={exercise}
+                    value={exercises[exercise.id]}
+                    onChange={(val) => handleExerciseChange(exercise.id, val)}
+                  />
+                ))}
+              </CardContent>
+            </Card>
+          </View>
+        )}
+      </ScrollView>
+    </SafeAreaView>
+  );
+}

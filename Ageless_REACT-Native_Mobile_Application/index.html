@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<!-- MODERN UI SNAPSHOT (VERBATIM). Captured 2025-08-24. Do NOT edit styling/design. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Ageless Body.</title>
+<!-- iOS PWA Enhancement -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Ageless Body.">
+<!-- SEO and Browser Enhancement -->
+<meta name="description" content="Track your fitness progress with our comprehensive workout tracker. Monitor exercises, sets, and progress over time.">
+<meta name="theme-color" content="#C5282F">
+<meta name="msapplication-TileColor" content="#C5282F">
+<meta name="msapplication-TileImage" href="./icons/icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<!-- Favicon System -->
+<link rel="icon" href="./favicon.ico" type="image/x-icon">
+<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./icons/favicon-16x16.png">
+<link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
+<!-- Apple Touch Icons -->
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
+<!-- PWA Manifest -->
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<link rel="manifest" href="/manifest.webmanifest?v=20250827b">
+<!-- External consolidated stylesheet -->
+<link rel="stylesheet" href="./css/app.css?v=20250909a">
+<!-- External script only (CSP compliant). Cache-bust param bumped to pick up Transactions icon + PWA fallback fixes -->
+	<link rel="preload" as="image" href="./icons/resized_bagicon_24x24.png" />
+	<script src="./app-inline.js?v=20250913k" defer nonce="__NONCE__"></script>
+<style>
+/* Fix Rewards Icon & Label Default/Active Colors */
+.pwa-nav__btn.is-active .pwa-nav__label {
+    color: #C5282F !important;
+}
+.pwa-nav__btn.is-active[data-tab="rewards"] img {
+    /* Filter to turn black into #C5282F (Red) */
+    filter: invert(23%) sepia(90%) saturate(6564%) hue-rotate(346deg) brightness(86%) contrast(103%) !important;
+}
+/* Home Icon Styling */
+.pwa-nav__btn[data-tab="home"] svg {
+    stroke: none !important; /* Remove stroke from filled icon */
+}
+.pwa-nav__btn.is-active[data-tab="home"] svg {
+    fill: #C5282F !important;
+}
+</style>
+</head>
+<body>
+<!-- SPLASH SCREEN -->
+<div id="splash-screen" class="splash-screen">
+	<img src="icons/apple-touch-icon.png" alt="Ageless" class="splash-logo" />
+	<div class="splash-tagline">Start something ageless.</div>
+</div>
+<!-- LOGIN OVERLAY -->
+<div class="login-overlay" id="loginOverlay" style="display:none;">
+	<div class="login-container" id="loginContainer">
+		<div class="login-header">
+			<img src="icons/apple-touch-icon.png" alt="Ageless Logo" class="login-heart-logo" style="width:72px;height:72px;display:block;margin:0 auto 16px;border-radius:20px;box-shadow:0 4px 12px rgba(0,0,0,0.15);" />
+			<h1 class="app-title">Ageless Body.</h1>
+		</div>
+		<div class="welcome-section">
+			<div class="welcome-content">
+				<div class="face-id-icon" id="faceIdIcon" title="Tap to sign in with Face ID"></div>
+				<h2 class="welcome-title">Welcome</h2>
+				<p class="welcome-subtitle">Track your daily workout progress</p>
+			</div>
+		</div>
+		<div class="sign-in-section">
+			<div class="sign-in-header" id="signInHeader">
+				<h2 class="sign-in-title">Sign in</h2>
+				<span class="collapse-arrow" id="collapseArrow">⌄</span>
+			</div>
+		</div>
+		<div class="form-section">
+			<div class="form-content" id="formContent">
+				<div class="form-group">
+					<label class="form-label" for="email">Email</label>
+					<input type="text" id="email" class="form-input user-id-input" placeholder="Enter your email">
+				</div>
+				<div class="form-group password-group">
+					<label class="form-label">Password</label>
+					<input type="password" id="password" class="form-input" placeholder="Enter your password">
+					<span class="password-eye" id="passwordEye">👁</span>
+				</div>
+				<div class="form-group" id="goalsGroup" style="display:none;">
+					<label class="form-label" style="font-size:120%;">Goal</label>
+					<div class="goals-options" style="display:flex;flex-direction:column;gap:8px;">
+										<label class="goal-option" style="display:flex;align-items:center;gap:6px;padding:4px 2px;">
+											<input type="checkbox" name="goal[]" value="Mind"> <span>Mind</span>
+										</label>
+										<label class="goal-option" style="display:flex;align-items:center;gap:6px;padding:4px 2px;">
+											<input type="checkbox" name="goal[]" value="Body"> <span>Body</span>
+										</label>
+										<label class="goal-option" style="display:flex;align-items:center;gap:6px;padding:4px 2px;">
+											<input type="checkbox" name="goal[]" value="Heart"> <span>Heart</span>
+										</label>
+										<label class="goal-option" style="display:flex;align-items:center;gap:6px;padding:4px 2px;">
+											<input type="checkbox" name="goal[]" value="Nutrition"> <span>Nutrition</span>
+										</label>
+										<label class="goal-option" style="display:flex;align-items:center;gap:6px;padding:4px 2px;">
+											<input type="checkbox" name="goal[]" value="Other"> <span>Other</span>
+										</label>
+					</div>
+				</div>
+				<div class="checkbox-group">
+					<input type="checkbox" class="checkbox-input" id="save-userid">
+					<label for="save-userid" class="checkbox-label">Save user ID</label>
+				</div>
+				<div style="display:flex;gap:12px;">
+					<button class="sign-in-button" style="flex:1;" id="signInButton">Sign in</button>
+					<button class="sign-in-button" style="flex:1;background:#555;" id="registerButton" type="button">Register</button>
+				</div>
+			</div>
+		</div>
+		<div class="forgot-section" id="forgotSection">
+			<div class="forgot-content">
+				<a href="#" class="forgot-link" id="forgotPasswordLink">Forgot user ID or password?</a>
+				<div style="margin: 10px 0; color: #666666;">or</div>
+				<a href="#" class="forgot-link" id="registerLink">Create new account</a>
+			</div>
+		</div>
+		<div class="bottom-navigation">
+			<button class="nav-button">📞 Call us</button>
+			<button class="nav-button">📍 Find us</button>
+			<button class="nav-button">⋯ More</button>
+		</div>
+	</div>
+</div>
+<!-- MAIN APP CONTAINER -->
+<div class="container" id="app-container" style="display:none;">
+	<div class="menu-container">
+		<img src="icons/menu_icon.png" alt="Menu" class="menu-icon" id="menu-icon">
+		<!-- New Main Menu -->
+		<div class="dropdown-menu" id="dropdown-menu">
+			<button class="dropdown-item" id="menu-food">Food ▸</button>
+			<button class="dropdown-item" id="menu-fitness-root">Fitness ▸</button>
+			<button class="dropdown-item" id="menu-beauty-root">Beauty ▸</button>
+			<button class="dropdown-item" id="menu-sleep" data-disabled="true">Sleep (Coming Soon)</button>
+			<button class="dropdown-item" id="menu-mind-root">Mind ▸</button>
+			<button class="dropdown-item" id="menu-social" data-disabled="true">Social</button>
+			<button class="dropdown-item" id="menu-scholars" data-disabled="true">Scholars</button>
+			<button class="dropdown-item" id="menu-competition" data-disabled="true">Competition</button>
+			<button class="dropdown-item" id="menu-membership" data-disabled="true">Membership</button>
+			<button class="dropdown-item" id="menu-account" data-disabled="true">Account</button>
+			<button class="dropdown-item" id="menu-about" data-disabled="true">About</button>
+			<hr style="margin:6px 0 8px;border:none;border-top:1px solid #ddd;">
+			<button class="dropdown-item" id="menu-logout">Logout</button>
+		</div>
+		<!-- Food Submenu -->
+		<div class="dropdown-menu" id="food-submenu" style="display:none;">
+			<button class="dropdown-item" id="menu-prepared-meals" data-disabled="true">Prepared Meals (Coming Soon)</button>
+			<button class="dropdown-item" id="menu-farm-fresh" data-disabled="true">Farm Fresh (Coming Soon)</button>
+			<button class="dropdown-item" id="menu-subscription" data-disabled="true">Subscription (Coming Soon)</button>
+			<button class="dropdown-item" id="menu-our-farmers" data-disabled="true">Our Farmers (Coming Soon)</button>
+			<button class="dropdown-item" id="menu-nutrition" data-disabled="true">Nutrition (Coming Soon)</button>
+		</div>
+		<!-- Beauty Submenu (Skin nested trigger restored) -->
+		<div class="dropdown-menu" id="beauty-submenu" style="display:none;">
+			<button class="dropdown-item" id="menu-skin-root">Skin ▸</button>
+		</div>
+		<!-- Skin nested Submenu (scrollable) -->
+		<div class="dropdown-menu" id="skin-submenu" style="display:none;">
+			<button class="dropdown-item" id="menu-k-skin" data-disabled="true">K-Skin (Coming Soon)</button>
+			<button class="dropdown-item" id="menu-spa" data-disabled="true">Spa (Coming Soon)</button>
+			<button class="dropdown-item" id="menu-dermatology" data-disabled="true">Dermatology (Coming Soon)</button>
+			<button class="dropdown-item" id="menu-shop" data-disabled="true">Shop (Coming Soon)</button>
+		</div>
+		<!-- Mind Submenu -->
+		<div class="dropdown-menu" id="mind-submenu" style="display:none;">
+			<button class="dropdown-item" id="menu-mind-sleep" data-disabled="true">Sleep (Coming Soon)</button>
+			<button class="dropdown-item" id="menu-mind-destress" data-disabled="true">De-stress (Coming Soon)</button>
+			<button class="dropdown-item" id="menu-mind-memory" data-disabled="true">Memory (Coming Soon)</button>
+			<button class="dropdown-item" id="menu-mind-puzzles" data-disabled="true">Puzzles (Coming Soon)</button>
+			<button class="dropdown-item" id="menu-mind-learning" data-disabled="true">Learning (Coming Soon)</button>
+			<button class="dropdown-item" id="menu-mind-imagine" data-disabled="true">Imagine (Coming Soon)</button>
+			<button class="dropdown-item" id="menu-mind-logic" data-disabled="true">Logic (Coming Soon)</button>
+			<button class="dropdown-item" id="menu-mind-strategy" data-disabled="true">Strategy (Coming Soon)</button>
+		</div>
+	</div>
+	<div class="header" style="padding-top:30px;">
+		<div style="margin-top:0;display:flex;flex-direction:column;align-items:center;gap:8px;">
+			<img src="icons/icon-192.png" alt="Logo" class="app-logo app-logo--main" />
+			<div class="title-main" style="text-align:center;display:flex;align-items:center;justify-content:center;">Ageless Body.</div>
+			<div style="font-size:14px;color:#555;">Today's Progress: <span id="overall-progress">0/11</span></div>
+		</div>
+	</div>
+	<div class="stations" id="stations-grid"></div>
+</div>
+<!-- HISTORY MODAL -->
+<!-- PWA Bottom Navigation (hidden until authenticated) -->
+<nav id="pwa-nav" class="pwa-nav" style="display:none;">
+	<button type="button" class="pwa-nav__btn" data-tab="home">
+		<span class="pwa-nav__icon" aria-hidden="true">
+			<svg viewBox="0 0 424.098 424.098" width="20" height="20" role="img" aria-label="Home" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+				<g>
+					<path d="M351.191,401.923H72.901c-4.487,0-8.129-3.633-8.129-8.129V242.262l-56.664-0.114
+						c-3.284-0.008-6.243-1.992-7.495-5.023c-1.252-3.04-0.553-6.527,1.764-8.852L206.104,24.546c1.853-1.845,4.503-2.666,7.047-2.276
+						c2.414,0.39,4.511,1.845,5.731,3.942l47.43,47.43V58.499c0-4.487,3.633-8.129-8.129-8.129h47.755c4.495,0,8.129,3.642,8.129,8.129
+						v79.156l91.39,91.398c2.325,2.325,3.024,5.828,1.764,8.868c-1.26,3.032-4.227,5.007-7.511,5.007c-0.008,0-0.008,0-0.016,0
+						l-56.64-0.114v150.98C359.32,398.29,355.686,401.923,351.191,401.923z M81.03,385.666h262.033V234.67
+						c0-2.162,0.854-4.235,2.39-5.755c1.528-1.52,3.585-2.374,5.739-2.374c0.008,0,0.008,0,0.016,0l45.105,0.089l-79.855-79.863
+						c-1.528-1.528-2.382-3.593-2.382-5.747V66.628h-31.498v26.645c0,3.284-1.975,6.251-5.015,7.511
+						c-3.032,1.268-6.527,0.569-8.86-1.764l-57.038-57.038l-183.95,183.95l45.203,0.089c4.487,0.008,8.112,3.642,8.112,8.129
+						C81.03,234.149,81.03,385.666,81.03,385.666z"/>
+				</g>
+			</svg>
+		</span>
+		<span class="pwa-nav__label">Home</span>
+	</button>
+	<button type="button" class="pwa-nav__btn" data-tab="mybody">
+		<span class="pwa-nav__icon" aria-hidden="true">
+			<!-- Swapped: now using former Interests star icon for MyABS -->
+			<svg viewBox="0 0 24 24" width="20" height="20" role="img" aria-label="MyABS" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<path d="m12 3 2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 16.8 6.8 19.3l1-5.9L3.5 9.2l5.9-.9L12 3Z" />
+			</svg>
+		</span>
+		<span class="pwa-nav__label">My Body</span>
+	</button>
+	<button type="button" class="pwa-nav__btn" data-tab="scan">
+		<span class="pwa-nav__icon" aria-hidden="true">
+			<!-- QR Code icon for Scan -->
+			<svg viewBox="0 0 24 24" width="20" height="20" role="img" aria-label="Scan" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+				<rect x="1" y="1" width="7" height="7" />
+				<rect x="2" y="2" width="5" height="5" fill="#fff" />
+				<rect x="3" y="3" width="3" height="3" />
+				<rect x="16" y="1" width="7" height="7" />
+				<rect x="17" y="2" width="5" height="5" fill="#fff" />
+				<rect x="18" y="3" width="3" height="3" />
+				<rect x="1" y="16" width="7" height="7" />
+				<rect x="2" y="17" width="5" height="5" fill="#fff" />
+				<rect x="3" y="18" width="3" height="3" />
+				<rect x="9" y="1" width="1" height="1" />
+				<rect x="11" y="1" width="1" height="1" />
+				<rect x="13" y="1" width="1" height="1" />
+				<rect x="15" y="1" width="1" height="1" />
+				<rect x="1" y="9" width="1" height="1" />
+				<rect x="1" y="11" width="1" height="1" />
+				<rect x="1" y="13" width="1" height="1" />
+				<rect x="1" y="15" width="1" height="1" />
+				<rect x="9" y="3" width="1" height="1" />
+				<rect x="10" y="3" width="1" height="1" />
+				<rect x="12" y="3" width="1" height="1" />
+				<rect x="14" y="3" width="1" height="1" />
+				<rect x="15" y="3" width="1" height="1" />
+				<rect x="9" y="4" width="1" height="1" />
+				<rect x="11" y="4" width="1" height="1" />
+				<rect x="13" y="4" width="1" height="1" />
+				<rect x="15" y="4" width="1" height="1" />
+				<rect x="10" y="5" width="1" height="1" />
+				<rect x="11" y="5" width="1" height="1" />
+				<rect x="12" y="5" width="1" height="1" />
+				<rect x="14" y="5" width="1" height="1" />
+				<rect x="9" y="6" width="1" height="1" />
+				<rect x="12" y="6" width="1" height="1" />
+				<rect x="13" y="6" width="1" height="1" />
+				<rect x="15" y="6" width="1" height="1" />
+				<rect x="9" y="7" width="1" height="1" />
+				<rect x="10" y="7" width="1" height="1" />
+				<rect x="11" y="7" width="1" height="1" />
+				<rect x="14" y="7" width="1" height="1" />
+				<rect x="15" y="7" width="1" height="1" />
+				<rect x="3" y="9" width="1" height="1" />
+				<rect x="4" y="9" width="1" height="1" />
+				<rect x="6" y="9" width="1" height="1" />
+				<rect x="7" y="9" width="1" height="1" />
+				<rect x="3" y="10" width="1" height="1" />
+				<rect x="5" y="10" width="1" height="1" />
+				<rect x="6" y="10" width="1" height="1" />
+				<rect x="4" y="11" width="1" height="1" />
+				<rect x="5" y="11" width="1" height="1" />
+				<rect x="7" y="11" width="1" height="1" />
+				<rect x="3" y="12" width="1" height="1" />
+				<rect x="6" y="12" width="1" height="1" />
+				<rect x="7" y="12" width="1" height="1" />
+				<rect x="4" y="13" width="1" height="1" />
+				<rect x="5" y="13" width="1" height="1" />
+				<rect x="6" y="13" width="1" height="1" />
+				<rect x="3" y="14" width="1" height="1" />
+				<rect x="5" y="14" width="1" height="1" />
+				<rect x="7" y="14" width="1" height="1" />
+				<rect x="4" y="15" width="1" height="1" />
+				<rect x="6" y="15" width="1" height="1" />
+				<rect x="7" y="15" width="1" height="1" />
+				<rect x="9" y="9" width="1" height="1" />
+				<rect x="11" y="9" width="1" height="1" />
+				<rect x="12" y="9" width="1" height="1" />
+				<rect x="14" y="9" width="1" height="1" />
+				<rect x="15" y="9" width="1" height="1" />
+				<rect x="10" y="10" width="1" height="1" />
+				<rect x="11" y="10" width="1" height="1" />
+				<rect x="13" y="10" width="1" height="1" />
+				<rect x="15" y="10" width="1" height="1" />
+				<rect x="9" y="11" width="1" height="1" />
+				<rect x="12" y="11" width="1" height="1" />
+				<rect x="13" y="11" width="1" height="1" />
+				<rect x="14" y="11" width="1" height="1" />
+				<rect x="10" y="12" width="1" height="1" />
+				<rect x="11" y="12" width="1" height="1" />
+				<rect x="12" y="12" width="1" height="1" />
+				<rect x="15" y="12" width="1" height="1" />
+				<rect x="9" y="13" width="1" height="1" />
+				<rect x="10" y="13" width="1" height="1" />
+				<rect x="13" y="13" width="1" height="1" />
+				<rect x="14" y="13" width="1" height="1" />
+				<rect x="11" y="14" width="1" height="1" />
+				<rect x="12" y="14" width="1" height="1" />
+				<rect x="13" y="14" width="1" height="1" />
+				<rect x="15" y="14" width="1" height="1" />
+				<rect x="9" y="15" width="1" height="1" />
+				<rect x="10" y="15" width="1" height="1" />
+				<rect x="14" y="15" width="1" height="1" />
+				<rect x="15" y="15" width="1" height="1" />
+				<rect x="9" y="17" width="1" height="1" />
+				<rect x="10" y="17" width="1" height="1" />
+				<rect x="12" y="17" width="1" height="1" />
+				<rect x="14" y="17" width="1" height="1" />
+				<rect x="15" y="17" width="1" height="1" />
+				<rect x="9" y="18" width="1" height="1" />
+				<rect x="11" y="18" width="1" height="1" />
+				<rect x="13" y="18" width="1" height="1" />
+				<rect x="15" y="18" width="1" height="1" />
+				<rect x="10" y="19" width="1" height="1" />
+				<rect x="12" y="19" width="1" height="1" />
+				<rect x="13" y="19" width="1" height="1" />
+				<rect x="14" y="19" width="1" height="1" />
+				<rect x="9" y="20" width="1" height="1" />
+				<rect x="11" y="20" width="1" height="1" />
+				<rect x="12" y="20" width="1" height="1" />
+				<rect x="15" y="20" width="1" height="1" />
+				<rect x="10" y="21" width="1" height="1" />
+				<rect x="11" y="21" width="1" height="1" />
+				<rect x="13" y="21" width="1" height="1" />
+				<rect x="14" y="21" width="1" height="1" />
+				<rect x="15" y="21" width="1" height="1" />
+				<rect x="9" y="22" width="1" height="1" />
+				<rect x="12" y="22" width="1" height="1" />
+				<rect x="13" y="22" width="1" height="1" />
+				<rect x="15" y="22" width="1" height="1" />
+				<rect x="16" y="9" width="1" height="1" />
+				<rect x="17" y="9" width="1" height="1" />
+				<rect x="18" y="9" width="1" height="1" />
+				<rect x="20" y="9" width="1" height="1" />
+				<rect x="21" y="9" width="1" height="1" />
+				<rect x="22" y="9" width="1" height="1" />
+				<rect x="16" y="10" width="1" height="1" />
+				<rect x="18" y="10" width="1" height="1" />
+				<rect x="19" y="10" width="1" height="1" />
+				<rect x="21" y="10" width="1" height="1" />
+				<rect x="22" y="10" width="1" height="1" />
+				<rect x="17" y="11" width="1" height="1" />
+				<rect x="18" y="11" width="1" height="1" />
+				<rect x="20" y="11" width="1" height="1" />
+				<rect x="22" y="11" width="1" height="1" />
+				<rect x="16" y="12" width="1" height="1" />
+				<rect x="17" y="12" width="1" height="1" />
+				<rect x="19" y="12" width="1" height="1" />
+				<rect x="21" y="12" width="1" height="1" />
+				<rect x="18" y="13" width="1" height="1" />
+				<rect x="19" y="13" width="1" height="1" />
+				<rect x="20" y="13" width="1" height="1" />
+				<rect x="22" y="13" width="1" height="1" />
+				<rect x="16" y="14" width="1" height="1" />
+				<rect x="17" y="14" width="1" height="1" />
+				<rect x="18" y="14" width="1" height="1" />
+				<rect x="20" y="14" width="1" height="1" />
+				<rect x="21" y="14" width="1" height="1" />
+				<rect x="17" y="15" width="1" height="1" />
+				<rect x="19" y="15" width="1" height="1" />
+				<rect x="20" y="15" width="1" height="1" />
+				<rect x="22" y="15" width="1" height="1" />
+				<rect x="16" y="17" width="1" height="1" />
+				<rect x="17" y="17" width="1" height="1" />
+				<rect x="19" y="17" width="1" height="1" />
+				<rect x="21" y="17" width="1" height="1" />
+				<rect x="22" y="17" width="1" height="1" />
+				<rect x="16" y="18" width="1" height="1" />
+				<rect x="18" y="18" width="1" height="1" />
+				<rect x="20" y="18" width="1" height="1" />
+				<rect x="22" y="18" width="1" height="1" />
+				<rect x="17" y="19" width="1" height="1" />
+				<rect x="19" y="19" width="1" height="1" />
+				<rect x="21" y="19" width="1" height="1" />
+				<rect x="22" y="19" width="1" height="1" />
+				<rect x="16" y="20" width="1" height="1" />
+				<rect x="18" y="20" width="1" height="1" />
+				<rect x="19" y="20" width="1" height="1" />
+				<rect x="20" y="20" width="1" height="1" />
+				<rect x="17" y="21" width="1" height="1" />
+				<rect x="18" y="21" width="1" height="1" />
+				<rect x="19" y="21" width="1" height="1" />
+				<rect x="21" y="21" width="1" height="1" />
+				<rect x="16" y="22" width="1" height="1" />
+				<rect x="17" y="22" width="1" height="1" />
+				<rect x="20" y="22" width="1" height="1" />
+				<rect x="21" y="22" width="1" height="1" />
+				<rect x="22" y="22" width="1" height="1" />
+			</svg>
+		</span>
+		<span class="pwa-nav__label">Scan</span>
+	</button>
+	<button type="button" class="pwa-nav__btn" data-tab="listen">
+		<span class="pwa-nav__icon" aria-hidden="true">
+			<svg viewBox="0 0 24 24" width="20" height="20" role="img" aria-label="Listen" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M4 12a8 8 0 0 1 16 0v5a2 2 0 0 1-2 2h-1" />
+				<path d="M4 12v5a2 2 0 0 0 2 2h1" />
+				<circle cx="8" cy="17" r="1" />
+				<circle cx="16" cy="17" r="1" />
+			</svg>
+		</span>
+		<span class="pwa-nav__label">Media</span>
+	</button>
+	<button type="button" class="pwa-nav__btn" data-tab="rewards">
+		<span class="pwa-nav__icon" aria-hidden="true">
+			<img src="./icons/Boxicon.png" alt="Rewards" width="24" height="24" style="display:block; filter: brightness(0);" />
+		</span>
+		<span class="pwa-nav__label" style="color:black;">Rewards</span>
+	</button>
+</nav>
+<!-- END: PWA Bottom Navigation -->
+<!-- SCAN QR MODAL (Option 1 MVP) -->
+<div id="scan-modal" class="scan-modal" hidden>
+	<div class="scan-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="scan-modal-title">
+		<button type="button" class="scan-modal__close" aria-label="Close Scan" data-scan-close>&times;</button>
+		<h3 id="scan-modal-title">Account QR Code</h3>
+		<p class="scan-modal__hint">Show this code to verify and earn points.</p>
+		<div class="scan-modal__qr-wrap">
+			<img id="scan-qr" alt="Account QR code" decoding="async" />
+		</div>
+		<p class="scan-modal__id" id="scan-identifier"></p>
+	</div>
+</div>
+<!-- END: SCAN QR MODAL -->
+<!-- HISTORY MODAL -->
+<div id="history-modal">
+	<div id="history-content">
+		<div class="modal-header">
+			<h3>Workout History</h3>
+			<button class="btn-action close-btn" id="history-close-btn">Close</button>
+		</div>
+		<div class="table-container">
+			<table class="history-table">
+				<thead>
+					<tr>
+						<th>Date</th>
+						<th class="weight-col">Weight</th>
+						<th class="completed-col">Completed</th>
+						<th>Exercise Details</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody id="history-table"></tbody>
+			</table>
+		</div>
+	</div>
+</div>
+<!-- SUMMARY MODAL -->
+<div id="summary-modal">
+	<div id="summary-content">
+		<div class="modal-header">
+			<h3>Progress Summary</h3>
+			<button class="btn-action close-btn" id="summary-close-btn">Close</button>
+		</div>
+		<div class="table-container">
+			<table class="summary-table">
+				<thead>
+					<tr>
+						<th>Week Of</th>
+						<th>Avg Weight</th>
+						<th>Bike</th>
+						<th>Abs</th>
+						<th>Chest Press</th>
+						<th>Leg Press</th>
+						<th>Lat</th>
+						<th>Military</th>
+						<th>Crunch</th>
+						<th>Bicep Curls</th>
+						<th>Triceps</th>
+						<th>Overhead Pull</th>
+						<th>Row</th>
+						<th>Total Sets</th>
+					</tr>
+				</thead>
+				<tbody id="summary-table"></tbody>
+			</table>
+		</div>
+	</div>
+</div>
+<!-- HISTORY EDIT MODAL -->
+<div id="history-edit-modal" style="display:none;">
+	<div id="history-edit-content">
+		<div class="modal-header">
+			<h3>Edit Entry</h3>
+			<button class="btn-action close-btn" id="history-edit-close-btn" type="button">Close</button>
+		</div>
+		<form id="history-edit-form">
+			<div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px;align-items:flex-end;">
+				<div style="flex:1;min-width:140px;">
+					<label style="font-size:12px;color:#555;">Date</label>
+					<input id="edit-date" type="text" readonly style="width:100%;padding:8px 10px;border:1px solid #ccc;border-radius:8px;background:#f7f7f7;">
+				</div>
+				<div style="flex:1;min-width:140px;">
+					<label style="font-size:12px;color:#555;">Weight</label>
+					<input id="edit-weight" type="number" step="0.1" style="width:100%;padding:8px 10px;border:1px solid #ccc;border-radius:8px;">
+				</div>
+			</div>
+			<div id="edit-exercises" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px;"></div>
+			<div style="display:flex;gap:12px;justify-content:flex-end;">
+				<button type="button" id="edit-cancel" class="btn-action" style="background:#777;">Cancel</button>
+				<button type="submit" id="edit-save" class="btn-action">Save Changes</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<!-- END: No inline scripts. All logic in app-inline.js -->
+</body>
+</html>

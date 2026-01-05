@@ -10,7 +10,7 @@ import { Input } from '../../components/ui/Input';
 import { DateSelector } from '../../components/ui/DateSelector';
 import { DatePicker } from '../../components/ui/DatePicker';
 import { WorkoutCard } from '../../components/dashboard/WorkoutCard';
-import { PWANav } from '../../components/layout/PWANav';
+import { BottomNav } from '../../components/layout/BottomNav';
 import { HistoryModal } from '../../components/modals/HistoryModal';
 import { SummaryModal } from '../../components/modals/SummaryModal';
 import { ScanModal } from '../../components/modals/ScanModal';
@@ -294,8 +294,8 @@ export default function Dashboard() {
         )}
       </ScrollView>
 
-      {/* PWA Navigation */}
-      <PWANav activeTab={activeTab} onNavigate={handleNavigate} />
+      {/* Bottom Navigation */}
+      <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />
 
       {/* Modals */}
       <HistoryModal

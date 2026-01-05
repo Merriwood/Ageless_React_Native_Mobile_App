@@ -10,12 +10,28 @@ interface NavItem {
   onPress?: () => void;
 }
 
-interface PWANavProps {
+interface BottomNavProps {
   onNavigate?: (tab: string) => void;
   activeTab?: string;
 }
 
-export function PWANav({ onNavigate, activeTab = 'home' }: PWANavProps) {
+/**
+ * BottomNav Component
+ *
+ * A React Native bottom tab navigation component with 5 main navigation items:
+ * - Home: Dashboard/main view
+ * - My ABS: Body tracking drawer
+ * - Scan: QR code scan modal
+ * - Listen: External link to Sirius XM
+ * - Rewards: Rewards section
+ *
+ * Features:
+ * - Active state styling (scale + color change)
+ * - Icon animation on active (scale 1.08)
+ * - Safe area inset handling for notched devices
+ * - External link support
+ */
+export function BottomNav({ onNavigate, activeTab = 'home' }: BottomNavProps) {
   const [active, setActive] = useState(activeTab);
   const insets = useSafeAreaInsets();
 

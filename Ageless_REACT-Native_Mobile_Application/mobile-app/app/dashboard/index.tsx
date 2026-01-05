@@ -8,7 +8,13 @@ import { theme } from '../../theme';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { DateSelector } from '../../components/ui/DateSelector';
+import { DatePicker } from '../../components/ui/DatePicker';
 import { WorkoutCard } from '../../components/dashboard/WorkoutCard';
+import { PWANav } from '../../components/layout/PWANav';
+import { HistoryModal } from '../../components/modals/HistoryModal';
+import { SummaryModal } from '../../components/modals/SummaryModal';
+import { ScanModal } from '../../components/modals/ScanModal';
+import { MyABSDrawer } from '../../components/layout/MyABSDrawer';
 import { EXERCISES } from '../../lib/constants/exercises';
 import { useOfflineQueue } from '../../hooks/useOfflineQueue';
 import { getTodayDate } from '../../lib/utils';
@@ -19,7 +25,14 @@ export default function Dashboard() {
   const [exercises, setExercises] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [lastPayload, setLastPayload] = useState<string>('');
-  
+  const [activeTab, setActiveTab] = useState('home');
+
+  // Modal states
+  const [historyModalVisible, setHistoryModalVisible] = useState(false);
+  const [summaryModalVisible, setSummaryModalVisible] = useState(false);
+  const [scanModalVisible, setScanModalVisible] = useState(false);
+  const [myAbsDrawerVisible, setMyAbsDrawerVisible] = useState(false);
+
   const { enqueue, getQueue } = useOfflineQueue();
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -136,6 +149,28 @@ export default function Dashboard() {
     }));
   };
 
+  const handleNavigate = (tab: string) => {
+    setActiveTab(tab);
+    switch (tab) {
+      case 'myabs':
+        setMyAbsDrawerVisible(true);
+        break;
+      case 'scan':
+        setScanModalVisible(true);
+        break;
+      case 'listen':
+        // PWANav handles external link
+        break;
+      case 'rewards':
+        // Navigate to rewards screen
+        break;
+      case 'home':
+      default:
+        // Already on home
+        break;
+    }
+  };
+
   const styles = StyleSheet.create({
     safeArea: {
       flex: 1,
@@ -159,6 +194,7 @@ export default function Dashboard() {
       flex: 1,
       paddingHorizontal: theme.spacing.lg,
       paddingTop: theme.spacing.lg,
+      paddingBottom: theme.spacing.lg,
     },
     loadingContainer: {
       marginTop: theme.spacing.xl,
@@ -167,21 +203,33 @@ export default function Dashboard() {
       gap: theme.spacing.lg,
       paddingBottom: theme.spacing.xl,
     },
+    quickButton: {
+      paddingVertical: theme.spacing.md,
+      paddingHorizontal: theme.spacing.lg,
+      backgroundColor: theme.colors.primary,
+      borderRadius: theme.radius.md,
+      alignItems: 'center',
+    },
+    quickButtonText: {
+      fontSize: theme.typography.button.fontSize,
+      fontWeight: theme.typography.button.fontWeight,
+      color: theme.colors.text.onPrimary,
+    },
   });
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <Stack.Screen options={{ headerShown: false }} />
-      
+
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Dashboard</Text>
-        <TouchableOpacity onPress={() => router.push('/history')} style={{ padding: theme.spacing.base }}>
-          <Ionicons name="time-outline" size={24} color={theme.colors.text.primary} />
+        <TouchableOpacity onPress={() => setSummaryModalVisible(true)} style={{ padding: theme.spacing.base }}>
+          <Ionicons name="stats-chart-outline" size={24} color={theme.colors.text.primary} />
         </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.scrollView}>
-        <DateSelector date={selectedDate} onDateChange={setSelectedDate} />
+        <DatePicker selectedDate={selectedDate} onDateChange={setSelectedDate} />
 
         {loading ? (
           <View style={styles.loadingContainer}>
@@ -226,9 +274,46 @@ export default function Dashboard() {
                 ))}
               </CardContent>
             </Card>
+
+            {/* Quick Action Buttons */}
+            <View style={{ flexDirection: 'row', gap: theme.spacing.base }}>
+              <TouchableOpacity
+                style={[styles.quickButton, { flex: 1 }]}
+                onPress={() => setHistoryModalVisible(true)}
+              >
+                <Text style={styles.quickButtonText}>History</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.quickButton, { flex: 1 }]}
+                onPress={() => setMyAbsDrawerVisible(true)}
+              >
+                <Text style={styles.quickButtonText}>My ABS</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       </ScrollView>
+
+      {/* PWA Navigation */}
+      <PWANav activeTab={activeTab} onNavigate={handleNavigate} />
+
+      {/* Modals */}
+      <HistoryModal
+        isVisible={historyModalVisible}
+        onClose={() => setHistoryModalVisible(false)}
+      />
+      <SummaryModal
+        isVisible={summaryModalVisible}
+        onClose={() => setSummaryModalVisible(false)}
+      />
+      <ScanModal
+        isVisible={scanModalVisible}
+        onClose={() => setScanModalVisible(false)}
+      />
+      <MyABSDrawer
+        isVisible={myAbsDrawerVisible}
+        onClose={() => setMyAbsDrawerVisible(false)}
+      />
     </SafeAreaView>
   );
 }

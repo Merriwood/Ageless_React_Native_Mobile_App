@@ -3,13 +3,17 @@
 DESIGN AUDIT REPORT
 ═══════════════════════════════════════════════════════════════
 
-Files Scanned: 10
-Overall Score: 94.0/100
-Timestamp: 1/5/2026, 1:32:56 PM
+Files Scanned: 14
+Overall Score: 91.8/100
+Timestamp: 1/5/2026, 2:04:15 PM
 
+components\modals\ScanModal.tsx: 75/100 (error)
 components\dev\DesignAuditScreen.tsx: 75/100 (error)
 components\ui\Button.tsx: 85/100 (warning)
+components\ui\DatePicker.tsx: 90/100 (warning)
 components\ui\Input.tsx: 90/100 (warning)
+components\modals\HistoryModal.tsx: 90/100 (warning)
+components\modals\SummaryModal.tsx: 90/100 (warning)
 components\dashboard\WorkoutCard.tsx: 95/100 (compliant)
 app\history\index.tsx: 95/100 (compliant)
 components\ui\Card.tsx: 100/100 (compliant)

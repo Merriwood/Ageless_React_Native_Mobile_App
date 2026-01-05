@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Alert, ActivityIndicator, TouchableOpacity, Sty
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { theme } from '../../theme';
 
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
@@ -138,34 +139,33 @@ export default function Dashboard() {
   const styles = StyleSheet.create({
     safeArea: {
       flex: 1,
-      backgroundColor: '#f9fafb',
+      backgroundColor: theme.colors.background,
     },
     header: {
-      paddingHorizontal: 16,
-      paddingVertical: 16,
+      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.spacing.lg,
       borderBottomWidth: 1,
-      borderBottomColor: '#e5e7eb',
-      backgroundColor: '#ffffff',
+      borderBottomColor: theme.colors.border.light,
+      backgroundColor: theme.colors.surface,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
     },
     headerTitle: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      color: '#1f2937',
+      ...theme.typography.h1,
+      color: theme.colors.text.primary,
     },
     scrollView: {
       flex: 1,
-      paddingHorizontal: 16,
-      paddingTop: 16,
+      paddingHorizontal: theme.spacing.lg,
+      paddingTop: theme.spacing.lg,
     },
     loadingContainer: {
-      marginTop: 40,
+      marginTop: theme.spacing.xl,
     },
     contentContainer: {
-      gap: 16,
-      paddingBottom: 40,
+      gap: theme.spacing.lg,
+      paddingBottom: theme.spacing.xl,
     },
   });
 
@@ -175,8 +175,8 @@ export default function Dashboard() {
       
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Dashboard</Text>
-        <TouchableOpacity onPress={() => router.push('/history')} style={{ padding: 8 }}>
-          <Ionicons name="time-outline" size={24} color="#0f172a" />
+        <TouchableOpacity onPress={() => router.push('/history')} style={{ padding: theme.spacing.base }}>
+          <Ionicons name="time-outline" size={24} color={theme.colors.text.primary} />
         </TouchableOpacity>
       </View>
 
@@ -185,26 +185,26 @@ export default function Dashboard() {
 
         {loading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#0000ff" />
+            <ActivityIndicator size="large" color={theme.colors.primary} />
           </View>
         ) : (
           <View style={styles.contentContainer}>
             {/* Weight Card */}
             <Card>
-              <CardHeader style={{ paddingBottom: 8 }}>
+              <CardHeader style={{ paddingBottom: theme.spacing.xs }}>
                 <CardTitle>Daily Check-in</CardTitle>
               </CardHeader>
               <CardContent>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Text style={{ fontSize: 16, fontWeight: '500', color: '#374151' }}>Body Weight</Text>
-                  <View style={{ width: 96, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <Text style={{ ...theme.typography.body, color: theme.colors.text.primary }}>Body Weight</Text>
+                  <View style={{ width: 96, flexDirection: 'row', alignItems: 'center', gap: theme.spacing.base }}>
                     <Input
                       keyboardType="numeric"
                       placeholder="lbs"
                       value={weight}
                       onChangeText={setWeight}
                     />
-                    <Text style={{ color: '#a1aeb8', fontSize: 12 }}>lbs</Text>
+                    <Text style={{ color: theme.colors.text.secondary, ...theme.typography.bodySmall }}>lbs</Text>
                   </View>
                 </View>
               </CardContent>
@@ -212,7 +212,7 @@ export default function Dashboard() {
 
             {/* Workout Card */}
             <Card>
-              <CardHeader style={{ paddingBottom: 8 }}>
+              <CardHeader style={{ paddingBottom: theme.spacing.xs }}>
                 <CardTitle>Today's Workout</CardTitle>
               </CardHeader>
               <CardContent>

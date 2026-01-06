@@ -301,10 +301,10 @@ export function createLogEntry(
 
 /**
  * Log error safely (no sensitive data)
- * In dev: console, in prod: Sentry/Firebase
+ * In dev: console, in prod: Sentry
  */
-export function logError(error: MappedError, context?: string): void {
-  const logEntry = createLogEntry(error, context);
+export function logError(error: MappedError, context?: string, userId?: string): void {
+  const logEntry = createLogEntry(error, context, userId);
 
   // In development, log to console
   if (__DEV__) {
@@ -312,9 +312,28 @@ export function logError(error: MappedError, context?: string): void {
     return;
   }
 
-  // In production, send to error tracking service (Sentry, Firebase)
-  // This would be implemented when setting up Sentry
-  // Sentry.captureException(error, { contexts: { error: logEntry } });
+  // In production, send to Sentry
+  try {
+    const { captureSentryError } = require('../lib/sentry');
+    if (captureSentryError) {
+      captureSentryError(new Error(error.message), {
+        level: error.severity as any,
+        tags: {
+          errorCode: error.code,
+          context: context || 'unknown',
+        },
+        extra: {
+          requestId: error.requestId,
+          details: error.details,
+        },
+      });
+    }
+  } catch (sentryErr) {
+    // Silently fail if Sentry not configured
+    if (__DEV__) {
+      console.warn('[logError] Sentry integration failed:', sentryErr);
+    }
+  }
 }
 
 // ============================================================================

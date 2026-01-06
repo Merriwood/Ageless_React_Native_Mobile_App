@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosError, AxiosResponse } from "axios";
 import * as SecureStore from "expo-secure-store";
+import { mapError, logError, DEFAULT_RETRY_STRATEGY } from "../utils/errorHandler";
 
 /**
  * Environment-based API configuration
@@ -21,6 +22,13 @@ const getBaseURL = (): string => {
 
   // Could use other environment variables or config
   return API_CONFIG.production;
+};
+
+/**
+ * Create unique request ID for tracking
+ */
+const createRequestId = (): string => {
+  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 };
 
 /**
@@ -56,9 +64,8 @@ apiClient.interceptors.request.use(
         config.headers.Authorization = `Bearer ${token}`;
       }
 
-      // Add Request ID for debugging (optional)
-      config.headers["X-Request-ID"] =
-        `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      // Add Request ID for debugging
+      config.headers["X-Request-ID"] = createRequestId();
 
       return config;
     } catch (error) {
@@ -74,68 +81,68 @@ apiClient.interceptors.request.use(
 
 /**
  * Response interceptor
- * Handles errors and retry logic
+ * Validates responses, handles errors, and implements retry logic
  */
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const config = error.config as any;
+    const requestId = config?.headers?.["X-Request-ID"];
 
-    // Handle 401 Unauthorized
-    if (error.response?.status === 401) {
-      // Clear token and user data (force logout)
+    // Map error to user-friendly message
+    const mappedError = mapError(error);
+
+    // Log error safely (no sensitive data)
+    logError(mappedError, `API Request failed: ${config?.method?.toUpperCase()} ${config?.url}`);
+
+    // Handle 401 Unauthorized (clear token and force logout)
+    if (mappedError.code === "UNAUTHORIZED") {
       try {
         await SecureStore.deleteItemAsync("auth_token");
       } catch (err) {
         console.error("[API Client] Failed to clear token on 401:", err);
       }
 
-      // Redirect to login would be handled by app-level routing
-      // Return error with special flag
-      const unauthorizedError = new Error("Unauthorized");
-      (unauthorizedError as any).code = "UNAUTHORIZED";
-      return Promise.reject(unauthorizedError);
+      // Return mapped error (app routing handles redirect to login)
+      return Promise.reject(mappedError);
     }
 
-    // Handle 5xx errors with exponential backoff retry
-    if (error.response?.status && error.response.status >= 500) {
-      // Check retry count
+    // Handle retryable errors with exponential backoff
+    if (mappedError.retryable && mappedError.code !== "UNAUTHORIZED") {
       config.retryCount = config.retryCount || 0;
 
-      if (config.retryCount < 3) {
+      // Use retry strategy
+      const shouldRetry = DEFAULT_RETRY_STRATEGY.shouldRetry(mappedError, config.retryCount);
+
+      if (shouldRetry) {
         config.retryCount += 1;
 
-        // Exponential backoff: 1s, 2s, 4s
+        // Calculate exponential backoff delay
         const delayMs = Math.pow(2, config.retryCount - 1) * 1000;
+        const cappedDelay = Math.min(delayMs, 30000);
 
-        console.warn(
-          `[API Client] Retrying request (attempt ${config.retryCount}/3) after ${delayMs}ms`
-        );
+        if (__DEV__) {
+          console.warn(
+            `[API Client] Retrying ${config.method?.toUpperCase()} ${config.url} ` +
+              `(attempt ${config.retryCount}/${DEFAULT_RETRY_STRATEGY.maxAttempts}) ` +
+              `after ${cappedDelay}ms`
+          );
+        }
 
         return new Promise((resolve) => {
           setTimeout(() => {
             resolve(apiClient(config));
-          }, delayMs);
+          }, cappedDelay);
         });
       }
     }
 
-    // Network timeout errors
-    if (error.code === "ECONNABORTED") {
-      const timeoutError = new Error("Request timeout - server not responding");
-      (timeoutError as any).code = "TIMEOUT";
-      return Promise.reject(timeoutError);
-    }
-
-    // Network errors (no internet, etc.)
-    if (error.message === "Network Error" || !error.response) {
-      const networkError = new Error("Network error - please check your connection");
-      (networkError as any).code = "NETWORK_ERROR";
-      return Promise.reject(networkError);
-    }
-
-    // Default error
-    return Promise.reject(error);
+    // Return mapped error with all context
+    return Promise.reject({
+      ...mappedError,
+      originalError: error,
+      requestId,
+    });
   }
 );
 

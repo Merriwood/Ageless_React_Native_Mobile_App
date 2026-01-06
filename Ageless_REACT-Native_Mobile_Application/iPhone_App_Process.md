@@ -27,13 +27,13 @@ This document outlines the complete roadmap for converting the current Next.js w
 
 | Phase | Title | Duration | Status | Start | End | Critical Blockers |
 |-------|-------|----------|--------|-------|-----|-------------------|
-| **Phase 1** | Technical Migration (UI/UX/Nav) | 8-12 days | ✅ 71% COMPLETE | Jan 4 | Jan 12 | None - UI/Nav done, Auth deferred |
-| **Phase 2** | App Logic & Backend Integration | 10-15 days | ❌ 0% NOT STARTED | Jan 13 | Jan 28 | ⚠️ Backend endpoints, JWT config |
-| **Phase 3** | Security, Testing & QA | 7-10 days | ❌ 0% NOT STARTED | Jan 29 | Feb 7 | Depends on Phase 2 complete |
-| **Phase 4** | App Store Compliance & Submission | 5-7 days + review | ❌ 0% NOT STARTED | Feb 8 | Feb 21 | Depends on Phase 3 complete |
-| **TOTAL** | Production Launch | **30-44 days** | **71% UI/UX DONE** | Jan 4 | Feb 21 | Backend integration BLOCKING |
+| **Phase 1** | Technical Migration (UI/UX/Nav/Auth) | 10-15 days | ⏳ 71% COMPLETE | Jan 4 | Jan 18 | Auth implementation 0%, backend JWT config needed |
+| **Phase 2** | App Logic & Backend Integration | 8-12 days | ❌ 0% NOT STARTED | Jan 19 | Jan 31 | ⚠️ Backend endpoints, API integration |
+| **Phase 3** | Security, Testing & QA | 7-10 days | ❌ 0% NOT STARTED | Feb 1 | Feb 10 | Depends on Phase 2 complete |
+| **Phase 4** | App Store Compliance & Submission | 5-7 days + review | ❌ 0% NOT STARTED | Feb 11 | Feb 24 | Depends on Phase 3 complete |
+| **TOTAL** | Production Launch | **30-44 days** | **Phase 1 Auth MOVED FROM PHASE 2** | Jan 4 | Feb 24 | Auth is now CRITICAL to Phase 1 |
 
-**Current Status**: Phase 1 UI/UX work 95% complete; all other phases blocked pending backend integration decision
+**Current Status**: Phase 1 UI/UX work 95% complete; Authentication (4-5 days) now included in Phase 1 per user request. This extends Phase 1 to Jan 18. Phase 2 timeline adjusted accordingly.
 
 ---
 
@@ -60,149 +60,247 @@ This document outlines the complete roadmap for converting the current Next.js w
 *   **The Task:** Refactor `useOfflineQueue` to use **AsyncStorage** or **Expo SQLite**.
 *   **Preserving Logic:** The logic (queueing, syncing, retrying) remains exactly the same. Only the specific line of code that saves to disk changes.
 
-### 4. Authentication & Security
-**Estimated Time to Completion:** 2-3 Days
+### 4. Authentication & Security (MOVED FROM PHASE 2)
+**Estimated Time to Completion:** 4-5 Days (32-40 hours)
+**Status**: ⏳ DEFERRED FROM PHASE 2, NOW PART OF PHASE 1
+**Priority**: 🔴 CRITICAL - Blocks all user-facing features
 
-*   **Context:** Cookies (which NextAuth uses by default) are tricky in mobile apps.
+*   **Context:** Cookies (which NextAuth uses by default) are tricky in mobile apps. App currently boots directly to dashboard without authentication.
 *   **The Task:**
     *   **Server:** Keep the existing NextAuth setup but ensure it can issue **JWTs (JSON Web Tokens)** to the mobile app.
     *   **Mobile:** Store the user's session token in **Expo SecureStore** (encrypted storage on the device) instead of a browser cookie.
-    *   **Face ID:** Replace the "simulated" Face ID animation with **Real Face ID** integration using the `expo-local-authentication` library.
+    *   **Face ID:** Implement **Real Face ID** integration using the `expo-local-authentication` library (already have FaceIDIcon component 95% complete).
 
----
+#### 4.1 Frontend: Authentication Screens
 
-## Phase 2: Application Logic & Backend Integration
-
-**Duration**: 10-15 days | **Priority**: 🔴 CRITICAL PATH
-**Estimated Effort**: 80-120 hours | **Team**: 1-2 developers
-
-### Overview
-Phase 2 focuses on implementing the complete application logic layer, including authentication, API integration, state management, and backend synchronization. This phase is **blocking all subsequent phases** and must be completed before Phase 3 can begin.
-
-### 2.1 Authentication Implementation
-**Estimated Time**: 4-5 days (32-40 hours)
-**Status**: ❌ 0% (DEFERRED FROM PHASE 1)
-
-#### What Needs to Be Built
-
-**Frontend: Login/Register Screens**
+**Create Login Screen** - `app/(auth)/login.tsx`
 ```
 Tasks:
-- [ ] Create (auth)/login.tsx screen with email/password form
-- [ ] Create (auth)/register.tsx screen with goals selection
-- [ ] Implement email validation (RFC 5322 format)
-- [ ] Implement password strength validation (min 8 chars, uppercase, number, special char)
-- [ ] Add "Show Password" toggle UI
-- [ ] Add Face ID biometric prompt on login screen
-- [ ] Implement form error handling and user feedback (toast notifications)
-- [ ] Create layout component for centered 375px auth card
-- [ ] Add loading states (disable buttons, show spinners during auth)
-- [ ] Implement "Forgot Password" flow (email reset link)
+- [ ] Create new auth directory: app/(auth)/
+- [ ] Create login.tsx with email/password form
+- [ ] Layout: centered 375px card
+- [ ] Email input field with validation feedback
+- [ ] Password input with "Show Password" toggle
+- [ ] "Login" button (red, 44px height)
+- [ ] "Sign Up" link (navigate to register)
+- [ ] "Forgot Password?" link (email reset flow)
+- [ ] Loading state (disable button, show spinner)
+- [ ] Error messages (red text below inputs)
+- [ ] Face ID prompt (if available, after login)
+- [ ] Toast notifications (success, error)
+- [ ] Safe area padding (top/bottom)
 ```
 
-**Frontend: SecureStore Integration**
+**Create Registration Screen** - `app/(auth)/register.tsx`
+```
+Tasks:
+- [ ] Create register.tsx with email/password/goals form
+- [ ] Email input with validation
+- [ ] Password input with strength indicator
+- [ ] Password confirmation field
+- [ ] Goals selection (dropdown or radio buttons)
+- [ ] "Register" button
+- [ ] "Back to Login" link
+- [ ] Loading state
+- [ ] Error handling
+- [ ] Toast notifications
+```
+
+**Validation Utilities** - `utils/validation.ts`
+```
+Tasks:
+- [ ] isValidEmail(email) → RFC 5322 regex
+  - /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+- [ ] isValidPassword(password) → { valid: bool, errors: [] }
+  - Min 8 characters
+  - At least 1 uppercase letter
+  - At least 1 number
+  - At least 1 special character (!@#$%^&*)
+- [ ] Show password strength feedback (Weak/Fair/Good/Strong)
+- [ ] isValidConfirm(password, confirm) → boolean
+```
+
+#### 4.2 Frontend: SecureStore Integration
+
+**Create Auth Hook** - `hooks/useAuth.ts`
 ```
 Tasks:
 - [ ] Install @react-native-async-storage/async-storage
 - [ ] Install expo-secure-store
-- [ ] Create auth/useAuth.ts hook for managing authentication state
-  - getToken() - retrieve JWT from SecureStore
-  - setToken(jwt) - store JWT in SecureStore
-  - clearToken() - logout
-  - isTokenExpired() - check JWT expiration
-  - refreshToken() - call backend refresh endpoint
+- [ ] Create useAuth hook with:
+  - getToken() → retrieve JWT from SecureStore
+  - setToken(jwt) → store JWT encrypted
+  - clearToken() → logout (remove from storage)
+  - isTokenExpired(token) → check JWT exp claim
+  - refreshToken() → get new token (optional)
+  - isAuthenticated → boolean flag
 - [ ] Implement token persistence across app restarts
-- [ ] Add token validation on app boot
-- [ ] Store refresh token (if using refresh token flow)
+- [ ] Handle token validation on app boot
+- [ ] Type: JWT payload { user_id, email, exp, iat }
 ```
 
-**Frontend: Face ID Biometric**
+**Biometric Authentication** - `hooks/useBiometric.ts`
 ```
 Tasks:
 - [ ] Install expo-local-authentication
-- [ ] Create useBiometric.ts hook for biometric auth
-  - isBiometricAvailable() - check device capability
-  - authenticateAsync() - trigger biometric prompt
-  - storeBiometricCredentials() - save credentials securely
-  - clearBiometricCredentials() - logout
-- [ ] Fallback to password if biometric unavailable
-- [ ] Handle biometric failure gracefully (retry prompt or password)
-- [ ] Add biometric toggle in settings (enable/disable)
-- [ ] Show success/error messages for biometric attempts
+- [ ] Create useBiometric hook with:
+  - isBiometricAvailable() → check device capability
+  - authenticateAsync() → trigger Face ID prompt
+  - storeBiometricCredentials() → save for quick login
+  - clearBiometricCredentials() → logout
+- [ ] Handle biometric failure (fallback to password)
+- [ ] Retry logic (3 attempts before fallback)
+- [ ] Success/error messaging
+- [ ] Integration with login flow
 ```
 
-**Backend: JWT Configuration**
-```
-Tasks (Backend):
-- [ ] Configure NextAuth to issue JWT tokens (not just cookies)
-- [ ] Set JWT payload: { user_id, email, exp, iat }
-- [ ] Set JWT TTL: 30 days (or your preferred duration)
-- [ ] Implement /api/auth/register endpoint
-  - Validate email, password strength
-  - Hash password with bcryptjs (10 salt rounds)
-  - Create user record
-  - Return JWT token
-  - Store refresh token (optional)
-- [ ] Implement /api/auth/login endpoint
-  - Validate email exists
-  - Verify password with bcryptjs
-  - Return JWT token
-  - Set refresh token (optional)
-- [ ] Implement /api/auth/logout endpoint
-  - Invalidate refresh token
-  - Return success
-- [ ] Implement /api/auth/refresh endpoint (optional but recommended)
-  - Accept refresh token
-  - Validate refresh token
-  - Issue new access token
-- [ ] Implement /api/me endpoint
-  - Validate JWT from Authorization header
-  - Return user profile (id, email, created_at)
-  - Return 401 if token invalid/expired
-- [ ] Add rate limiting: 5 login attempts per minute per IP
-- [ ] Add password breach checking (optional, via HIBP API)
-```
+#### 4.3 Frontend: Route Protection
 
-**Integration: Connect Frontend to Backend**
+**App Layout Update** - `app/_layout.tsx`
 ```
 Tasks:
-- [ ] Create api/client.ts (API client factory)
-  - BaseURL configuration (environment-dependent)
-  - Interceptor: Add Authorization header with Bearer token
-  - Interceptor: Handle 401 responses (redirect to login)
-  - Interceptor: Retry failed requests with exponential backoff
-  - Error mapping: Convert API errors to user-friendly messages
-- [ ] Create api/auth.ts (auth endpoints)
-  - register(email, password, goals) → { token, user }
-  - login(email, password) → { token, user }
-  - logout() → void
-  - me() → { user }
-  - refreshToken(refreshToken) → { token }
-- [ ] Implement app boot sequence:
+- [ ] Wrap app with AuthContext provider
+- [ ] Create root-level loading state
+- [ ] Boot sequence:
   1. Load app
   2. Check if token exists in SecureStore
   3. If yes, validate via GET /api/me
-  4. If 401, clear token and show login screen
-  5. If valid, show main app
+  4. If 401, clear token → show login screen
+  5. If valid, show dashboard
   6. If no token, show login screen
-- [ ] Test login flow end-to-end
-- [ ] Test logout flow
-- [ ] Test token refresh (if implemented)
+- [ ] Route guards: redirect unauthenticated users to (auth)/login
 ```
 
-**Security Checklist for Auth**
+#### 4.4 Backend: JWT Configuration
+
+**NextAuth JWT Setup**
+```
+Backend Tasks (Must Complete Before Phase 1 Finishes):
+- [ ] Configure NextAuth to issue JWT tokens (not just cookies)
+- [ ] Set JWT payload: { user_id, email, exp, iat }
+- [ ] Set JWT TTL: 30 days (recommended)
+- [ ] JWT signing secret: use environment variable
+- [ ] Enable NextAuth JWT callback:
+  callbacks: {
+    jwt({ token, user }) {
+      if (user) token.id = user.id;
+      return token;
+    }
+  }
+```
+
+**Backend: Authentication Endpoints**
+```
+Backend Tasks (Required for Phase 1 Auth):
+- [ ] /api/auth/register endpoint
+  - Validate email, password strength
+  - Hash password with bcryptjs (10 salt rounds)
+  - Create user record
+  - Return { token, user } with JWT
+- [ ] /api/auth/login endpoint
+  - Validate email exists
+  - Verify password with bcryptjs
+  - Return { token, user } with JWT
+  - Rate limit: 5 attempts per minute per IP
+- [ ] /api/auth/logout endpoint
+  - Invalidate refresh token (if using)
+  - Return success
+- [ ] /api/auth/refresh endpoint (optional, recommended)
+  - Accept refresh token
+  - Validate and issue new access token
+  - Return new JWT
+- [ ] /api/me endpoint
+  - Validate JWT from Authorization header
+  - Return user profile { id, email, created_at }
+  - Return 401 if token invalid/expired
+```
+
+#### 4.5 Frontend-Backend Integration
+
+**API Client Setup** - `api/client.ts`
+```
+Tasks:
+- [ ] Create Axios or Fetch wrapper
+- [ ] Configure base URL (environment-dependent):
+  - Development: http://localhost:3000
+  - Staging: https://api-staging.yourapp.com
+  - Production: https://api.yourapp.com
+- [ ] Request interceptor:
+  - Add Authorization: Bearer <token> header (from SecureStore)
+  - Add Content-Type: application/json
+  - Add Request ID for debugging
+- [ ] Response interceptor:
+  - Handle 401: attempt token refresh or redirect to login
+  - Handle 4xx: map to user-friendly error messages
+  - Handle 5xx: retry with exponential backoff (max 3)
+- [ ] Timeout: 30 seconds for all requests
+- [ ] Retry logic: exponential backoff (1s, 2s, 4s)
+```
+
+**Auth Endpoints Module** - `api/auth.ts`
+```
+Tasks:
+- [ ] register(email, password, goals) → { token, user }
+- [ ] login(email, password) → { token, user }
+- [ ] logout() → void
+- [ ] me() → { user }
+- [ ] refreshToken(refreshToken) → { token }
+- [ ] Error handling and mapping
+```
+
+**End-to-End Login Flow**
+```
+1. User enters email + password on login screen
+2. Frontend validates inputs (email format, password length)
+3. Frontend calls api.auth.login(email, password)
+4. Backend validates, hashes password, returns JWT
+5. Frontend stores JWT in SecureStore via useAuth.setToken()
+6. Frontend redirects to dashboard
+7. Dashboard uses useAuth() to check token
+8. API requests include Bearer token via interceptor
+9. On logout, clearToken() removes from SecureStore
+10. Redirect to login screen
+```
+
+#### 4.6 Security Checklist for Phase 1 Auth
+
 - [ ] Passwords never stored in SecureStore (only JWT token)
 - [ ] JWT tokens sent in Authorization header (Bearer <token>)
 - [ ] Passwords sent over HTTPS only
 - [ ] No sensitive data in JWT payload (no passwords, no API keys)
-- [ ] Rate limiting enforced on login endpoint
+- [ ] Rate limiting enforced on login endpoint (5/min)
 - [ ] Biometric fallback secure (password required)
 - [ ] Token expiration enforced
 - [ ] Logout clears SecureStore completely
+- [ ] No tokens logged to console
+- [ ] No hardcoded secrets
+
+#### 4.7 Phase 1 Auth Success Criteria
+
+- [ ] Login screen fully functional (email + password)
+- [ ] Registration screen fully functional
+- [ ] Face ID biometric works (optional login)
+- [ ] Token stored securely in SecureStore
+- [ ] Token validation works on app boot
+- [ ] 401 responses redirect to login
+- [ ] Logout clears all auth state
+- [ ] End-to-end flow: Register → Login → Dashboard → Save → Logout works
+- [ ] No crashes during auth flows
+- [ ] Error messages are user-friendly
 
 ---
 
-### 2.2 API Client & Data Synchronization
+## Phase 2: API Integration & State Management
+
+**Duration**: 8-12 days | **Priority**: 🔴 CRITICAL PATH
+**Estimated Effort**: 64-96 hours | **Team**: 1-2 developers
+
+### Overview
+Phase 2 focuses on completing API integration, implementing full state management with offline sync, and connecting the authentication backend (JWT endpoints) implemented in Phase 1. This phase integrates all backend APIs needed for the app to function end-to-end. Authentication is now complete from Phase 1, so Phase 2 focuses on data synchronization and remaining API endpoints.
+
+**Note**: Authentication (login/register/JWT/SecureStore/Face ID) was moved from Phase 2 to Phase 1. This section assumes Phase 1 Auth is complete.
+
+### 2.1 API Client & Data Synchronization
 **Estimated Time**: 3-4 days (24-32 hours)
 **Status**: ⚠️ FRAMEWORK READY (90% complete)
 
@@ -293,9 +391,9 @@ Tasks:
 
 ---
 
-### 2.3 State Management Architecture
+### 2.2 State Management Architecture
 **Estimated Time**: 2-3 days (16-24 hours)
-**Status**: ⚠️ PARTIAL (Auth state only)
+**Status**: ⚠️ PARTIAL (Auth context complete from Phase 1, WorkoutContext needed)
 
 #### What Needs to Be Built
 
@@ -344,9 +442,9 @@ Tasks:
 
 ---
 
-### 2.4 Data Validation & Input Sanitization
+### 2.3 Data Validation & Input Sanitization
 **Estimated Time**: 1-2 days (8-16 hours)
-**Status**: ⚠️ PARTIAL (Client-side only)
+**Status**: ⚠️ PARTIAL (Client-side validation; backend moved to Phase 1)
 
 #### What Needs to Be Built
 
@@ -400,9 +498,9 @@ Tasks:
 
 ---
 
-### 2.5 Offline Sync Completion
+### 2.4 Offline Sync Completion
 **Estimated Time**: 2-3 days (16-24 hours)
-**Status**: ✅ FRAMEWORK READY (90%)
+**Status**: ✅ FRAMEWORK READY (90%), Auth integration needed from Phase 1
 
 #### What Needs to Be Completed
 

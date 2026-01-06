@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ageless Dashboard - Final Design</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #F7F7F9;
+        }
+
+        .dashboard-container {
+            max-width: 400px;
+            margin: 20px auto;
+            background: #F7F7F9;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Header */
+        .header {
+            background: #FFFFFF;
+            padding: 16px;
+            border-bottom: 1px solid #E2E3E6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #111111;
+        }
+
+        .header-icon {
+            width: 28px;
+            height: 28px;
+            background: #C5282F;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        /* Content */
+        .content {
+            padding: 16px;
+            overflow-y: auto;
+            max-height: 900px;
+        }
+
+        /* Date Picker */
+        .section-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .date-picker {
+            background: #FFFFFF;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #E2E3E6;
+        }
+
+        .date-picker-nav {
+            cursor: pointer;
+            font-size: 16px;
+            color: #666666;
+        }
+
+        .date-picker-content {
+            text-align: center;
+        }
+
+        .date-picker-date {
+            font-size: 16px;
+            font-weight: 700;
+            color: #111111;
+        }
+
+        .date-today {
+            background: #f5d5d6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #C5282F;
+            display: inline-block;
+            margin-top: 4px;
+        }
+
+        /* Progress Section */
+        .progress-card {
+            background: #FFFFFF;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111111;
+            margin-bottom: 8px;
+        }
+
+        .progress-text {
+            font-size: 13px;
+            color: #666666;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #E2E3E6;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #C5282F;
+            width: 45%;
+            border-radius: 4px;
+        }
+
+        /* Weight Card */
+        .weight-card {
+            background: #FFFFFF;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .weight-input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .weight-input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #E2E3E6;
+            border-radius: 6px;
+            font-size: 14px;
+            background: #F7F7F9;
+        }
+
+        .weight-unit {
+            font-size: 12px;
+            color: #666666;
+            min-width: 30px;
+        }
+
+        /* Exercises Section */
+        .exercises-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #111111;
+            margin-bottom: 12px;
+            margin-top: 16px;
+        }
+
+        /* Exercise Card */
+        .exercise-card {
+            background: #FFFFFF;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-left: 3px solid #C5282F;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .exercise-card.completed {
+            border-left-color: #10B981;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+        }
+
+        .exercise-header {
+            margin-bottom: 12px;
+        }
+
+        .exercise-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111111;
+            margin-bottom: 4px;
+        }
+
+        .exercise-target {
+            font-size: 12px;
+            color: #666666;
+        }
+
+        .exercise-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            background: #C5282F;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            background: #b12228;
+            transform: scale(1.05);
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .count-display {
+            flex: 1;
+            text-align: center;
+        }
+
+        .count-number {
+            font-size: 22px;
+            font-weight: 700;
+            color: #111111;
+            line-height: 1;
+        }
+
+        .count-max {
+            font-size: 12px;
+            color: #666666;
+            margin-top: 4px;
+        }
+
+        .count-line {
+            font-size: 12px;
+            color: #666666;
+            text-align: center;
+        }
+
+        .count-line.completed {
+            color: #10B981;
+            font-weight: 600;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            background: #FFFFFF;
+            border-top: 1px solid #E2E3E6;
+            padding: 12px;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+        }
+
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            cursor: pointer;
+            padding: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .nav-label {
+            font-size: 10px;
+            color: #666666;
+            font-weight: 500;
+        }
+
+        .nav-item.active .nav-label {
+            color: #C5282F;
+            font-weight: 700;
+        }
+
+        /* Padding for scroll */
+        .content-bottom-padding {
+            height: 20px;
+        }
+
+        /* Summary Banner */
+        .summary-banner {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .summary-score {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .summary-text {
+            font-size: 13px;
+            opacity: 0.95;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Dashboard</h1>
+            <div class="header-icon">📊</div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Summary Banner -->
+            <div class="summary-banner">
+                <div class="summary-score">91.8/100</div>
+                <div class="summary-text">Phase 2 Complete - All 11 Exercises Ready</div>
+            </div>
+
+            <!-- Date Picker -->
+            <div class="section-label">Select Date</div>
+            <div class="date-picker">
+                <div class="date-picker-nav">←</div>
+                <div class="date-picker-content">
+                    <div class="date-picker-date">January 5, 2026</div>
+                    <div class="date-today">Today</div>
+                </div>
+                <div class="date-picker-nav">→</div>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="progress-card">
+                <div class="card-title">Today's Workout</div>
+                <div class="progress-text">5/11 exercises (45%)</div>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+            </div>
+
+            <!-- Weight Card -->
+            <div class="weight-card">
+                <div class="card-title">Weight (lbs)</div>
+                <div class="weight-input-group">
+                    <input type="text" class="weight-input" placeholder="Enter your weight" value="185">
+                    <div class="weight-unit">lbs</div>
+                </div>
+            </div>
+
+            <!-- Exercises -->
+            <div class="exercises-label">Exercises</div>
+
+            <!-- Exercise 1: Bike (incomplete) -->
+            <div class="exercise-card">
+                <div class="exercise-header">
+                    <div class="exercise-name">Bike</div>
+                    <div class="exercise-target">Target: 60 minutes</div>
+                </div>
+                <div class="exercise-controls">
+                    <button class="control-btn">−</button>
+                    <div class="count-display">
+                        <div class="count-number">2</div>
+                        <div class="count-max">/ 4</div>
+                    </div>
+                    <button class="control-btn">+</button>
+                </div>
+                <div class="count-line">2 / 4 sets</div>
+            </div>
+
+            <!-- Exercise 2: Abs (incomplete) -->
+            <div class="exercise-card">
+                <div class="exercise-header">
+                    <div class="exercise-name">Abs</div>
+                    <div class="exercise-target">Target: 100 reps</div>
+                </div>
+                <div class="exercise-controls">
+                    <button class="control-btn">−</button>
+                    <div class="count-display">
+                        <div class="count-number">0</div>
+                        <div class="count-max">/ 4</div>
+                    </div>
+                    <button class="control-btn">+</button>
+                </div>
+                <div class="count-line">0 / 4 sets</div>
+            </div>
+
+            <!-- Exercise 3: Chest Press (completed) -->
+            <div class="exercise-card completed">
+                <div class="exercise-header">
+                    <div class="exercise-name">Chest Press</div>
+                    <div class="exercise-target">Target: 20 reps</div>
+                </div>
+                <div class="exercise-controls">
+                    <button class="control-btn">−</button>
+                    <div class="count-display">
+                        <div class="count-number">4</div>
+                        <div class="count-max">/ 4</div>
+                    </div>
+                    <button class="control-btn" disabled>+</button>
+                </div>
+                <div class="count-line completed">✅ 4 / 4 sets</div>
+            </div>
+
+            <!-- Exercise 4: Leg Press (incomplete) -->
+            <div class="exercise-card">
+                <div class="exercise-header">
+                    <div class="exercise-name">Leg Press</div>
+                    <div class="exercise-target">Target: 20 reps</div>
+                </div>
+                <div class="exercise-controls">
+                    <button class="control-btn">−</button>
+                    <div class="count-display">
+                        <div class="count-number">1</div>
+                        <div class="count-max">/ 4</div>
+                    </div>
+                    <button class="control-btn">+</button>
+                </div>
+                <div class="count-line">1 / 4 sets</div>
+            </div>
+
+            <!-- Exercise 5: Lat (incomplete) -->
+            <div class="exercise-card">
+                <div class="exercise-header">
+                    <div class="exercise-name">Lat</div>
+                    <div class="exercise-target">Target: 20 reps</div>
+                </div>
+                <div class="exercise-controls">
+                    <button class="control-btn">−</button>
+                    <div class="count-display">
+                        <div class="count-number">0</div>
+                        <div class="count-max">/ 4</div>
+                    </div>
+                    <button class="control-btn">+</button>
+                </div>
+                <div class="count-line">0 / 4 sets</div>
+            </div>
+
+            <!-- Exercise 6: Military (incomplete) -->
+            <div class="exercise-card">
+                <div class="exercise-header">
+                    <div class="exercise-name">Military</div>
+                    <div class="exercise-target">Target: 20 reps</div>
+                </div>
+                <div class="exercise-controls">
+                    <button class="control-btn">−</button>
+                    <div class="count-display">
+                        <div class="count-number">0</div>
+                        <div class="count-max">/ 4</div>
+                    </div>
+                    <button class="control-btn">+</button>
+                </div>
+                <div class="count-line">0 / 4 sets</div>
+            </div>
+
+            <!-- Exercise 7: Crunch (completed) -->
+            <div class="exercise-card completed">
+                <div class="exercise-header">
+                    <div class="exercise-name">Crunch</div>
+                    <div class="exercise-target">Target: 100 reps</div>
+                </div>
+                <div class="exercise-controls">
+                    <button class="control-btn">−</button>
+                    <div class="count-display">
+                        <div class="count-number">4</div>
+                        <div class="count-max">/ 4</div>
+                    </div>
+                    <button class="control-btn" disabled>+</button>
+                </div>
+                <div class="count-line completed">✅ 4 / 4 sets</div>
+            </div>
+
+            <!-- Exercise 8: Bicep Curls (incomplete) -->
+            <div class="exercise-card">
+                <div class="exercise-header">
+                    <div class="exercise-name">Bicep Curls</div>
+                    <div class="exercise-target">Target: 20 reps</div>
+                </div>
+                <div class="exercise-controls">
+                    <button class="control-btn">−</button>
+                    <div class="count-display">
+                        <div class="count-number">2</div>
+                        <div class="count-max">/ 4</div>
+                    </div>
+                    <button class="control-btn">+</button>
+                </div>
+                <div class="count-line">2 / 4 sets</div>
+            </div>
+
+            <!-- Exercise 9: Triceps (incomplete) -->
+            <div class="exercise-card">
+                <div class="exercise-header">
+                    <div class="exercise-name">Triceps</div>
+                    <div class="exercise-target">Target: 40 reps</div>
+                </div>
+                <div class="exercise-controls">
+                    <button class="control-btn">−</button>
+                    <div class="count-display">
+                        <div class="count-number">0</div>
+                        <div class="count-max">/ 4</div>
+                    </div>
+                    <button class="control-btn">+</button>
+                </div>
+                <div class="count-line">0 / 4 sets</div>
+            </div>
+
+            <!-- Exercise 10: Overhead Pull (incomplete) -->
+            <div class="exercise-card">
+                <div class="exercise-header">
+                    <div class="exercise-name">Overhead Pull</div>
+                    <div class="exercise-target">Target: 40 reps</div>
+                </div>
+                <div class="exercise-controls">
+                    <button class="control-btn">−</button>
+                    <div class="count-display">
+                        <div class="count-number">0</div>
+                        <div class="count-max">/ 4</div>
+                    </div>
+                    <button class="control-btn">+</button>
+                </div>
+                <div class="count-line">0 / 4 sets</div>
+            </div>
+
+            <!-- Exercise 11: Row (incomplete) -->
+            <div class="exercise-card">
+                <div class="exercise-header">
+                    <div class="exercise-name">Row</div>
+                    <div class="exercise-target">Target: 20 reps</div>
+                </div>
+                <div class="exercise-controls">
+                    <button class="control-btn">−</button>
+                    <div class="count-display">
+                        <div class="count-number">0</div>
+                        <div class="count-max">/ 4</div>
+                    </div>
+                    <button class="control-btn">+</button>
+                </div>
+                <div class="count-line">0 / 4 sets</div>
+            </div>
+
+            <!-- Padding -->
+            <div class="content-bottom-padding"></div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active">
+                <div class="nav-icon">🏠</div>
+                <div class="nav-label">Home</div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">⭐</div>
+                <div class="nav-label">My ABS</div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">📱</div>
+                <div class="nav-label">Scan</div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">🎧</div>
+                <div class="nav-label">Listen</div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">🎁</div>
+                <div class="nav-label">Rewards</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

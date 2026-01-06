@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Linking, useSafeAreaInsets } from 'react-native';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { theme } from '../../theme';
 
 interface NavItem {
   id: string;
   label: string;
-  icon: React.ReactNode;
+  icon: (active: boolean) => React.ReactNode;
   href?: string;
   onPress?: () => void;
 }
@@ -39,31 +40,31 @@ export function BottomNav({ onNavigate, activeTab = 'home' }: BottomNavProps) {
     {
       id: 'home',
       label: 'Home',
-      icon: <HomeIcon />,
+      icon: (active) => <HomeIcon active={active} />,
       href: 'home',
     },
     {
       id: 'myabs',
       label: 'My ABS',
-      icon: <StarIcon />,
+      icon: (active) => <StarIcon active={active} />,
       onPress: () => handlePress('myabs'),
     },
     {
       id: 'scan',
       label: 'Scan',
-      icon: <ScanIcon />,
+      icon: (active) => <ScanIcon active={active} />,
       onPress: () => handlePress('scan'),
     },
     {
       id: 'listen',
       label: 'Listen',
-      icon: <ListenIcon />,
+      icon: (active) => <ListenIcon active={active} />,
       onPress: () => handlePress('listen'),
     },
     {
       id: 'rewards',
       label: 'Rewards',
-      icon: <RewardsIcon />,
+      icon: (active) => <RewardsIcon active={active} />,
       href: 'rewards',
     },
   ];
@@ -92,7 +93,7 @@ export function BottomNav({ onNavigate, activeTab = 'home' }: BottomNavProps) {
           activeOpacity={0.7}
         >
           <View style={[styles.iconContainer, active === item.id && styles.iconContainerActive]}>
-            {item.icon}
+            {item.icon(active === item.id)}
           </View>
           <Text
             style={[
@@ -109,57 +110,42 @@ export function BottomNav({ onNavigate, activeTab = 'home' }: BottomNavProps) {
   );
 }
 
-// Icon Components
-function HomeIcon() {
-  return (
-    <View style={styles.iconWrapper}>
-      <Text style={styles.iconText}>🏠</Text>
-    </View>
-  );
+// Icon Components (matching Web PWA icon style)
+function HomeIcon({ active }: { active: boolean }) {
+  return <Ionicons name={active ? "home" : "home-outline"} size={20} color={active ? theme.colors.primary : "#000"} />;
 }
 
-function StarIcon() {
-  return (
-    <View style={styles.iconWrapper}>
-      <Text style={styles.iconText}>⭐</Text>
-    </View>
-  );
+function StarIcon({ active }: { active: boolean }) {
+  return <Ionicons name={active ? "star" : "star-outline"} size={20} color={active ? theme.colors.primary : "#000"} />;
 }
 
-function ScanIcon() {
-  return (
-    <View style={styles.iconWrapper}>
-      <Text style={styles.iconText}>📱</Text>
-    </View>
-  );
+function ScanIcon({ active }: { active: boolean }) {
+  return <MaterialIcons name="qr-code" size={20} color={active ? theme.colors.primary : "#000"} />;
 }
 
-function ListenIcon() {
-  return (
-    <View style={styles.iconWrapper}>
-      <Text style={styles.iconText}>🎧</Text>
-    </View>
-  );
+function ListenIcon({ active }: { active: boolean }) {
+  return <Ionicons name={active ? "headphones" : "headphones-outline"} size={20} color={active ? theme.colors.primary : "#000"} />;
 }
 
-function RewardsIcon() {
-  return (
-    <View style={styles.iconWrapper}>
-      <Text style={styles.iconText}>🎁</Text>
-    </View>
-  );
+function RewardsIcon({ active }: { active: boolean }) {
+  return <MaterialIcons name="card-giftcard" size={20} color={active ? theme.colors.primary : "#000"} />;
 }
 
 const styles = StyleSheet.create({
   container: {
+    position: 'absolute',  // Fixed positioning (Web PWA: fixed bottom-0 left-0 right-0)
+    bottom: 0,
+    left: 0,
+    right: 0,
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'flex-end',
     backgroundColor: theme.colors.surface,
     borderTopWidth: 1,
-    borderTopColor: theme.colors.border.light,
-    paddingTop: theme.spacing.xs,
-    paddingHorizontal: theme.spacing.base,
+    borderTopColor: '#d2d2d2', // CRITICAL FIX: Web PWA uses #d2d2d2 (not #E2E3E6)
+    paddingTop: 6, // CRITICAL FIX: Web PWA uses 6px (not 4px from theme.spacing.xs)
+    paddingHorizontal: 4, // CRITICAL FIX: Web PWA uses 4px (not 8px from theme.spacing.base)
+    zIndex: 410, // CRITICAL FIX: Web PWA uses z-[410]
   },
   navButton: {
     flex: 1,

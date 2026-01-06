@@ -7,78 +7,74 @@ import {
   Modal,
   ScrollView,
   TextInput,
-  FlatList,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../theme';
-
-interface BodyPart {
-  id: string;
-  name: string;
-  icon: string;
-}
 
 interface MyABSDrawerProps {
   isVisible?: boolean;
   onClose?: () => void;
-  onBodyPartSelect?: (bodyPart: string) => void;
+  onHistoryPress?: () => void;
+  onSummaryPress?: () => void;
 }
 
-const BODY_PARTS: BodyPart[] = [
-  { id: 'abs', name: 'Abs', icon: '💪' },
-  { id: 'chest', name: 'Chest', icon: '🫀' },
-  { id: 'back', name: 'Back', icon: '🔙' },
-  { id: 'shoulders', name: 'Shoulders', icon: '⬆️' },
-  { id: 'biceps', name: 'Biceps', icon: '💪' },
-  { id: 'triceps', name: 'Triceps', icon: '💪' },
-  { id: 'forearms', name: 'Forearms', icon: '🦾' },
-  { id: 'legs', name: 'Legs', icon: '🦵' },
-  { id: 'calves', name: 'Calves', icon: '🦵' },
-  { id: 'glutes', name: 'Glutes', icon: '🍑' },
-];
+interface MenuItem {
+  id: string;
+  label: string;
+  enabled: boolean;
+  onPress?: () => void;
+}
 
 export function MyABSDrawer({
   isVisible = false,
   onClose,
-  onBodyPartSelect,
+  onHistoryPress,
+  onSummaryPress,
 }: MyABSDrawerProps) {
   const [weight, setWeight] = useState('');
-  const [selectedBodyPart, setSelectedBodyPart] = useState<string | null>(null);
 
-  const handleBodyPartSelect = (bodyPartId: string) => {
-    setSelectedBodyPart(bodyPartId);
-    if (onBodyPartSelect) {
-      onBodyPartSelect(bodyPartId);
+  const menuItems: MenuItem[] = [
+    { id: 'history', label: 'History', enabled: true, onPress: onHistoryPress },
+    { id: 'summary', label: 'Summary', enabled: true, onPress: onSummaryPress },
+    { id: 'aerobic', label: 'Aerobic (Coming Soon)', enabled: false },
+    { id: 'strength', label: 'Strength (Coming Soon)', enabled: false },
+    { id: 'balance', label: 'Balance & Flex (Coming Soon)', enabled: false },
+    { id: 'stretch', label: 'Stretch (Coming Soon)', enabled: false },
+    { id: 'custom', label: 'Custom (Coming Soon)', enabled: false },
+    { id: 'assessments', label: 'Assessments (Coming Soon)', enabled: false },
+    { id: 'goals', label: 'Goals (Coming Soon)', enabled: false },
+    { id: 'progress', label: 'Progress (Coming Soon)', enabled: false },
+    { id: 'rewards', label: 'Rewards (Coming Soon)', enabled: false },
+  ];
+
+  const handleMenuPress = (item: MenuItem) => {
+    if (item.enabled && item.onPress) {
+      item.onPress();
     }
   };
 
-  const renderBodyPartItem = ({ item }: { item: BodyPart }) => (
+  const renderMenuItem = (item: MenuItem) => (
     <TouchableOpacity
+      key={item.id}
       style={[
-        styles.bodyPartItem,
-        selectedBodyPart === item.id && styles.bodyPartItemSelected,
+        styles.menuItem,
+        !item.enabled && styles.menuItemDisabled,
       ]}
-      onPress={() => handleBodyPartSelect(item.id)}
-      activeOpacity={0.7}
+      onPress={() => handleMenuPress(item)}
+      activeOpacity={item.enabled ? 0.7 : 1}
+      disabled={!item.enabled}
     >
-      <Text style={styles.bodyPartIcon}>{item.icon}</Text>
-      <View style={styles.bodyPartContent}>
-        <Text
-          style={[
-            styles.bodyPartName,
-            selectedBodyPart === item.id && styles.bodyPartNameSelected,
-          ]}
-        >
-          {item.name}
-        </Text>
-      </View>
       <Text
         style={[
-          styles.bodyPartChevron,
-          selectedBodyPart === item.id && styles.bodyPartChevronSelected,
+          styles.menuLabel,
+          !item.enabled && styles.menuLabelDisabled,
         ]}
       >
-        ›
+        {item.label}
       </Text>
+      {item.enabled && (
+        <Ionicons name="chevron-forward" size={20} color={theme.colors.text.secondary} />
+      )}
     </TouchableOpacity>
   );
 
@@ -101,59 +97,42 @@ export function MyABSDrawer({
         <View style={styles.drawerContainer}>
           {/* Header */}
           <View style={styles.drawerHeader}>
-            <Text style={styles.drawerTitle}>My ABS</Text>
+            <Text style={styles.drawerTitle}>My Body</Text>
             <TouchableOpacity
               style={styles.closeButton}
               onPress={onClose}
               activeOpacity={0.7}
             >
-              <Text style={styles.closeButtonText}>×</Text>
+              <Text style={styles.closeButtonText}>✕</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Weight Section */}
-          <View style={styles.weightSection}>
-            <Text style={styles.weightLabel}>Body Weight</Text>
-            <TextInput
-              style={styles.weightInput}
-              placeholder="Enter weight (lbs)"
-              placeholderTextColor={theme.colors.text.secondary}
-              value={weight}
-              onChangeText={setWeight}
-              keyboardType="decimal-pad"
-              maxLength={6}
-            />
-          </View>
+          {/* Scrollable Content */}
+          <ScrollView
+            style={styles.drawerContent}
+            scrollEnabled={true}
+            nestedScrollEnabled={true}
+            showsVerticalScrollIndicator={true}
+          >
+            {/* Weight Section */}
+            <View style={styles.weightSection}>
+              <Text style={styles.weightLabel}>Weight</Text>
+              <TextInput
+                style={styles.weightInput}
+                placeholder="Enter weight"
+                placeholderTextColor={theme.colors.text.secondary}
+                value={weight}
+                onChangeText={setWeight}
+                keyboardType="decimal-pad"
+                maxLength={6}
+              />
+            </View>
 
-          {/* Body Parts List */}
-          <View style={styles.bodyPartsContainer}>
-            <Text style={styles.bodyPartsTitle}>Select Area</Text>
-            <FlatList
-              data={BODY_PARTS}
-              renderItem={renderBodyPartItem}
-              keyExtractor={(item) => item.id}
-              scrollEnabled={false}
-              nestedScrollEnabled={false}
-            />
-          </View>
-
-          {/* Footer Buttons */}
-          <View style={styles.footerButtons}>
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={onClose}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.saveButton}
-              onPress={onClose}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.saveButtonText}>Save</Text>
-            </TouchableOpacity>
-          </View>
+            {/* Menu Section */}
+            <View style={styles.menuSection}>
+              {menuItems.map((item) => renderMenuItem(item))}
+            </View>
+          </ScrollView>
         </View>
       </View>
     </Modal>
@@ -179,21 +158,23 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: theme.radius.lg,
     borderTopRightRadius: theme.radius.lg,
     maxHeight: '85%',
-    paddingTop: theme.spacing.lg,
     ...theme.shadows.lg,
+  },
+  drawerContent: {
+    flex: 1,
   },
   drawerHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: theme.spacing.lg,
-    paddingBottom: theme.spacing.lg,
+    paddingVertical: theme.spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border.light,
   },
   drawerTitle: {
-    fontSize: theme.typography.h2.fontSize,
-    fontWeight: theme.typography.h2.fontWeight,
+    fontSize: 18, // text-lg font-semibold
+    fontWeight: '600',
     color: theme.colors.text.primary,
   },
   closeButton: {
@@ -204,7 +185,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.full,
   },
   closeButtonText: {
-    fontSize: 28,
+    fontSize: 24,
     color: theme.colors.text.secondary,
     fontWeight: '400',
   },
@@ -231,84 +212,28 @@ const styles = StyleSheet.create({
     color: theme.colors.text.primary,
     backgroundColor: theme.colors.surfaceAlt,
   },
-  bodyPartsContainer: {
-    flex: 1,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.lg,
+  menuSection: {
+    paddingHorizontal: 0,
   },
-  bodyPartsTitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: theme.colors.text.secondary,
-    marginBottom: theme.spacing.md,
-  },
-  bodyPartItem: {
+  menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: theme.spacing.md,
-    borderRadius: theme.radius.md,
-    marginBottom: theme.spacing.sm,
-    backgroundColor: theme.colors.surfaceAlt,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border.light,
   },
-  bodyPartItemSelected: {
-    backgroundColor: theme.colors.primaryLight,
+  menuItemDisabled: {
+    opacity: 0.5,
   },
-  bodyPartIcon: {
-    fontSize: 20,
-    marginRight: theme.spacing.lg,
-  },
-  bodyPartContent: {
+  menuLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: theme.colors.text.primary,
     flex: 1,
   },
-  bodyPartName: {
-    fontSize: theme.typography.body.fontSize,
-    fontWeight: theme.typography.body.fontWeight,
-    color: theme.colors.text.primary,
-  },
-  bodyPartNameSelected: {
-    fontWeight: '700',
-    color: theme.colors.primary,
-  },
-  bodyPartChevron: {
-    fontSize: 20,
+  menuLabelDisabled: {
     color: theme.colors.text.secondary,
-  },
-  bodyPartChevronSelected: {
-    color: theme.colors.primary,
-    fontWeight: '700',
-  },
-  footerButtons: {
-    flexDirection: 'row',
-    gap: theme.spacing.base,
-    paddingHorizontal: theme.spacing.lg,
-    paddingBottom: theme.spacing.lg,
-    paddingTop: theme.spacing.base,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.border.light,
-  },
-  cancelButton: {
-    flex: 1,
-    paddingVertical: theme.spacing.md,
-    backgroundColor: theme.colors.surfaceAlt,
-    borderRadius: theme.radius.md,
-    alignItems: 'center',
-  },
-  cancelButtonText: {
-    fontSize: theme.typography.button.fontSize,
-    fontWeight: theme.typography.button.fontWeight,
-    color: theme.colors.text.primary,
-  },
-  saveButton: {
-    flex: 1,
-    paddingVertical: theme.spacing.md,
-    backgroundColor: theme.colors.primary,
-    borderRadius: theme.radius.md,
-    alignItems: 'center',
-  },
-  saveButtonText: {
-    fontSize: theme.typography.button.fontSize,
-    fontWeight: theme.typography.button.fontWeight,
-    color: theme.colors.text.onPrimary,
   },
 });

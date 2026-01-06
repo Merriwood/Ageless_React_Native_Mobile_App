@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,14 +8,17 @@ import {
   ScrollView,
   TextInput,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../theme';
+import { useAuth } from '../../hooks/useAuth';
 
 interface MyABSDrawerProps {
   isVisible?: boolean;
   onClose?: () => void;
   onHistoryPress?: () => void;
   onSummaryPress?: () => void;
+  onWeightChange?: (weight: string) => void;
 }
 
 interface MenuItem {
@@ -30,7 +33,9 @@ export function MyABSDrawer({
   onClose,
   onHistoryPress,
   onSummaryPress,
+  onWeightChange,
 }: MyABSDrawerProps) {
+  const { user } = useAuth();
   const [weight, setWeight] = useState('');
 
   const menuItems: MenuItem[] = [
@@ -46,6 +51,39 @@ export function MyABSDrawer({
     { id: 'progress', label: 'Progress (Coming Soon)', enabled: false },
     { id: 'rewards', label: 'Rewards (Coming Soon)', enabled: false },
   ];
+
+  // Load weight from storage when drawer opens
+  useEffect(() => {
+    if (isVisible) {
+      loadWeight();
+    }
+  }, [isVisible]);
+
+  const loadWeight = async () => {
+    try {
+      if (!user?.id) return;
+      const savedWeight = await AsyncStorage.getItem(`weight_${user.id}`);
+      if (savedWeight) {
+        setWeight(savedWeight);
+      }
+    } catch (e) {
+      console.error('Weight load error:', e);
+    }
+  };
+
+  const handleWeightChange = (value: string) => {
+    setWeight(value);
+    onWeightChange?.(value);
+
+    // Save to storage
+    if (user?.id) {
+      if (value) {
+        AsyncStorage.setItem(`weight_${user.id}`, value).catch(e => {
+          console.error('Weight save error:', e);
+        });
+      }
+    }
+  };
 
   const handleMenuPress = (item: MenuItem) => {
     if (item.enabled && item.onPress) {
@@ -122,7 +160,7 @@ export function MyABSDrawer({
                 placeholder="Enter weight"
                 placeholderTextColor={theme.colors.text.secondary}
                 value={weight}
-                onChangeText={setWeight}
+                onChangeText={handleWeightChange}
                 keyboardType="decimal-pad"
                 maxLength={6}
               />

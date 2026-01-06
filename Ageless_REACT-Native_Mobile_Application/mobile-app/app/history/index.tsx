@@ -155,10 +155,8 @@ export default function HistoryScreen() {
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr + 'T00:00:00');
     return date.toLocaleDateString('en-US', {
-      weekday: 'short',
       month: 'short',
       day: 'numeric',
-      year: 'numeric',
     });
   };
 
@@ -196,24 +194,44 @@ export default function HistoryScreen() {
             {exerciseCount > 0 ? (
               <>
                 <View style={styles.divider} />
-                {Object.entries(item.fitnessData || {}).map(([key, value]) => (
-                  <View key={key} style={styles.exerciseRow}>
-                    <Text style={styles.exerciseName}>{getExerciseName(key)}</Text>
-                    <Text style={styles.exerciseValue}>{value}</Text>
-                  </View>
-                ))}
+                {Object.entries(item.fitnessData || {})
+                  .sort(([, a], [, b]) => b - a)
+                  .map(([key, value]) => (
+                    <View key={key} style={styles.exerciseRow}>
+                      <Text style={styles.exerciseName}>{getExerciseName(key)}</Text>
+                      <Text style={styles.exerciseValue}>{value} sets</Text>
+                    </View>
+                  ))}
+                {/* Skipped exercises section */}
+                {Object.entries(item.fitnessData || {}).some(([, value]) => value === 0) && (
+                  <>
+                    <View style={styles.divider} />
+                    <Text style={styles.skippedHeader}>Skipped</Text>
+                    <View style={styles.skippedContainer}>
+                      {Object.entries(item.fitnessData || {})
+                        .filter(([, value]) => value === 0)
+                        .map(([key]) => (
+                          <View key={key} style={styles.skippedBadge}>
+                            <Text style={styles.skippedText}>{getExerciseName(key)}</Text>
+                          </View>
+                        ))}
+                    </View>
+                  </>
+                )}
               </>
             ) : (
               <Text style={styles.noData}>No exercises recorded</Text>
             )}
 
-            <TouchableOpacity
-              onPress={() => handleDelete(item)}
-              style={styles.deleteButton}
-            >
-              <Ionicons name="trash-outline" size={18} color={theme.colors.status.error} />
-              <Text style={styles.deleteText}>Delete Workout</Text>
-            </TouchableOpacity>
+            <View style={styles.actionButtons}>
+              <TouchableOpacity
+                onPress={() => handleDelete(item)}
+                style={styles.deleteButton}
+              >
+                <Ionicons name="trash-outline" size={18} color={theme.colors.status.error} />
+                <Text style={styles.deleteText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       </Card>
@@ -378,12 +396,14 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     marginBottom: theme.spacing.base,
   },
+  actionButtons: {
+    marginTop: theme.spacing.base,
+  },
   deleteButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: theme.spacing.sm,
-    marginTop: theme.spacing.base,
     backgroundColor: '#FEE2E2',
     borderRadius: theme.radius.md,
   },
@@ -392,6 +412,30 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: theme.colors.status.error,
+  },
+  skippedHeader: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: theme.colors.text.secondary,
+    marginTop: theme.spacing.base,
+    marginBottom: theme.spacing.sm,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  skippedContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.spacing.sm,
+  },
+  skippedBadge: {
+    backgroundColor: theme.colors.border.light,
+    borderRadius: theme.radius.md,
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+  },
+  skippedText: {
+    fontSize: 12,
+    color: theme.colors.text.secondary,
   },
   loadMoreButton: {
     paddingVertical: theme.spacing.md,

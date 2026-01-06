@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../theme';
+import { useAuth } from '../../hooks/useAuth';
 
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
@@ -18,6 +20,7 @@ import { useOfflineQueue } from '../../hooks/useOfflineQueue';
 import { getTodayDate } from '../../lib/utils';
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState(getTodayDate());
   const [weight, setWeight] = useState('');
   const [exercises, setExercises] = useState<Record<string, number>>({});
@@ -78,6 +81,16 @@ export default function Dashboard() {
         }
         if (body.fitnessData) {
           currentExercises = body.fitnessData;
+        }
+      } else if (user?.id) {
+        // Load weight from AsyncStorage if no pending entry
+        try {
+          const savedWeight = await AsyncStorage.getItem(`weight_${user.id}`);
+          if (savedWeight) {
+            currentWeight = savedWeight;
+          }
+        } catch (e) {
+          console.error('Weight load error:', e);
         }
       }
 
@@ -552,6 +565,9 @@ export default function Dashboard() {
         onSummaryPress={() => {
           setMyAbsDrawerVisible(false);
           setSummaryModalVisible(true);
+        }}
+        onWeightChange={(value) => {
+          setWeight(value);
         }}
       />
     </SafeAreaView>

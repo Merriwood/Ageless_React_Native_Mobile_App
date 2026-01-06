@@ -5,18 +5,27 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useAuth, User } from "../hooks/useAuth";
 import { validateToken } from "../api/auth";
 import { theme } from "../theme";
+import { WorkoutProvider } from "../context/WorkoutContext";
+import { UIProvider } from "../context/UIContext";
 import "../global.css";
 
 /**
- * Root Layout with Auth Context
+ * Root Layout with Multiple Contexts
  * Handles:
  * - Loading auth state from storage
  * - Validating tokens on app boot
  * - Routing based on auth status
  * - Showing splash/loader during auth check
+ * - Wrapping app with Workout, UI, and Auth contexts
+ *
+ * Context Nesting Order (inside-out):
+ * 1. SafeAreaProvider (react-native-safe-area-context)
+ * 2. UIProvider (toast, sync status, network detection)
+ * 3. WorkoutProvider (entries cache, load/save/delete)
+ * 4. Auth is handled by useAuth hook (from Phase 1)
  */
 
-export default function RootLayout() {
+function RootLayoutContent() {
   const router = useRouter();
   const segments = useSegments();
   const { token, user, isLoading: authLoading, loadAuthState, clearToken } = useAuth();
@@ -99,8 +108,22 @@ export default function RootLayout() {
   }
 
   return (
+    <UIProvider>
+      <WorkoutProvider>
+        <Slot />
+      </WorkoutProvider>
+    </UIProvider>
+  );
+}
+
+/**
+ * Root Layout Export
+ * Wraps RootLayoutContent with SafeAreaProvider at the top level
+ */
+export default function RootLayout() {
+  return (
     <SafeAreaProvider>
-      <Slot />
+      <RootLayoutContent />
     </SafeAreaProvider>
   );
 }

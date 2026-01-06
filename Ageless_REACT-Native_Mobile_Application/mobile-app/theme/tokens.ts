@@ -58,7 +58,7 @@ export const spacing = {
   base: 8,    // Base unit (2x 4px)
   md: 12,     // Medium (3x 4px)
   lg: 16,     // Large (4x 4px)
-  xl: 20,     // Extra large (5x 4px)
+  xl: 20,     // Extra large (5x 4px) - Web PWA gap-5 for cards
   '2xl': 24,  // 2x large (6x 4px)
   '3xl': 32,  // 3x large (8x 4px)
 } as const;
@@ -70,8 +70,8 @@ export const spacing = {
 export const sizes = {
   // Interactive touch targets (minimum 44x44pt for accessibility)
   touchTarget: 44,
-  // Exercise control buttons
-  controlButton: 40,
+  // Exercise control buttons (matching Web PWA w-11 h-11)
+  controlButton: 44,
   // Progress bar height
   progressBar: 8,
   // Icon sizes
@@ -86,9 +86,10 @@ export const sizes = {
 
 export const radius = {
   sm: 4,      // Slightly rounded (inputs, small elements)
-  md: 8,      // Rounded (default buttons, chips)
-  lg: 12,     // More rounded (cards, modals)
-  xl: 20,     // Pill-shaped (buttons, badges)
+  md: 8,      // Rounded (chips, borders)
+  button: 14, // Web PWA button radius (rounded-[14px])
+  lg: 16,     // More rounded (cards, modals) - matching Web PWA
+  xl: 20,     // Pill-shaped (badges)
   '2xl': 24,  // Very rounded
   full: 999,  // Circle
 } as const;

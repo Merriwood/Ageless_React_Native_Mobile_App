@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -327,7 +327,7 @@ export default function Dashboard() {
       minWidth: 40,
     },
 
-    // Exercise Grid
+    // Exercise Grid (2-column responsive layout)
     exerciseGridContainer: {
       marginBottom: theme.spacing.lg,
     },
@@ -338,18 +338,22 @@ export default function Dashboard() {
       marginBottom: theme.spacing.md,
     },
     exerciseGridWrapper: {
-      // FlatList handles the grid layout
+      // 2-column grid with responsive spacing
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: theme.spacing.xl, // 20px gap matching Web PWA gap-5
     },
 
-    // Exercise Cards
+    // Exercise Cards (2-column grid layout)
     exerciseCard: {
       backgroundColor: theme.colors.surface,
       borderRadius: theme.radius.lg,
       padding: theme.spacing.lg,
-      marginBottom: theme.spacing.base,
       borderLeftWidth: 3,
       borderLeftColor: theme.colors.primary,
       ...theme.shadows.sm,
+      flex: 1,
+      minWidth: '45%', // Forces 2-column layout matching Web PWA responsive grid
     },
     exerciseCardCompleted: {
       borderLeftColor: theme.colors.status.success,
@@ -380,7 +384,7 @@ export default function Dashboard() {
     controlBtn: {
       width: theme.sizes.controlButton,
       height: theme.sizes.controlButton,
-      borderRadius: theme.radius.md,
+      borderRadius: theme.radius.button, // 14px matching Web PWA rounded-[14px]
       backgroundColor: theme.colors.primary,
       justifyContent: 'center',
       alignItems: 'center',
@@ -505,16 +509,16 @@ export default function Dashboard() {
               </View>
             </View>
 
-            {/* Exercise Grid */}
+            {/* Exercise Grid (2-column responsive layout) */}
             <View style={styles.exerciseGridContainer}>
               <Text style={styles.exerciseGridLabel}>Exercises</Text>
-              <FlatList
-                data={EXERCISES}
-                renderItem={renderExerciseCard}
-                keyExtractor={(item) => item.id}
-                scrollEnabled={false}
-                nestedScrollEnabled={false}
-              />
+              <View style={styles.exerciseGridWrapper}>
+                {EXERCISES.map((exercise) => (
+                  <View key={exercise.id} style={{ width: '48%' }}>
+                    {renderExerciseCard({ item: exercise })}
+                  </View>
+                ))}
+              </View>
             </View>
 
             {/* Quick Action Buttons */}

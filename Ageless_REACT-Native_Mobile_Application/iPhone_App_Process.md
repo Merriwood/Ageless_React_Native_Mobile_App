@@ -676,8 +676,100 @@ Tasks:
 
 ## Phase 4: Compliance & App Store Submission
 
-**Duration**: 5-7 days + 1-2 days review | **Priority**: 🟠 HIGH
-**Estimated Effort**: 40-56 hours + review time | **Team**: 1 developer + legal/product
+**Duration**: 6-9 days + 1-2 days review | **Priority**: 🟠 HIGH
+**Estimated Effort**: 48-72 hours + review time | **Team**: 1 developer + legal/product
+**Note**: Duration increased from 5-7 to 6-9 days to include Section 4.0 (Production Authentication Library Migration - 1-2 days). This is a CRITICAL refactoring that must happen before App Store submission.
+
+### 4.0 Production Authentication Library Migration (NEW)
+**Timeline**: 1-2 days
+**Priority**: 🔴 CRITICAL - Must complete before App Store submission
+**Rationale**: Phase 1 authentication uses Expo-specific libraries (expo-secure-store, expo-local-authentication, expo-router) which are development-only. These WILL NOT WORK in production native builds distributed via App Store. This refactoring replaces them with production-compatible alternatives that work in both Expo development AND native production builds.
+
+**Current Implementation (Expo-only)**:
+- `expo-secure-store` - encrypted token storage
+- `expo-local-authentication` - biometric authentication
+- `expo-router` - file-based routing
+
+**Production Requirements**:
+- Token storage must work on iOS Keychain (native API)
+- Token storage must work on Android Keystore (native API)
+- Biometric must work on physical iOS/Android devices
+- Routing must work in native build without Expo
+
+**Replacement Libraries (Production-Compatible)**:
+- `react-native-keychain` - replaces expo-secure-store (works in Expo + native)
+- `react-native-biometrics` - replaces expo-local-authentication (works in Expo + native)
+- `react-navigation` - optional, improves native compatibility
+
+```
+Tasks:
+- [ ] Install production-compatible libraries
+  - npm install react-native-keychain react-native-biometrics
+  - cd ios && pod install && cd ..
+
+- [ ] Create abstraction layer: lib/SecureStorage.ts
+  - Replaces direct expo-secure-store usage
+  - Uses react-native-keychain (iOS Keychain, Android Keystore)
+  - API: setItem(key, value), getItem(key), removeItem(key)
+  - Service identifier: com.ageless.app
+  - Accessibility: WHEN_UNLOCKED_THIS_DEVICE_ONLY
+
+- [ ] Create abstraction layer: lib/BiometricAuth.ts
+  - Replaces direct expo-local-authentication usage
+  - Uses react-native-biometrics
+  - API: isBiometricAvailable(), authenticate(reason), getSensorType()
+  - Simpler API than Expo version
+
+- [ ] Update hooks/useAuth.ts
+  - Replace: import * as SecureStore from "expo-secure-store"
+  - With: import { SecureStorage } from "../lib/SecureStorage"
+  - Update all token operations to use SecureStorage abstraction
+
+- [ ] Update hooks/useBiometric.ts
+  - Replace: import * as LocalAuthentication from "expo-local-authentication"
+  - With: import { BiometricAuth } from "../lib/BiometricAuth"
+  - Update all biometric operations to use BiometricAuth abstraction
+
+- [ ] Test in Expo Go (should work identically)
+  - npm start
+  - Verify login/logout flow works
+  - Verify biometric authentication works (if available)
+
+- [ ] Test in native iOS build (CRITICAL)
+  - Create native iOS build (via Xcode or EAS)
+  - Test login/logout flow
+  - Test biometric on actual iOS device
+  - Verify token persists across app restart
+
+- [ ] Test in native Android build (CRITICAL)
+  - Create native Android build (via Android Studio or EAS)
+  - Test login/logout flow
+  - Test biometric on actual Android device
+  - Verify token persists across app restart
+
+- [ ] Verify all Phase 1 auth features still work
+  - Email/password login ✓
+  - Registration ✓
+  - Face ID/Touch ID biometric ✓
+  - Token persistence ✓
+  - Logout clears token ✓
+  - 401 error handling ✓
+
+- [ ] Document changes
+  - Update this roadmap with completion
+  - Add notes about library migration
+  - Document any breaking changes
+```
+
+**Success Criteria**:
+- ✅ App runs in Expo Go (development)
+- ✅ App runs on native iOS (production)
+- ✅ App runs on native Android (production)
+- ✅ Authentication works identically across all platforms
+- ✅ All Phase 1 auth tests pass
+- ✅ Ready for App Store submission
+
+---
 
 ### 4.1 Privacy & Legal Compliance
 **Timeline**: 3-4 days

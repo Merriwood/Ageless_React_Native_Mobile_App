@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Linking, useSafeAreaInsets } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { theme } from '../../theme';
 
 interface NavItem {
@@ -19,18 +20,20 @@ interface BottomNavProps {
 /**
  * BottomNav Component
  *
- * A React Native bottom tab navigation component with 5 main navigation items:
+ * A React Native bottom tab navigation component with 6 main navigation items:
  * - Home: Dashboard/main view
  * - My ABS: Body tracking drawer
  * - Scan: QR code scan modal
  * - Listen: External link to Sirius XM
- * - Rewards: Rewards section
+ * - History: Workout history
+ * - Profile: User profile & settings
  *
  * Features:
  * - Active state styling (scale + color change)
  * - Icon animation on active (scale 1.08)
  * - Safe area inset handling for notched devices
  * - External link support
+ * - Navigation routing support
  */
 export function BottomNav({ onNavigate, activeTab = 'home' }: BottomNavProps) {
   const [active, setActive] = useState(activeTab);
@@ -41,7 +44,13 @@ export function BottomNav({ onNavigate, activeTab = 'home' }: BottomNavProps) {
       id: 'home',
       label: 'Home',
       icon: (active) => <HomeIcon active={active} />,
-      href: 'home',
+      href: '/(app)/dashboard',
+    },
+    {
+      id: 'history',
+      label: 'History',
+      icon: (active) => <HistoryIcon active={active} />,
+      href: '/(app)/history',
     },
     {
       id: 'myabs',
@@ -62,10 +71,10 @@ export function BottomNav({ onNavigate, activeTab = 'home' }: BottomNavProps) {
       onPress: () => handlePress('listen'),
     },
     {
-      id: 'rewards',
-      label: 'Rewards',
-      icon: (active) => <RewardsIcon active={active} />,
-      href: 'rewards',
+      id: 'profile',
+      label: 'Profile',
+      icon: (active) => <ProfileIcon active={active} />,
+      href: '/(app)/profile',
     },
   ];
 
@@ -83,13 +92,24 @@ export function BottomNav({ onNavigate, activeTab = 'home' }: BottomNavProps) {
     }
   };
 
+  const handleNavItemPress = (item: NavItem) => {
+    handlePress(item.id);
+
+    // Navigate to href if specified
+    if (item.href) {
+      router.push(item.href as any);
+    } else if (item.onPress) {
+      item.onPress();
+    }
+  };
+
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom }]}>
       {navItems.map((item) => (
         <TouchableOpacity
           key={item.id}
           style={[styles.navButton, active === item.id && styles.navButtonActive]}
-          onPress={() => handlePress(item.id)}
+          onPress={() => handleNavItemPress(item)}
           activeOpacity={0.7}
         >
           <View style={[styles.iconContainer, active === item.id && styles.iconContainerActive]}>
@@ -127,8 +147,12 @@ function ListenIcon({ active }: { active: boolean }) {
   return <Ionicons name={active ? "headphones" : "headphones-outline"} size={20} color={active ? theme.colors.primary : "#000"} />;
 }
 
-function RewardsIcon({ active }: { active: boolean }) {
-  return <MaterialIcons name="card-giftcard" size={20} color={active ? theme.colors.primary : "#000"} />;
+function HistoryIcon({ active }: { active: boolean }) {
+  return <Ionicons name={active ? "time" : "time-outline"} size={20} color={active ? theme.colors.primary : "#000"} />;
+}
+
+function ProfileIcon({ active }: { active: boolean }) {
+  return <Ionicons name={active ? "person" : "person-outline"} size={20} color={active ? theme.colors.primary : "#000"} />;
 }
 
 const styles = StyleSheet.create({

@@ -1,81 +1,142 @@
-import { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { useState, useEffect, useCallback } from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+  StyleSheet,
+  RefreshControl,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
-import { Card, CardContent } from '../../components/ui/Card';
+import { theme } from '../../theme';
+import { Card } from '../../components/ui/Card';
 import { EXERCISES } from '../../lib/constants/exercises';
 import { WorkoutEntry } from '../../lib/types';
+import { historyAPI } from '../../api/history';
+import { useUI } from '../../context/UIContext';
+
+const PAGE_SIZE = 20;
 
 export default function HistoryScreen() {
   const [entries, setEntries] = useState<WorkoutEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+  const [refreshing, setRefreshing] = useState(false);
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [currentPage, setCurrentPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
+  const { showToast } = useUI();
+
+  // Load initial history
   useEffect(() => {
-    loadHistory();
+    loadInitialHistory();
   }, []);
 
-  const loadHistory = async () => {
+  const loadInitialHistory = async () => {
     setLoading(true);
     try {
-      // Mock data for now - replace with actual API call
-      // const response = await fetch('/api/workouts');
-      // const data = await response.json();
-      
-      // Simulated delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const mockData: WorkoutEntry[] = [
-        {
-          id: 1,
-          date: '2023-10-26',
-          weight: 185.5,
-          fitnessData: {
-            bike: 30,
-            chestPress: 4,
-            row: 4
-          }
-        },
-        {
-          id: 2,
-          date: '2023-10-25',
-          weight: 186.0,
-          fitnessData: {
-            bike: 45,
-            abs: 100
-          }
-        }
-      ];
-      setEntries(mockData);
+      historyAPI.resetPagination();
+      const response = await historyAPI.getHistory(0, PAGE_SIZE);
+      // Transform API entries to local WorkoutEntry type
+      const transformed = response.entries.map(e => ({
+        id: typeof e.id === 'string' ? parseInt(e.id, 10) : e.id,
+        date: e.date,
+        weight: e.weight,
+        fitnessData: (e as any).exercises || (e as any).fitnessData || {},
+      } as WorkoutEntry));
+      setEntries(transformed);
+      setCurrentPage(0);
+      setHasMore(response.hasMore);
     } catch (error) {
       console.error('Failed to load history:', error);
-      Alert.alert('Error', 'Failed to load history');
+      showToast('Failed to load history', 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (entryId: number) => {
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      historyAPI.resetPagination();
+      const response = await historyAPI.getHistory(0, PAGE_SIZE);
+      // Transform API entries to local WorkoutEntry type
+      const transformed = response.entries.map(e => ({
+        id: typeof e.id === 'string' ? parseInt(e.id, 10) : e.id,
+        date: e.date,
+        weight: e.weight,
+        fitnessData: (e as any).exercises || (e as any).fitnessData || {},
+      } as WorkoutEntry));
+      setEntries(transformed);
+      setCurrentPage(0);
+      setHasMore(response.hasMore);
+      showToast('History refreshed', 'success');
+    } catch (error) {
+      console.error('Failed to refresh history:', error);
+      showToast('Failed to refresh history', 'error');
+    } finally {
+      setRefreshing(false);
+    }
+  }, [showToast]);
+
+  const loadMore = async () => {
+    if (!hasMore || loadingMore) return;
+
+    setLoadingMore(true);
+    try {
+      const nextPage = currentPage + 1;
+      const response = await historyAPI.getHistory(nextPage, PAGE_SIZE);
+      // Transform API entries to local WorkoutEntry type
+      const transformed = response.entries.map(e => ({
+        id: typeof e.id === 'string' ? parseInt(e.id, 10) : e.id,
+        date: e.date,
+        weight: e.weight,
+        fitnessData: (e as any).exercises || (e as any).fitnessData || {},
+      } as WorkoutEntry));
+      setEntries(prev => [...prev, ...transformed]);
+      setCurrentPage(nextPage);
+      setHasMore(response.hasMore);
+    } catch (error) {
+      console.error('Failed to load more history:', error);
+      showToast('Failed to load more entries', 'error');
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  const handleDelete = async (entry: WorkoutEntry) => {
     Alert.alert(
       'Delete Workout',
-      'Are you sure you want to delete this workout?',
+      `Delete workout from ${formatDate(entry.date)}?`,
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Delete', 
+        {
+          text: 'Delete',
           style: 'destructive',
           onPress: async () => {
-            // Implement delete logic here
-            setEntries(prev => prev.filter(e => e.id !== entryId));
-          }
-        }
+            try {
+              // Delete from server - would need deleteEntry API
+              setEntries(prev => prev.filter(e => e.id !== entry.id));
+              // Clear history cache so next load is fresh
+              historyAPI.clearCache();
+              showToast('Workout deleted', 'success');
+            } catch (error) {
+              console.error('Failed to delete workout:', error);
+              showToast('Failed to delete workout', 'error');
+            }
+          },
+        },
       ]
     );
   };
 
-  const toggleRow = (entryId: number) => {
+  const toggleRow = (entryId: string) => {
     setExpandedRows(prev => {
       const newSet = new Set(prev);
       if (newSet.has(entryId)) {
@@ -92,66 +153,66 @@ export default function HistoryScreen() {
   };
 
   const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    // Fix timezone offset issue for display
-    const userTimezoneOffset = date.getTimezoneOffset() * 60000;
-    const adjustedDate = new Date(date.getTime() + userTimezoneOffset);
-    
-    return adjustedDate.toLocaleDateString('en-US', {
+    const date = new Date(dateStr + 'T00:00:00');
+    return date.toLocaleDateString('en-US', {
       weekday: 'short',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
+      year: 'numeric',
     });
   };
 
   const renderItem = ({ item }: { item: WorkoutEntry }) => {
-    const isExpanded = expandedRows.has(item.id);
-    const exerciseCount = Object.keys(item.fitnessData).length;
-    const totalSets = Object.values(item.fitnessData).reduce((a, b) => a + b, 0);
+    const isExpanded = expandedRows.has(item.id.toString());
+    const exerciseCount = Object.keys(item.fitnessData || {}).length;
+    const totalSets = Object.values(item.fitnessData || {}).reduce((a, b) => a + b, 0);
 
     return (
-      <Card className="mb-4">
-        <TouchableOpacity 
-          onPress={() => toggleRow(item.id)}
-          className="p-4"
+      <Card style={styles.card}>
+        <TouchableOpacity
+          onPress={() => toggleRow(item.id.toString())}
+          style={styles.header}
         >
-          <View className="flex-row justify-between items-center">
-            <View>
-              <Text className="text-lg font-bold text-slate-900">
-                {formatDate(item.date)}
-              </Text>
-              <Text className="text-sm text-slate-500">
-                {exerciseCount} exercises • {totalSets} sets/mins
-              </Text>
-            </View>
-            <View className="flex-row items-center gap-4">
-              {item.weight && (
-                <Text className="font-medium text-slate-700">{item.weight} lbs</Text>
-              )}
-              <Ionicons 
-                name={isExpanded ? "chevron-up" : "chevron-down"} 
-                size={20} 
-                color="#64748b" 
-              />
-            </View>
+          <View>
+            <Text style={styles.date}>{formatDate(item.date)}</Text>
+            <Text style={styles.summary}>
+              {exerciseCount} exercises • {totalSets} sets
+            </Text>
+          </View>
+          <View style={styles.headerRight}>
+            {item.weight && (
+              <Text style={styles.weight}>{item.weight} lbs</Text>
+            )}
+            <Ionicons
+              name={isExpanded ? 'chevron-up' : 'chevron-down'}
+              size={20}
+              color={theme.colors.text.secondary}
+            />
           </View>
         </TouchableOpacity>
 
         {isExpanded && (
-          <View className="px-4 pb-4 border-t border-gray-100 pt-4">
-            {Object.entries(item.fitnessData).map(([key, value]) => (
-              <View key={key} className="flex-row justify-between py-1">
-                <Text className="text-slate-600">{getExerciseName(key)}</Text>
-                <Text className="font-medium text-slate-900">{value}</Text>
-              </View>
-            ))}
-            
-            <TouchableOpacity 
-              onPress={() => handleDelete(item.id)}
-              className="mt-4 flex-row items-center justify-center py-2 bg-red-50 rounded-md"
+          <View style={styles.expandedContent}>
+            {exerciseCount > 0 ? (
+              <>
+                <View style={styles.divider} />
+                {Object.entries(item.fitnessData || {}).map(([key, value]) => (
+                  <View key={key} style={styles.exerciseRow}>
+                    <Text style={styles.exerciseName}>{getExerciseName(key)}</Text>
+                    <Text style={styles.exerciseValue}>{value}</Text>
+                  </View>
+                ))}
+              </>
+            ) : (
+              <Text style={styles.noData}>No exercises recorded</Text>
+            )}
+
+            <TouchableOpacity
+              onPress={() => handleDelete(item)}
+              style={styles.deleteButton}
             >
-              <Ionicons name="trash-outline" size={18} color="#ef4444" />
-              <Text className="ml-2 text-red-600 font-medium">Delete Workout</Text>
+              <Ionicons name="trash-outline" size={18} color={theme.colors.status.error} />
+              <Text style={styles.deleteText}>Delete Workout</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -159,31 +220,198 @@ export default function HistoryScreen() {
     );
   };
 
+  const renderFooter = () => {
+    if (!hasMore) return null;
+    return (
+      <TouchableOpacity
+        onPress={loadMore}
+        disabled={loadingMore}
+        style={styles.loadMoreButton}
+      >
+        {loadingMore ? (
+          <ActivityIndicator color={theme.colors.primary} />
+        ) : (
+          <Text style={styles.loadMoreText}>Load More</Text>
+        )}
+      </TouchableOpacity>
+    );
+  };
+
   return (
-    <SafeAreaView className="flex-1 bg-slate-50" edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <Stack.Screen options={{ headerShown: false }} />
-      
-      <View className="px-4 py-4 border-b border-gray-200 bg-white flex-row items-center justify-between">
-        <TouchableOpacity onPress={() => router.back()} className="p-2 -ml-2">
-          <Ionicons name="arrow-back" size={24} color="#0f172a" />
+
+      {/* Header */}
+      <View style={styles.header_bar}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color={theme.colors.text.primary} />
         </TouchableOpacity>
-        <Text className="text-xl font-bold text-slate-900">History</Text>
-        <View className="w-10" /> 
+        <Text style={styles.headerTitle}>History</Text>
+        <View style={styles.headerSpacer} />
       </View>
 
+      {/* Content */}
       {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" className="mt-10" />
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color={theme.colors.primary} />
+        </View>
       ) : (
         <FlatList
           data={entries}
           renderItem={renderItem}
           keyExtractor={item => item.id.toString()}
-          contentContainerStyle={{ padding: 16 }}
-          ListEmptyComponent={
-            <Text className="text-center text-slate-500 mt-10">No workout history found</Text>
+          contentContainerStyle={styles.listContent}
+          scrollEnabled={true}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Ionicons
+                name="document-outline"
+                size={48}
+                color={theme.colors.text.secondary}
+              />
+              <Text style={styles.emptyText}>No workout history</Text>
+            </View>
+          }
+          ListFooterComponent={renderFooter}
         />
       )}
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  header_bar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: theme.spacing.base,
+    paddingVertical: theme.spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border.light,
+    backgroundColor: theme.colors.surface,
+  },
+  backButton: {
+    padding: theme.spacing.sm,
+    marginLeft: -theme.spacing.sm,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: theme.colors.text.primary,
+  },
+  headerSpacer: {
+    width: 40,
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  listContent: {
+    paddingHorizontal: theme.spacing.base,
+    paddingTop: theme.spacing.base,
+    paddingBottom: theme.spacing.xl * 2,
+  },
+  card: {
+    marginBottom: theme.spacing.base,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: theme.spacing.base,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.md,
+  },
+  date: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing.xs,
+  },
+  summary: {
+    fontSize: 13,
+    color: theme.colors.text.secondary,
+  },
+  weight: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.colors.text.primary,
+  },
+  expandedContent: {
+    paddingHorizontal: theme.spacing.base,
+    paddingBottom: theme.spacing.base,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: theme.colors.border.light,
+    marginBottom: theme.spacing.base,
+  },
+  exerciseRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: theme.spacing.xs,
+  },
+  exerciseName: {
+    fontSize: 14,
+    color: theme.colors.text.secondary,
+    flex: 1,
+  },
+  exerciseValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.colors.text.primary,
+  },
+  noData: {
+    fontSize: 13,
+    color: theme.colors.text.secondary,
+    fontStyle: 'italic',
+    marginBottom: theme.spacing.base,
+  },
+  deleteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: theme.spacing.sm,
+    marginTop: theme.spacing.base,
+    backgroundColor: '#FEE2E2',
+    borderRadius: theme.radius.md,
+  },
+  deleteText: {
+    marginLeft: theme.spacing.sm,
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.colors.status.error,
+  },
+  loadMoreButton: {
+    paddingVertical: theme.spacing.md,
+    alignItems: 'center',
+    marginTop: theme.spacing.base,
+  },
+  loadMoreText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.colors.primary,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: theme.spacing.xl * 2,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: theme.colors.text.secondary,
+    marginTop: theme.spacing.base,
+  },
+});

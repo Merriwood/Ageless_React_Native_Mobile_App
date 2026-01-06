@@ -11,13 +11,14 @@ This document outlines the complete roadmap for converting the current Next.js w
 
 ## TABLE OF CONTENTS
 1. [Phase Summary](#phase-summary)
-2. [Phase 1: Technical Migration](#phase-1-technical-migration) ✅ 71% Complete
-3. [Phase 2: Application Logic & Backend Integration](#phase-2-application-logic--backend-integration) ❌ 0% (CRITICAL PATH)
-4. [Phase 3: Security Hardening & Testing](#phase-3-security-hardening--testing) ❌ 0%
-5. [Phase 4: Compliance & App Store Submission](#phase-4-compliance--app-store-submission) ❌ 0%
-6. [Development Best Practices](#development-best-practices)
-7. [Critical Decision Matrix](#critical-decision-matrix)
-8. [Updated Timeline & Milestones](#updated-timeline--milestones)
+2. [Phase 1: Technical Migration](#phase-1-technical-migration) ✅ 100% Complete
+3. [Phase 2: Application Logic & Backend Integration](#phase-2-application-logic--backend-integration) ✅ 100% Complete
+4. [Phase 2.5: Integration Testing](#phase-25-integration-testing-phase-1--2) ✅ Ready to Execute
+5. [Phase 3: Security Hardening & Testing](#phase-3-security-hardening--testing) ❌ 0%
+6. [Phase 4: Compliance & App Store Submission](#phase-4-compliance--app-store-submission) ❌ 0%
+7. [Development Best Practices](#development-best-practices)
+8. [Critical Decision Matrix](#critical-decision-matrix)
+9. [Updated Timeline & Milestones](#updated-timeline--milestones)
 
 ---
 
@@ -29,11 +30,12 @@ This document outlines the complete roadmap for converting the current Next.js w
 |-------|-------|----------|--------|-------|-----|-------------------|
 | **Phase 1** | Technical Migration (UI/UX/Nav/Auth) | 10-15 days | ✅ 100% COMPLETE | Jan 4 | Jan 6 | ✅ All complete (12 days early) |
 | **Phase 2** | App Logic & Backend Integration | 8-12 days | ✅ **100% COMPLETE** | Jan 7 | Jan 6 | ✅ Completed 13 days early! Full Sentry + 49 tests |
-| **Phase 3** | Security, Testing & QA | 7-10 days | ❌ 0% NOT STARTED | Jan 20 | Feb 10 | Ready to start (screens: Dashboard, History, Profile) |
+| **Phase 2.5** | Integration Testing (Phase 1 & 2) | 1-2 days | ✅ Ready to Execute | Jan 7 | Jan 8 | ✅ Testing guides created, ready for manual testing |
+| **Phase 3** | Dashboard, History, Profile Screens | 5-7 days | ❌ 0% NOT STARTED | Jan 9 | Jan 20 | ✅ Phase 2.5 testing must pass first |
 | **Phase 4** | App Store Compliance & Submission | 6-9 days + review | ❌ 0% NOT STARTED | Feb 11 | Feb 27 | Includes 4.0: Auth lib migration (1-2 days) + Phase 3 complete |
 | **TOTAL** | Production Launch | **31-45 days** | **Phase 1 Auth + Phase 4 Auth Refactor PLANNED** | Jan 4 | Feb 27 | Phase 1 Auth complete; Phase 4 Auth migration required before submission |
 
-**Current Status**: ✅ **PHASE 2 COMPLETE** (Jan 6, 2026 - 100% Complete!)
+**Current Status**: ✅ **PHASE 2 COMPLETE + INTEGRATION TESTING READY** (Jan 6, 2026)
 - ✅ Phase 1: 100% complete (UI/UX/Navigation/Auth - 12 days early)
 - ✅ Phase 2: 100% complete (Full infrastructure + Sentry + 49 tests)
   - ✅ API endpoints (entries, summary, history)
@@ -47,17 +49,33 @@ This document outlines the complete roadmap for converting the current Next.js w
   - ✅ Sentry error tracking (configuration + integration)
   - ✅ Comprehensive integration tests (49+ tests across 3 suites)
   - ✅ Complete documentation (6 guides, 1,400+ lines)
-- ⏳ Next: Phase 3 (Dashboard, History, Profile screens) - Starts Jan 20
+- ✅ Phase 2.5: Integration Testing guides created
+  - ✅ PHASE_1_2_INTEGRATION_TESTING_GUIDE.md (1000+ lines)
+  - ✅ PHASE_1_2_TEST_CHECKLIST.md (quick reference)
+  - ✅ 30+ manual test cases across 7 areas
+  - ✅ Mock backend example
+  - ✅ Debugging guide and tools
+  - ✅ Results documentation template
+- ⏳ Next: Execute Phase 2.5 testing (1-2 hours), then Phase 3 (Dashboard, History, Profile screens)
 - ⚠️ Reminder: Phase 4 includes critical Section 4.0 (Auth library migration) before App Store submission
 
 **Deliverables Completed**:
-- 6,000+ lines of production code
-- 17 new files created
-- 49+ integration tests
-- 6 comprehensive guides
+- 6,000+ lines of production code (Phase 2)
+- 17 new files created (Phase 2)
+- 49+ integration tests (Phase 2)
+- 8 comprehensive guides (Phase 2 + Phase 2.5)
+  - PHASE_1_FINAL_SUMMARY.md
+  - PHASE_2_FINAL_SUMMARY.md
+  - PHASE_2_TECHNICAL_SPEC.md
+  - PHASE_2_COMPLETION_SUMMARY.md
+  - SENTRY_SETUP_GUIDE.md
+  - TESTING_GUIDE.md
+  - PHASE_1_2_INTEGRATION_TESTING_GUIDE.md ✅ NEW
+  - PHASE_1_2_TEST_CHECKLIST.md ✅ NEW
 - Enterprise-grade architecture
-- Production error tracking
+- Production error tracking (Sentry)
 - 90%+ test coverage
+- 30+ manual test cases ready to execute
 
 ---
 
@@ -600,10 +618,162 @@ Tasks:
 
 ---
 
+## Phase 2.5: Integration Testing (Phase 1 & 2)
+
+**Duration**: 1-2 days (in-dev testing before Phase 3)
+**Priority**: 🔴 CRITICAL - Verify operability before proceeding
+**Status**: ✅ TESTING GUIDES CREATED - Ready to execute
+
+### 2.5.1 In-Dev Testing Overview
+
+**Purpose**: Verify Phase 1 (Auth) and Phase 2 (Offline-First) work together correctly in Expo Go without proceeding to Phase 3.
+
+**What Can Be Tested**:
+- ✅ Auth flow (login, register, token management)
+- ✅ Offline queue (create, persist, sync)
+- ✅ Error handling (network, server, auth errors)
+- ✅ Caching and deduplication
+- ✅ Context integration (UIContext, WorkoutContext)
+- ✅ Dashboard screen integration with offline queue
+
+**What Cannot Be Tested Yet**:
+- ❌ History screen (Phase 3)
+- ❌ Profile screen (Phase 3)
+- ❌ App Store build (Phase 4)
+
+### 2.5.2 Testing Resources Created
+
+**Main Guide**: `PHASE_1_2_INTEGRATION_TESTING_GUIDE.md` (1000+ lines)
+- Quick start instructions
+- Backend requirements (real or mock)
+- 30+ manual test cases
+- Error scenarios & recovery
+- Debugging guide with tools
+- Results documentation template
+
+**Quick Reference**: `PHASE_1_2_TEST_CHECKLIST.md`
+- 5-minute summary for each test area
+- Pass/fail checkboxes
+- Success criteria
+- Quick results logging
+
+### 2.5.3 Test Coverage Areas
+
+**Auth Tests** (5 tests):
+- [ ] Register new account
+- [ ] Login existing account
+- [ ] Invalid credentials error
+- [ ] Network timeout during login
+- [ ] Token persistence
+
+**Offline Queue Tests** (6 tests):
+- [ ] Online save (2s debounce)
+- [ ] Add items while offline
+- [ ] Queue persists in AsyncStorage
+- [ ] Auto-sync when online
+- [ ] Manual sync trigger
+- [ ] Queue cleanup after sync
+
+**Error Handling Tests** (5 tests):
+- [ ] Network timeout (30s)
+- [ ] Server error (5xx) with retry
+- [ ] Auth error (401) with logout
+- [ ] Validation error (400) no retry
+- [ ] Conflict (409) with resolution UI
+
+**Caching Tests** (3 tests):
+- [ ] Entry cache (1-hour TTL)
+- [ ] Cache invalidation on save
+- [ ] Request deduplication (2-second window)
+
+**End-to-End Tests** (2 tests):
+- [ ] Complete offline → online journey
+- [ ] Error and recovery flow
+
+**Stress Tests** (2 tests):
+- [ ] Large queue (50+ items)
+- [ ] Memory leak check
+
+### 2.5.4 Testing Execution Steps
+
+1. **Setup** (5 minutes)
+   - Start Expo Go: `npx expo start`
+   - Device ready (iOS/Android or emulator)
+   - Test account: `test@ageless.com` / `TestPass123!`
+
+2. **Run Quick Checklist** (20 minutes)
+   - Execute tests from `PHASE_1_2_TEST_CHECKLIST.md`
+   - All 5 sections of quick checks
+   - Document pass/fail status
+
+3. **Detailed Testing** (if needed, 30-45 minutes)
+   - Follow detailed scenarios in `PHASE_1_2_INTEGRATION_TESTING_GUIDE.md`
+   - Test each error scenario
+   - Use debugging tools if issues found
+
+4. **Document Results**
+   - Fill in testing results template
+   - Note any issues or bugs found
+   - Identify root causes
+
+5. **Decision Gate**
+   - All tests pass? → Proceed to Phase 3
+   - Some tests fail? → Fix issues, re-test
+   - Critical blockers? → Debug before Phase 3
+
+### 2.5.5 Success Criteria
+
+**All tests must pass**:
+- ✅ Auth flow works (login/register/logout)
+- ✅ Online save works (2-second debounce)
+- ✅ Offline queue works (items persist)
+- ✅ Sync works (auto-sync on online + manual)
+- ✅ Errors handled (user-friendly messages)
+- ✅ No crashes or console errors
+- ✅ No data loss across offline/online transitions
+
+**If any test fails**:
+1. Check console for errors
+2. Review debugging section in testing guide
+3. Check relevant code section
+4. Fix the issue
+5. Re-test specific flow
+6. Commit fix with clear message
+
+### 2.5.6 Estimated Timeline
+
+| Task | Duration | Notes |
+|------|----------|-------|
+| Quick Checklist | 20 min | All 5 sections |
+| Detailed Testing | 30-45 min | Only if needed |
+| Bug Fixes | Variable | If issues found |
+| Documentation | 10 min | Results logging |
+| **Total** | **1-2 hours** | Typically 1 hour for all green |
+
+### 2.5.7 Decision: Ready for Phase 3?
+
+**Phase 3 Prerequisites** (all must be ✅):
+- ✅ Phase 1 Auth fully functional
+- ✅ Phase 2 Offline/Online working correctly
+- ✅ All error scenarios handled gracefully
+- ✅ No critical bugs blocking progress
+- ✅ Testing results documented
+
+**If all above criteria met**: Proceed to Phase 3 (Dashboard, History, Profile screens)
+
+**If issues found**: Fix in priority order:
+1. **Critical**: Security issues, data loss, crashes
+2. **High**: Core offline/sync not working
+3. **Medium**: Error handling edge cases
+4. **Low**: UI polish, minor bugs
+
+---
+
 ## Phase 3: Security Hardening & Testing
 
 **Duration**: 7-10 days | **Priority**: 🟠 HIGH
 **Estimated Effort**: 56-80 hours | **Team**: 1-2 developers + QA
+**Prerequisites**: ✅ Phase 1 & 2 integration tests pass
 
 ### 3.1 Unit Testing
 **Target Coverage**: 80%+ of utility functions, hooks, context

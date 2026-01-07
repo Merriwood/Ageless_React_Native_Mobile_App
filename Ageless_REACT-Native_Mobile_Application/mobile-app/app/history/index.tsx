@@ -21,6 +21,7 @@ import { historyAPI } from '../../api/history';
 import { useUI } from '../../context/UIContext';
 
 const PAGE_SIZE = 20;
+const TOTAL_EXERCISES = EXERCISES.length; // 11 exercises
 
 export default function HistoryScreen() {
   const [entries, setEntries] = useState<WorkoutEntry[]>([]);
@@ -166,83 +167,119 @@ export default function HistoryScreen() {
     });
   };
 
+  const getWeekday = (dateStr: string) => {
+    const date = new Date(dateStr + 'T00:00:00');
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+    });
+  };
+
+  const calculateCompletedExercises = (fitnessData: Record<string, number>) => {
+    return Object.values(fitnessData).filter(sets => sets > 0).length;
+  };
+
+  const calculateTotalSets = (fitnessData: Record<string, number>) => {
+    return Object.values(fitnessData).reduce((a, b) => a + b, 0);
+  };
+
   const renderItem = ({ item }: { item: WorkoutEntry }) => {
     const isExpanded = expandedRows.has(item.id.toString());
     const fitnessData = item.fitnessData || {};
-    const completedExercises = Object.values(fitnessData).filter(sets => sets > 0).length;
-    const totalSets = Object.values(fitnessData).reduce((a, b) => a + b, 0);
+    const completedExercises = calculateCompletedExercises(fitnessData);
+    const totalSets = calculateTotalSets(fitnessData);
 
     return (
       <Card style={styles.card}>
+        {/* Card Header - Clickable */}
         <TouchableOpacity
           onPress={() => toggleRow(item.id.toString())}
-          style={styles.header}
+          style={styles.cardHeader}
         >
-          <View>
-            <Text style={styles.date}>{formatDate(item.date)}</Text>
-            <Text style={styles.summary}>
-              {completedExercises} exercises • {totalSets} sets
-            </Text>
+          {/* Left Section: Date + Weekday */}
+          <View style={styles.headerLeft}>
+            <View style={styles.dateSection}>
+              <Text style={styles.chevron}>{isExpanded ? '▼' : '▶'}</Text>
+              <View>
+                <Text style={styles.dateValue}>{formatDate(item.date)}</Text>
+                <Text style={styles.weekday}>{getWeekday(item.date)}</Text>
+              </View>
+            </View>
           </View>
-          <View style={styles.headerRight}>
-            {item.weight && (
-              <Text style={styles.weight}>{item.weight} lbs</Text>
-            )}
-            <Ionicons
-              name={isExpanded ? 'chevron-up' : 'chevron-down'}
-              size={20}
-              color={theme.colors.text.secondary}
-            />
-          </View>
+
+          {/* Right Section: Weight */}
+          {item.weight && (
+            <View style={styles.headerRight}>
+              <Text style={styles.weightValue}>{item.weight}</Text>
+              <Text style={styles.weightUnit}>lbs</Text>
+            </View>
+          )}
         </TouchableOpacity>
 
+        {/* Summary Stats - Always visible */}
+        <View style={styles.summaryStats}>
+          <View style={styles.statItem}>
+            <Text style={styles.statLabel}>Exercises</Text>
+            <View style={styles.statValue}>
+              <Text style={styles.statNumber}>{completedExercises}</Text>
+              <Text style={styles.statFraction}> / {TOTAL_EXERCISES}</Text>
+            </View>
+          </View>
+          <View style={styles.statItem}>
+            <Text style={styles.statLabel}>Total Sets</Text>
+            <Text style={styles.statNumber}>{totalSets}</Text>
+          </View>
+        </View>
+
+        {/* Expanded Content */}
         {isExpanded && (
           <View style={styles.expandedContent}>
-            {Object.keys(fitnessData).length > 0 ? (
+            <View style={styles.expandedDivider} />
+
+            {/* Exercise Breakdown */}
+            <Text style={styles.breakdownTitle}>Exercise Breakdown:</Text>
+
+            <View style={styles.exercisesContainer}>
+              {Object.entries(fitnessData)
+                .filter(([, sets]) => sets > 0)
+                .sort(([, a], [, b]) => b - a)
+                .map(([key, value]) => (
+                  <View key={key} style={styles.exerciseItem}>
+                    <Text style={styles.exerciseName}>{getExerciseName(key)}</Text>
+                    <Text style={styles.exerciseSets}>{value} sets</Text>
+                  </View>
+                ))}
+            </View>
+
+            {/* Skipped Exercises Section */}
+            {Object.entries(fitnessData).some(([, sets]) => sets === 0) && (
               <>
-                <View style={styles.divider} />
-                {Object.entries(item.fitnessData || {})
-                  .sort(([, a], [, b]) => b - a)
-                  .map(([key, value]) => (
-                    <View key={key} style={styles.exerciseRow}>
-                      <Text style={styles.exerciseName}>{getExerciseName(key)}</Text>
-                      <Text style={styles.exerciseValue}>{value} sets</Text>
-                    </View>
-                  ))}
-                {/* Skipped exercises section */}
-                {Object.entries(item.fitnessData || {}).some(([, value]) => value === 0) && (
-                  <>
-                    <View style={styles.divider} />
-                    <Text style={styles.skippedHeader}>Skipped</Text>
-                    <View style={styles.skippedContainer}>
-                      {Object.entries(item.fitnessData || {})
-                        .filter(([, value]) => value === 0)
-                        .map(([key]) => (
-                          <View key={key} style={styles.skippedBadge}>
-                            <Text style={styles.skippedText}>{getExerciseName(key)}</Text>
-                          </View>
-                        ))}
-                    </View>
-                  </>
-                )}
+                <Text style={styles.skippedTitle}>Skipped:</Text>
+                <View style={styles.skippedContainer}>
+                  {Object.entries(fitnessData)
+                    .filter(([, sets]) => sets === 0)
+                    .map(([key]) => (
+                      <View key={key} style={styles.skippedTag}>
+                        <Text style={styles.skippedText}>{getExerciseName(key)}</Text>
+                      </View>
+                    ))}
+                </View>
               </>
-            ) : (
-              <Text style={styles.noData}>No exercises recorded</Text>
             )}
 
+            {/* Action Buttons */}
             <View style={styles.actionButtons}>
               <TouchableOpacity
                 onPress={() => handleEdit(item)}
                 style={styles.editButton}
               >
-                <Ionicons name="pencil-outline" size={18} color={theme.colors.text.primary} />
+                <Ionicons name="pencil-outline" size={16} color={theme.colors.text.primary} />
                 <Text style={styles.editText}>Edit</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => handleDelete(item)}
                 style={styles.deleteButton}
               >
-                <Ionicons name="trash-outline" size={18} color={theme.colors.status.error} />
+                <Ionicons name="trash-outline" size={16} color={theme.colors.status.error} />
                 <Text style={styles.deleteText}>Delete</Text>
               </TouchableOpacity>
             </View>
@@ -269,26 +306,25 @@ export default function HistoryScreen() {
     );
   };
 
-  // Calculate stats for header
-  const totalWorkouts = entries.length;
-
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* Header Bar */}
-      <View style={styles.header_bar}>
+      {/* Navigation Header */}
+      <View style={styles.navHeader}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color={theme.colors.text.primary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>History</Text>
-        <View style={styles.headerSpacer} />
+        <Text style={styles.navTitle}>History</Text>
+        <View style={styles.navSpacer} />
       </View>
 
-      {/* Page Title Section */}
+      {/* Page Header */}
       <View style={styles.pageHeader}>
         <Text style={styles.pageTitle}>Workout History</Text>
-        <Text style={styles.pageSubtitle}>{totalWorkouts} workouts tracked</Text>
+        <Text style={styles.pageSubtitle}>
+          {entries.length} workout{entries.length !== 1 ? 's' : ''} recorded
+        </Text>
       </View>
 
       {/* Content */}
@@ -300,7 +336,7 @@ export default function HistoryScreen() {
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyEmoji}>📅</Text>
           <Text style={styles.emptyTitle}>No Workout History</Text>
-          <Text style={styles.emptyMessage}>Start tracking your workouts to see them here</Text>
+          <Text style={styles.emptyMessage}>Start tracking your workouts to see your history here!</Text>
         </View>
       ) : (
         <FlatList
@@ -324,7 +360,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background,
   },
-  header_bar: {
+  navHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -338,12 +374,12 @@ const styles = StyleSheet.create({
     padding: theme.spacing.sm,
     marginLeft: -theme.spacing.sm,
   },
-  headerTitle: {
+  navTitle: {
     fontSize: 20,
     fontWeight: '700',
     color: theme.colors.text.primary,
   },
-  headerSpacer: {
+  navSpacer: {
     width: 40,
   },
   pageHeader: {
@@ -355,13 +391,13 @@ const styles = StyleSheet.create({
     borderBottomColor: theme.colors.border.light,
   },
   pageTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
     color: theme.colors.text.primary,
-    marginBottom: theme.spacing.sm,
+    marginBottom: 8,
   },
   pageSubtitle: {
-    fontSize: 14,
+    fontSize: 15,
     color: theme.colors.text.secondary,
   },
   centerContainer: {
@@ -371,84 +407,158 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: theme.spacing.base,
-    paddingTop: theme.spacing.base,
-    paddingBottom: theme.spacing.xl * 2,
+    paddingVertical: theme.spacing.base,
+    gap: 16, // space-y-4 = 16px
   },
   card: {
-    marginBottom: theme.spacing.base,
+    marginBottom: 0,
+    backgroundColor: theme.colors.surface,
   },
-  header: {
+  cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: theme.spacing.base,
+    alignItems: 'flex-start',
+    paddingHorizontal: theme.spacing.base,
+    paddingTop: theme.spacing.base,
   },
-  headerRight: {
+  headerLeft: {
+    flex: 1,
+  },
+  dateSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.spacing.md,
+    gap: 8,
   },
-  date: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: theme.colors.text.primary,
-    marginBottom: theme.spacing.xs,
-  },
-  summary: {
-    fontSize: 13,
+  chevron: {
+    fontSize: 18,
     color: theme.colors.text.secondary,
   },
-  weight: {
-    fontSize: 14,
-    fontWeight: '600',
+  dateValue: {
+    fontSize: 18,
+    fontWeight: '500',
     color: theme.colors.text.primary,
+  },
+  weekday: {
+    fontSize: 14,
+    color: theme.colors.text.secondary,
+    marginTop: 4,
+  },
+  headerRight: {
+    alignItems: 'flex-end',
+  },
+  weightValue: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: theme.colors.text.primary,
+  },
+  weightUnit: {
+    fontSize: 12,
+    color: theme.colors.text.secondary,
+  },
+  summaryStats: {
+    flexDirection: 'row',
+    gap: 24,
+    paddingHorizontal: theme.spacing.base,
+    paddingVertical: theme.spacing.base,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border.light,
+  },
+  statItem: {
+    flex: 1,
+  },
+  statLabel: {
+    fontSize: 14,
+    color: theme.colors.text.secondary,
+    marginBottom: 4,
+  },
+  statValue: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  statNumber: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: theme.colors.text.primary,
+  },
+  statFraction: {
+    fontSize: 16,
+    fontWeight: '400',
+    color: theme.colors.text.secondary,
   },
   expandedContent: {
     paddingHorizontal: theme.spacing.base,
-    paddingBottom: theme.spacing.base,
+    paddingVertical: theme.spacing.base,
   },
-  divider: {
+  expandedDivider: {
     height: 1,
     backgroundColor: theme.colors.border.light,
-    marginBottom: theme.spacing.base,
+    marginBottom: 12,
   },
-  exerciseRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: theme.spacing.xs,
-  },
-  exerciseName: {
-    fontSize: 14,
-    color: theme.colors.text.secondary,
-    flex: 1,
-  },
-  exerciseValue: {
+  breakdownTitle: {
     fontSize: 14,
     fontWeight: '600',
     color: theme.colors.text.primary,
+    marginBottom: 12,
   },
-  noData: {
-    fontSize: 13,
+  exercisesContainer: {
+    gap: 8,
+    marginBottom: 12,
+  },
+  exerciseItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#f9f9f9',
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.radius.md,
+  },
+  exerciseName: {
+    fontSize: 14,
+    color: theme.colors.text.primary,
+  },
+  exerciseSets: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: theme.colors.primary,
+  },
+  skippedTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.colors.text.primary,
+    marginBottom: 8,
+  },
+  skippedContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 16,
+  },
+  skippedTag: {
+    backgroundColor: '#f9f9f9',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: theme.radius.md,
+  },
+  skippedText: {
+    fontSize: 12,
     color: theme.colors.text.secondary,
-    fontStyle: 'italic',
-    marginBottom: theme.spacing.base,
   },
   actionButtons: {
-    marginTop: theme.spacing.base,
     flexDirection: 'row',
     gap: 8,
+    marginTop: 16,
   },
   editButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: theme.spacing.sm,
+    paddingVertical: 8,
     backgroundColor: theme.colors.border.light,
     borderRadius: theme.radius.md,
+    gap: 6,
   },
   editText: {
-    marginLeft: theme.spacing.sm,
     fontSize: 14,
     fontWeight: '600',
     color: theme.colors.text.primary,
@@ -457,39 +567,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: theme.spacing.sm,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     backgroundColor: '#FEE2E2',
     borderRadius: theme.radius.md,
+    gap: 6,
   },
   deleteText: {
-    marginLeft: theme.spacing.sm,
     fontSize: 14,
     fontWeight: '600',
     color: theme.colors.status.error,
-  },
-  skippedHeader: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: theme.colors.text.secondary,
-    marginTop: theme.spacing.base,
-    marginBottom: theme.spacing.sm,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  skippedContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: theme.spacing.sm,
-  },
-  skippedBadge: {
-    backgroundColor: theme.colors.border.light,
-    borderRadius: theme.radius.md,
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: theme.spacing.xs,
-  },
-  skippedText: {
-    fontSize: 12,
-    color: theme.colors.text.secondary,
   },
   loadMoreButton: {
     paddingVertical: theme.spacing.md,
@@ -509,22 +596,17 @@ const styles = StyleSheet.create({
   },
   emptyEmoji: {
     fontSize: 60,
-    marginBottom: theme.spacing.base,
+    marginBottom: 16,
   },
   emptyTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
     color: theme.colors.text.primary,
-    marginBottom: theme.spacing.sm,
+    marginBottom: 8,
   },
   emptyMessage: {
-    fontSize: 14,
+    fontSize: 15,
     color: theme.colors.text.secondary,
-    marginBottom: theme.spacing.lg,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: theme.colors.text.secondary,
-    marginTop: theme.spacing.base,
+    marginBottom: 24,
   },
 });

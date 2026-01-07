@@ -1,10 +1,7 @@
-/**
- * Test Setup & Utilities
- *
- * Shared test configuration and helper functions
+/*
+ * Test Setup File
+ * Mocks React Native modules for unit testing
  */
-
-import '@testing-library/jest-native/extend-expect';
 
 // Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () => ({
@@ -12,96 +9,85 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
   setItem: jest.fn(),
   removeItem: jest.fn(),
   clear: jest.fn(),
+  getAllKeys: jest.fn(),
+  multiGet: jest.fn(),
+  multiSet: jest.fn(),
+  multiRemove: jest.fn(),
 }));
 
-// Mock NetInfo
-jest.mock('@react-native-community/netinfo', () => ({
-  addEventListener: jest.fn(),
-  fetch: jest.fn(),
-}));
-
-// Mock Expo SecureStore
+// Mock expo-secure-store
 jest.mock('expo-secure-store', () => ({
   getItemAsync: jest.fn(),
   setItemAsync: jest.fn(),
   deleteItemAsync: jest.fn(),
+  getCredentialAsync: jest.fn(),
+  setCredentialAsync: jest.fn(),
+  deleteCredentialAsync: jest.fn(),
 }));
 
-// Mock Sentry
-jest.mock('../lib/sentry', () => ({
-  initSentry: jest.fn(),
-  setSentryUser: jest.fn(),
-  captureSentryError: jest.fn(),
+// Mock @react-native-community/netinfo
+jest.mock('@react-native-community/netinfo', () => ({
+  fetch: jest.fn(() => Promise.resolve({
+    isConnected: true,
+    isInternetReachable: true,
+    type: 'wifi',
+  })),
+  addEventListener: jest.fn(() => jest.fn()),
+  useNetInfo: jest.fn(() => ({
+    isConnected: true,
+    isInternetReachable: true,
+    type: 'wifi',
+  })),
 }));
 
-// Setup global test utilities
-global.__DEV__ = true;
+// Mock react-native
+jest.mock('react-native', () => ({
+  View: 'View',
+  Text: 'Text',
+  TextInput: 'TextInput',
+  TouchableOpacity: 'TouchableOpacity',
+  ScrollView: 'ScrollView',
+  FlatList: 'FlatList',
+  ActivityIndicator: 'ActivityIndicator',
+  Alert: {
+    alert: jest.fn(),
+  },
+  AppState: {
+    addEventListener: jest.fn(),
+    currentState: 'active',
+  },
+  Platform: {
+    OS: 'ios',
+    Version: 14,
+  },
+}));
 
-/**
- * Wait for promise to settle
- */
-export const waitFor = (callback: () => void, options?: any) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      try {
-        callback();
-        resolve(true);
-      } catch {
-        resolve(false);
-      }
-    }, 50);
-  });
-};
+// Global mocks
+global.fetch = jest.fn();
 
-/**
- * Mock API response
- */
-export const mockApiResponse = (status: number = 200, data: any = {}) => {
-  return {
+export {};
+
+// Test helpers - Mock API responses and errors
+export const mockApiResponse = (status: number, data: any) => ({
+  status,
+  statusText: 'OK',
+  headers: {},
+  config: {},
+  data,
+});
+
+export const mockApiError = (status: number, message: string) => {
+  const error = new Error(message) as any;
+  error.response = {
     status,
-    data,
-    config: {},
-    headers: {},
-    statusText: 'OK',
-  };
-};
-
-/**
- * Mock API error
- */
-export const mockApiError = (status: number = 500, message: string = 'Error') => {
-  const error = new Error(message);
-  (error as any).response = {
-    status,
-    data: { error: { message } },
-    config: {},
-    headers: {},
     statusText: 'Error',
+    headers: {},
+    config: {},
+    data: { message },
   };
-  (error as any).config = {};
+  error.code = 'ERR_BAD_REQUEST';
   return error;
 };
 
-/**
- * Mock AsyncStorage methods
- */
-export const mockAsyncStorage = {
-  getItem: (key: string) => Promise.resolve(null),
-  setItem: (key: string, value: string) => Promise.resolve(),
-  removeItem: (key: string) => Promise.resolve(),
-  clear: () => Promise.resolve(),
-};
-
-/**
- * Mock NetInfo state
- */
-export const mockNetInfo = {
-  isConnected: true,
-  isInternetReachable: true,
-  type: 'wifi',
-};
-
-/**
- * Sleep for milliseconds
- */
-export const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+// Global test utilities
+global.__DEV__ = false;

@@ -1,0 +1,89 @@
+PASS __tests__/integration/error-handling.test.ts (5.069 s)
+  Error Handling System
+    Error Mapping
+      √ maps network error to NO_INTERNET (9 ms)
+      √ maps timeout to TIMEOUT (1 ms)
+      √ maps 400 to VALIDATION_ERROR (1 ms)
+      √ maps 401 to UNAUTHORIZED (1 ms)
+      √ maps 403 to FORBIDDEN (1 ms)
+      √ maps 404 to NOT_FOUND (1 ms)
+      √ maps 409 to CONFLICT (1 ms)
+      √ maps 429 to RATE_LIMITED (1 ms)
+      √ maps 500 to SERVER_ERROR (1 ms)
+      √ maps 503 to SERVICE_UNAVAILABLE (1 ms)
+      √ maps unknown error to UNKNOWN (1 ms)
+    Retry Logic
+      √ calculates exponential backoff (1 ms)
+      √ adds jitter to backoff (2 ms)
+      √ caps maximum delay at 30 seconds (3 ms)
+      √ respects max retry attempts (3) (4 ms)
+      √ retries network errors (13 ms)
+      √ does NOT retry auth errors (10 ms)
+      √ does NOT retry validation errors (8 ms)
+      √ does NOT retry conflict errors (7 ms)
+    Error Logging
+      √ logs error without sensitive data (5 ms)
+      √ includes request ID for tracing (2 ms)
+      √ sends errors to Sentry in production (2 ms)
+      √ logs to console in development (1 ms)
+    User Feedback
+      √ shows user-friendly error message (5 ms)
+      √ never exposes sensitive data (7 ms)
+      √ shows retry information (2 ms)
+      √ suggests action for user (7 ms)
+
+PASS __tests__/integration/api.test.ts (6.24 s)
+  API Layer
+    entriesAPI
+      √ getEntry returns cached entry within TTL (10 ms)
+      √ deduplicates simultaneous requests (2 ms)
+      √ handles 404 by returning null (not error) (4 ms)
+      √ handles 409 conflict with server data (7 ms)
+      √ invalidates cache on mutation (8 ms)
+    summaryAPI
+      √ caches summary results (5 minute TTL) (2 ms)
+      √ provides convenience methods (2 ms)
+      √ invalidates cache on entry change (1 ms)
+    historyAPI
+      √ paginates history with state management (1 ms)
+      √ filters and sorts results (1 ms)
+      √ resets pagination state (1 ms)
+  Error Handling in API
+    √ maps network errors to user-friendly messages (6 ms)
+    √ implements exponential backoff for retries (1 ms)
+    √ adds jitter to prevent thundering herd (1 ms)
+
+PASS __tests__/integration/offline-queue.test.ts (6.359 s)
+  Offline Queue System
+    Queue Management
+      √ adds item to queue when offline (41 ms)
+      √ deduplicates pending items for same date (1 ms)
+      √ respects max queue size (500 items) (11 ms)
+      √ expires items after 24 hours (11 ms)
+    Sync Process
+      √ syncs pending items to backend (22 ms)
+      √ validates user before syncing (prevents cross-user mistakes) (1 ms)
+      √ includes Bearer token in synced requests (1 ms)
+      √ detects and handles 409 conflicts (1 ms)
+      √ selectively retries based on error type (18 ms)
+      √ respects max retries limit (5) (1 ms)
+      √ shows sync results to user (toast) (1 ms)
+    Conflict Resolution
+      √ prompts user to resolve conflict (4 ms)
+      √ keeps local version if user chooses "Keep Local"
+      √ uses server version if user chooses "Use Server" (1 ms)
+    Auto-Sync Behavior
+      √ syncs automatically on login (1 ms)
+      √ syncs when network comes online (1 ms)
+      √ syncs when app returns to foreground (1 ms)
+      √ syncs on periodic timer (5 minutes) (1 ms)
+    Persistence
+      √ persists queue to AsyncStorage (1 ms)
+      √ loads queue from AsyncStorage on app start (1 ms)
+      √ clears queue on explicit request (1 ms)
+
+Test Suites: 3 passed, 3 total
+Tests:       62 passed, 62 total
+Snapshots:   0 total
+Time:        9.204 s
+Ran all test suites.

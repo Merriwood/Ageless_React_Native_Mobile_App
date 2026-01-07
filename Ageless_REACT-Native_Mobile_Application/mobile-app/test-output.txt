@@ -1,0 +1,113 @@
+FAIL __tests__/integration/error-handling.test.ts
+  ● Test suite failed to run
+
+    [BABEL]: Cannot find module 'react-native-worklets/plugin'
+    Require stack:
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\react-native-reanimated\plugin\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@babel\core\lib\config\files\module-types.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@babel\core\lib\config\files\configuration.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@babel\core\lib\config\files\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@babel\core\lib\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\babel-jest\build\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@jest\transform\node_modules\jest-util\build\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@jest\transform\build\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\jest-runtime\build\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\jest-runner\build\testWorker.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\jest-runner\node_modules\jest-worker\build\processChild.js (While processing: C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\react-native-reanimated\plugin\index.js)
+
+      at Object.<anonymous> (node_modules/react-native-reanimated/plugin/index.js:2:16)
+      at loadPartialConfigSync (node_modules/@babel/core/src/config/index.ts:53:60)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/index.js:195:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/index.js:231:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/index.js:402:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/index.js:519:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/index.js:558:19)
+
+(node:115800) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL __tests__/integration/api.test.ts
+  ● Test suite failed to run
+
+    [BABEL]: Cannot find module 'react-native-worklets/plugin'
+    Require stack:
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\react-native-reanimated\plugin\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@babel\core\lib\config\files\module-types.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@babel\core\lib\config\files\configuration.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@babel\core\lib\config\files\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@babel\core\lib\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\babel-jest\build\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@jest\transform\node_modules\jest-util\build\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@jest\transform\build\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\jest-runtime\build\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\jest-runner\build\testWorker.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\jest-runner\node_modules\jest-worker\build\processChild.js (While processing: C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\react-native-reanimated\plugin\index.js)
+
+      at Object.<anonymous> (node_modules/react-native-reanimated/plugin/index.js:2:16)
+      at loadPartialConfigSync (node_modules/@babel/core/src/config/index.ts:53:60)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/index.js:195:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/index.js:231:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/index.js:402:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/index.js:519:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/index.js:558:19)
+
+(node:126932) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL __tests__/setup.ts
+  ● Test suite failed to run
+
+    [BABEL]: Cannot find module 'react-native-worklets/plugin'
+    Require stack:
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\react-native-reanimated\plugin\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@babel\core\lib\config\files\module-types.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@babel\core\lib\config\files\configuration.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@babel\core\lib\config\files\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@babel\core\lib\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\babel-jest\build\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@jest\transform\node_modules\jest-util\build\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@jest\transform\build\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\jest-runtime\build\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\jest-runner\build\testWorker.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\jest-runner\node_modules\jest-worker\build\processChild.js (While processing: C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\react-native-reanimated\plugin\index.js)
+
+      at Object.<anonymous> (node_modules/react-native-reanimated/plugin/index.js:2:16)
+      at loadPartialConfigSync (node_modules/@babel/core/src/config/index.ts:53:60)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/index.js:195:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/index.js:231:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/index.js:402:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/index.js:519:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/index.js:558:19)
+
+(node:113216) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL __tests__/integration/offline-queue.test.ts
+  ● Test suite failed to run
+
+    [BABEL]: Cannot find module 'react-native-worklets/plugin'
+    Require stack:
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\react-native-reanimated\plugin\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@babel\core\lib\config\files\module-types.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@babel\core\lib\config\files\configuration.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@babel\core\lib\config\files\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@babel\core\lib\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\babel-jest\build\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@jest\transform\node_modules\jest-util\build\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\@jest\transform\build\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\jest-runtime\build\index.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\jest-runner\build\testWorker.js
+    - C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\jest-runner\node_modules\jest-worker\build\processChild.js (While processing: C:\Users\SDWOR\Ageless_React_Native_Mobile_App\Ageless_React_Native_Mobile_App\Ageless_REACT-Native_Mobile_Application\mobile-app\node_modules\react-native-reanimated\plugin\index.js)
+
+      at Object.<anonymous> (node_modules/react-native-reanimated/plugin/index.js:2:16)
+      at loadPartialConfigSync (node_modules/@babel/core/src/config/index.ts:53:60)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/index.js:195:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/index.js:231:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/index.js:402:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/index.js:519:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/index.js:558:19)
+
+(node:22900) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+Test Suites: 4 failed, 4 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        6.16 s
+Ran all test suites.

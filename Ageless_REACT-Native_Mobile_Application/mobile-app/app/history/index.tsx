@@ -110,6 +110,12 @@ export default function HistoryScreen() {
     }
   };
 
+  const handleEdit = (entry: WorkoutEntry) => {
+    // Navigate to dashboard with date parameter to edit that workout
+    const dateStr = entry.date; // Format: YYYY-MM-DD
+    router.push(`/dashboard?date=${dateStr}`);
+  };
+
   const handleDelete = async (entry: WorkoutEntry) => {
     Alert.alert(
       'Delete Workout',
@@ -224,6 +230,13 @@ export default function HistoryScreen() {
             )}
 
             <View style={styles.actionButtons}>
+              <TouchableOpacity
+                onPress={() => handleEdit(item)}
+                style={styles.editButton}
+              >
+                <Ionicons name="pencil-outline" size={18} color={theme.colors.text.primary} />
+                <Text style={styles.editText}>Edit</Text>
+              </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => handleDelete(item)}
                 style={styles.deleteButton}
@@ -398,6 +411,23 @@ const styles = StyleSheet.create({
   },
   actionButtons: {
     marginTop: theme.spacing.base,
+    flexDirection: 'row',
+    gap: 8,
+  },
+  editButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: theme.spacing.sm,
+    backgroundColor: theme.colors.border.light,
+    borderRadius: theme.radius.md,
+  },
+  editText: {
+    marginLeft: theme.spacing.sm,
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.colors.text.primary,
   },
   deleteButton: {
     flexDirection: 'row',

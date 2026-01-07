@@ -5,7 +5,25 @@
       "Bash(cat:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(ls:*)",
+      "Bash(npm ls:*)",
+      "Bash(npm rebuild:*)",
+      "Bash(npx expo start:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(Get-Process node -ErrorAction SilentlyContinue)",
+      "Bash(Stop-Process -Force)",
+      "Bash(taskkill:*)",
+      "Bash(npx tsc:*)",
+      "Bash(curl:*)",
+      "Bash(npx qrcode:*)",
+      "Bash(start http://localhost:8100/)",
+      "Bash(npm test:*)",
+      "Bash(npm run:*)",
+      "Bash(npm pkg set:*)",
+      "Bash(NODE_ENV=test npx jest:*)",
+      "Bash(tee:*)"
     ]
   }
 }

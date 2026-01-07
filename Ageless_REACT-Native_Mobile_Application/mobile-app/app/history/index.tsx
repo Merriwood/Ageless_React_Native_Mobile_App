@@ -168,8 +168,9 @@ export default function HistoryScreen() {
 
   const renderItem = ({ item }: { item: WorkoutEntry }) => {
     const isExpanded = expandedRows.has(item.id.toString());
-    const exerciseCount = Object.keys(item.fitnessData || {}).length;
-    const totalSets = Object.values(item.fitnessData || {}).reduce((a, b) => a + b, 0);
+    const fitnessData = item.fitnessData || {};
+    const completedExercises = Object.values(fitnessData).filter(sets => sets > 0).length;
+    const totalSets = Object.values(fitnessData).reduce((a, b) => a + b, 0);
 
     return (
       <Card style={styles.card}>
@@ -180,7 +181,7 @@ export default function HistoryScreen() {
           <View>
             <Text style={styles.date}>{formatDate(item.date)}</Text>
             <Text style={styles.summary}>
-              {exerciseCount} exercises • {totalSets} sets
+              {completedExercises} exercises • {totalSets} sets
             </Text>
           </View>
           <View style={styles.headerRight}>
@@ -197,7 +198,7 @@ export default function HistoryScreen() {
 
         {isExpanded && (
           <View style={styles.expandedContent}>
-            {exerciseCount > 0 ? (
+            {Object.keys(fitnessData).length > 0 ? (
               <>
                 <View style={styles.divider} />
                 {Object.entries(item.fitnessData || {})
@@ -268,11 +269,14 @@ export default function HistoryScreen() {
     );
   };
 
+  // Calculate stats for header
+  const totalWorkouts = entries.length;
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* Header */}
+      {/* Header Bar */}
       <View style={styles.header_bar}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color={theme.colors.text.primary} />
@@ -281,10 +285,22 @@ export default function HistoryScreen() {
         <View style={styles.headerSpacer} />
       </View>
 
+      {/* Page Title Section */}
+      <View style={styles.pageHeader}>
+        <Text style={styles.pageTitle}>Workout History</Text>
+        <Text style={styles.pageSubtitle}>{totalWorkouts} workouts tracked</Text>
+      </View>
+
       {/* Content */}
       {loading ? (
         <View style={styles.centerContainer}>
           <ActivityIndicator size="large" color={theme.colors.primary} />
+        </View>
+      ) : entries.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyEmoji}>📅</Text>
+          <Text style={styles.emptyTitle}>No Workout History</Text>
+          <Text style={styles.emptyMessage}>Start tracking your workouts to see them here</Text>
         </View>
       ) : (
         <FlatList
@@ -295,16 +311,6 @@ export default function HistoryScreen() {
           scrollEnabled={true}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Ionicons
-                name="document-outline"
-                size={48}
-                color={theme.colors.text.secondary}
-              />
-              <Text style={styles.emptyText}>No workout history</Text>
-            </View>
           }
           ListFooterComponent={renderFooter}
         />
@@ -339,6 +345,24 @@ const styles = StyleSheet.create({
   },
   headerSpacer: {
     width: 40,
+  },
+  pageHeader: {
+    backgroundColor: theme.colors.surface,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.lg,
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border.light,
+  },
+  pageTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing.sm,
+  },
+  pageSubtitle: {
+    fontSize: 14,
+    color: theme.colors.text.secondary,
   },
   centerContainer: {
     flex: 1,
@@ -482,6 +506,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: theme.spacing.xl * 2,
+  },
+  emptyEmoji: {
+    fontSize: 60,
+    marginBottom: theme.spacing.base,
+  },
+  emptyTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing.sm,
+  },
+  emptyMessage: {
+    fontSize: 14,
+    color: theme.colors.text.secondary,
+    marginBottom: theme.spacing.lg,
   },
   emptyText: {
     fontSize: 16,

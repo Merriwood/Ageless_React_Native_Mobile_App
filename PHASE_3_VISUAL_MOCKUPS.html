@@ -625,33 +625,69 @@
                                 <span style="width: 24px;"></span>
                             </div>
                             <div class="screen-content">
+                                <div class="page-header">
+                                    <h3 class="page-title">Workout History</h3>
+                                    <p class="page-subtitle">24 workouts tracked</p>
+                                </div>
                                 <div class="card">
+                                    <!-- Card Header: Date, Weekday, Weight, Chevron -->
                                     <div class="card-header">
                                         <div class="card-header-left">
-                                            <div class="card-date">Mon, Jan 6, 2026</div>
-                                            <div class="card-summary">4 exercises • 15 sets</div>
+                                            <div class="chevron">▼</div>
+                                            <div class="date-info">
+                                                <div class="card-date">Jan 6</div>
+                                                <div class="card-weekday">Monday</div>
+                                            </div>
                                         </div>
                                         <div class="card-header-right">
-                                            <div class="card-weight">185 lbs</div>
-                                            <span class="chevron">▼</span>
+                                            <div class="card-weight-value">185</div>
+                                            <div class="card-weight-unit">lbs</div>
                                         </div>
                                     </div>
+
+                                    <!-- Summary Stats: Exercises & Total Sets -->
+                                    <div class="summary-stats">
+                                        <div class="stat-item">
+                                            <div class="stat-label">Exercises</div>
+                                            <div class="stat-value">
+                                                <span class="stat-number">4</span>
+                                                <span class="stat-fraction"> / 11</span>
+                                            </div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="stat-label">Total Sets</div>
+                                            <div class="stat-number">15</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Expanded Content -->
                                     <div class="card-expanded">
                                         <div class="divider"></div>
+
+                                        <div class="breakdown-title">Exercise Breakdown:</div>
+
                                         <div class="exercise-row">
                                             <span class="exercise-name">Chest Press</span>
-                                            <span class="exercise-sets">5</span>
+                                            <span class="exercise-sets">5 sets</span>
                                         </div>
                                         <div class="exercise-row">
                                             <span class="exercise-name">Leg Press</span>
-                                            <span class="exercise-sets">4</span>
+                                            <span class="exercise-sets">4 sets</span>
                                         </div>
                                         <div class="exercise-row">
                                             <span class="exercise-name">Row</span>
-                                            <span class="exercise-sets">3</span>
+                                            <span class="exercise-sets">3 sets</span>
                                         </div>
+
+                                        <div class="skipped-header">Skipped:</div>
+                                        <div class="skipped-badges">
+                                            <div class="skipped-badge">Abs</div>
+                                            <div class="skipped-badge">Lat</div>
+                                        </div>
+
                                         <div class="action-buttons">
-                                            <button class="btn btn-delete">🗑 Delete Workout</button>
+                                            <button class="btn btn-edit">✏️ Edit</button>
+                                            <button class="btn btn-delete">🗑 Delete</button>
                                         </div>
                                     </div>
                                 </div>

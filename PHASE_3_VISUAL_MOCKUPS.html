@@ -276,13 +276,15 @@
         .action-row {
             display: flex;
             gap: 12px;
-            justify-content: space-between;
+            justify-content: flex-start;
+            align-items: center;
         }
 
         .btn-edit-pwa {
             flex: 1;
-            padding: 12px 20px;
-            height: 44px;
+            min-width: 0;
+            padding: 11px 16px;
+            height: 40px;
             background: #E8E8E8;
             color: #111111;
             border: none;
@@ -301,13 +303,12 @@
         }
 
         .btn-delete-pwa {
-            flex: 1;
-            padding: 12px 20px;
-            height: 44px;
+            padding: 11px 22px;
+            height: 40px;
             background: #C5282F;
             color: #FFFFFF;
             border: none;
-            border-radius: 24px;
+            border-radius: 20px;
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
@@ -315,6 +316,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
+            white-space: nowrap;
         }
 
         .btn-delete-pwa:hover {

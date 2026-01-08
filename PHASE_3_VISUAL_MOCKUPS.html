@@ -180,246 +180,132 @@
             margin: 16px;
         }
 
-        /* PWA-Style History Cards */
-        .history-card {
+        /* PWA-Style History Cards - EXACT DUPLICATE */
+        .page-header-modal {
             background: #FFFFFF;
-            border: 1px solid #E2E3E6;
-            border-radius: 12px;
-            margin: 16px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 24px 16px;
+            text-align: center;
+            border-bottom: none;
         }
 
-        .history-card .card-header {
-            padding: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            cursor: pointer;
-            user-select: none;
-            gap: 16px;
-        }
-
-        .history-card .card-header:hover {
-            background: #f9f9f9;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-        }
-
-        .chevron {
-            color: #666666;
-            font-size: 16px;
-            transition: transform 120ms ease-out;
-        }
-
-        .history-card.expanded .chevron {
-            transform: rotate(180deg);
-        }
-
-        .date-section {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .date-value {
-            font-size: 18px;
-            font-weight: 500;
-            color: #111111;
-            line-height: 1.2;
-        }
-
-        .weekday {
-            font-size: 14px;
-            font-weight: 400;
-            color: #666666;
-        }
-
-        .header-right {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 2px;
-        }
-
-        .weight-value {
+        .modal-title {
             font-size: 28px;
             font-weight: 700;
             color: #111111;
-            line-height: 1;
+            margin: 0 0 8px 0;
         }
 
-        .weight-unit {
-            font-size: 12px;
+        .modal-subtitle {
+            font-size: 16px;
+            color: #999999;
+            margin: 0;
             font-weight: 400;
-            color: #666666;
         }
 
-        /* Summary Stats - ALWAYS VISIBLE */
-        .summary-stats {
-            display: flex;
-            gap: 24px;
-            padding: 16px;
-            border-top: 1px solid #E2E3E6;
-            border-bottom: 1px solid #E2E3E6;
+        .pwa-card {
             background: #FFFFFF;
+            border: 1px solid #E2E3E6;
+            border-radius: 16px;
+            margin: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
         }
 
-        .stat-item {
-            flex: 1;
+        .card-date-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .chevron-icon {
+            color: #111111;
+            font-size: 14px;
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
+
+        .date-column {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .date-full {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111111;
+        }
+
+        .weekday-text {
+            font-size: 14px;
+            color: #999999;
+            font-weight: 400;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 32px;
+            margin-bottom: 16px;
+            padding: 12px 0;
+        }
+
+        .stat-col {
             display: flex;
             flex-direction: column;
             gap: 4px;
         }
 
         .stat-label {
-            font-size: 14px;
+            font-size: 13px;
+            color: #999999;
             font-weight: 400;
-            color: #666666;
         }
 
         .stat-value {
-            display: flex;
-            align-items: baseline;
-            gap: 2px;
-        }
-
-        .stat-number {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 700;
             color: #111111;
         }
 
-        .stat-fraction {
-            font-size: 16px;
-            font-weight: 400;
-            color: #666666;
-        }
-
-        /* Expanded Content - HIDDEN BY DEFAULT */
-        .expanded-content {
-            display: none;
-            padding: 16px;
-            background: #FFFFFF;
-        }
-
-        .history-card.expanded .expanded-content {
+        .action-row {
             display: flex;
-            flex-direction: column;
             gap: 12px;
-        }
-
-        .divider {
-            height: 1px;
-            background: #E2E3E6;
-            margin: -4px -16px 0 -16px;
-        }
-
-        .section-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #111111;
-            margin-top: 8px;
-        }
-
-        .exercises-container {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .exercise-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #f9f9f9;
-            padding: 8px;
-            border-radius: 8px;
-            border: 1px solid #E2E3E6;
-        }
-
-        .exercise-name {
-            font-size: 14px;
-            font-weight: 400;
-            color: #111111;
-        }
-
-        .exercise-sets {
-            font-size: 14px;
-            font-weight: 700;
-            color: #C5282F;
-        }
-
-        .skipped-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-
-        .skipped-tag {
-            background: #f9f9f9;
-            color: #666666;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 400;
-            border: 1px solid #E2E3E6;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #E2E3E6;
-        }
-
-        .btn-edit {
-            flex: 1;
-            display: flex;
-            align-items: center;
             justify-content: center;
-            gap: 6px;
-            padding: 8px 12px;
-            background: #F2F2F7;
+        }
+
+        .btn-edit-pwa {
+            flex: 1;
+            padding: 10px 20px;
+            background: #E8E8E8;
             color: #111111;
             border: none;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             transition: background 160ms ease-out;
         }
 
-        .btn-edit:hover {
-            background: #E8E8ED;
+        .btn-edit-pwa:hover {
+            background: #D0D0D0;
         }
 
-        .btn-delete {
+        .btn-delete-pwa {
             flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            padding: 8px 12px;
-            background: #FEE2E2;
-            color: #C5282F;
+            padding: 10px 20px;
+            background: #C5282F;
+            color: #FFFFFF;
             border: none;
-            border-radius: 8px;
-            font-size: 14px;
+            border-radius: 24px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             transition: background 160ms ease-out;
         }
 
-        .btn-delete:hover {
-            background: #FCBDBD;
+        .btn-delete-pwa:hover {
+            background: #A02024;
         }
 
         .screen-content::-webkit-scrollbar {
@@ -864,169 +750,96 @@
                             <div class="screen-header">
                                 <span>←</span>
                                 <h2>History</h2>
-                                <span style="width: 24px;"></span>
+                                <span style="width: 24px;">✕</span>
                             </div>
                             <div class="screen-content">
-                                <!-- Page Header -->
-                                <div class="page-header">
-                                    <h3 class="page-title">Workout History</h3>
-                                    <p class="page-subtitle">24 workouts tracked</p>
+                                <!-- Page Header - Centered Modal Style -->
+                                <div class="page-header-modal">
+                                    <h3 class="modal-title">Workout History</h3>
+                                    <p class="modal-subtitle">89 workouts recorded</p>
                                 </div>
 
-                                <!-- Card 1: Collapsed State -->
-                                <div class="history-card">
-                                    <div class="card-header" onclick="this.closest('.history-card').classList.toggle('expanded')">
-                                        <div class="header-left">
-                                            <span class="chevron">▼</span>
-                                            <div class="date-section">
-                                                <div class="date-value">Oct 22</div>
-                                                <div class="weekday">Monday</div>
-                                            </div>
-                                        </div>
-                                        <div class="header-right">
-                                            <div class="weight-value">185.5</div>
-                                            <div class="weight-unit">lbs</div>
+                                <!-- Card 1 -->
+                                <div class="pwa-card">
+                                    <div class="card-date-row">
+                                        <span class="chevron-icon">▶</span>
+                                        <div class="date-column">
+                                            <div class="date-full">2026-01-06</div>
+                                            <div class="weekday-text">Tuesday</div>
                                         </div>
                                     </div>
-                                    <!-- Summary Stats: ALWAYS VISIBLE -->
-                                    <div class="summary-stats">
-                                        <div class="stat-item">
-                                            <div class="stat-label">Exercises</div>
-                                            <div class="stat-value">
-                                                <span class="stat-number">8</span>
-                                                <span class="stat-fraction"> / 11</span>
-                                            </div>
+                                    <div class="stats-row">
+                                        <div class="stat-col">
+                                            <span class="stat-label">Exercises</span>
+                                            <span class="stat-value">5 / 11</span>
                                         </div>
-                                        <div class="stat-item">
-                                            <div class="stat-label">Total Sets</div>
-                                            <div class="stat-number">24</div>
+                                        <div class="stat-col">
+                                            <span class="stat-label">Total Sets</span>
+                                            <span class="stat-value">20</span>
                                         </div>
+                                    </div>
+                                    <div class="action-row">
+                                        <button class="btn-edit-pwa">Edit</button>
+                                        <button class="btn-delete-pwa">Delete</button>
                                     </div>
                                 </div>
 
-                                <!-- Card 2: Expanded State -->
-                                <div class="history-card expanded">
-                                    <div class="card-header" onclick="this.closest('.history-card').classList.toggle('expanded')">
-                                        <div class="header-left">
-                                            <span class="chevron">▼</span>
-                                            <div class="date-section">
-                                                <div class="date-value">Oct 21</div>
-                                                <div class="weekday">Sunday</div>
-                                            </div>
-                                        </div>
-                                        <div class="header-right">
-                                            <div class="weight-value">184.2</div>
-                                            <div class="weight-unit">lbs</div>
+                                <!-- Card 2 -->
+                                <div class="pwa-card">
+                                    <div class="card-date-row">
+                                        <span class="chevron-icon">▶</span>
+                                        <div class="date-column">
+                                            <div class="date-full">2026-01-05</div>
+                                            <div class="weekday-text">Monday</div>
                                         </div>
                                     </div>
-                                    <!-- Summary Stats: ALWAYS VISIBLE -->
-                                    <div class="summary-stats">
-                                        <div class="stat-item">
-                                            <div class="stat-label">Exercises</div>
-                                            <div class="stat-value">
-                                                <span class="stat-number">10</span>
-                                                <span class="stat-fraction"> / 11</span>
-                                            </div>
+                                    <div class="stats-row">
+                                        <div class="stat-col">
+                                            <span class="stat-label">Exercises</span>
+                                            <span class="stat-value">1 / 11</span>
                                         </div>
-                                        <div class="stat-item">
-                                            <div class="stat-label">Total Sets</div>
-                                            <div class="stat-number">32</div>
+                                        <div class="stat-col">
+                                            <span class="stat-label">Total Sets</span>
+                                            <span class="stat-value">2</span>
                                         </div>
                                     </div>
-                                    <!-- Expanded Content: ONLY VISIBLE WHEN EXPANDED -->
-                                    <div class="expanded-content">
-                                        <div class="divider"></div>
-                                        <div class="section-title">Exercise Breakdown:</div>
-                                        <div class="exercises-container">
-                                            <div class="exercise-item">
-                                                <span class="exercise-name">Bike</span>
-                                                <span class="exercise-sets">3 sets</span>
-                                            </div>
-                                            <div class="exercise-item">
-                                                <span class="exercise-name">Chest Press</span>
-                                                <span class="exercise-sets">4 sets</span>
-                                            </div>
-                                            <div class="exercise-item">
-                                                <span class="exercise-name">Leg Press</span>
-                                                <span class="exercise-sets">4 sets</span>
-                                            </div>
-                                            <div class="exercise-item">
-                                                <span class="exercise-name">Lat</span>
-                                                <span class="exercise-sets">3 sets</span>
-                                            </div>
-                                            <div class="exercise-item">
-                                                <span class="exercise-name">Military</span>
-                                                <span class="exercise-sets">2 sets</span>
-                                            </div>
-                                            <div class="exercise-item">
-                                                <span class="exercise-name">Crunch</span>
-                                                <span class="exercise-sets">4 sets</span>
-                                            </div>
-                                            <div class="exercise-item">
-                                                <span class="exercise-name">Bicep Curls</span>
-                                                <span class="exercise-sets">3 sets</span>
-                                            </div>
-                                            <div class="exercise-item">
-                                                <span class="exercise-name">Triceps</span>
-                                                <span class="exercise-sets">4 sets</span>
-                                            </div>
-                                            <div class="exercise-item">
-                                                <span class="exercise-name">Overhead Pull</span>
-                                                <span class="exercise-sets">2 sets</span>
-                                            </div>
-                                            <div class="exercise-item">
-                                                <span class="exercise-name">Row</span>
-                                                <span class="exercise-sets">3 sets</span>
-                                            </div>
-                                        </div>
-                                        <div class="section-title">Skipped:</div>
-                                        <div class="skipped-container">
-                                            <div class="skipped-tag">Abs</div>
-                                        </div>
-                                        <div class="action-buttons">
-                                            <button class="btn-edit">✏️ Edit</button>
-                                            <button class="btn-delete">🗑 Delete</button>
-                                        </div>
+                                    <div class="action-row">
+                                        <button class="btn-edit-pwa">Edit</button>
+                                        <button class="btn-delete-pwa">Delete</button>
                                     </div>
                                 </div>
 
-                                <!-- Card 3: Collapsed State -->
-                                <div class="history-card">
-                                    <div class="card-header" onclick="this.closest('.history-card').classList.toggle('expanded')">
-                                        <div class="header-left">
-                                            <span class="chevron">▼</span>
-                                            <div class="date-section">
-                                                <div class="date-value">Oct 20</div>
-                                                <div class="weekday">Saturday</div>
-                                            </div>
-                                        </div>
-                                        <div class="header-right">
-                                            <div class="weight-value">183.8</div>
-                                            <div class="weight-unit">lbs</div>
+                                <!-- Card 3 -->
+                                <div class="pwa-card">
+                                    <div class="card-date-row">
+                                        <span class="chevron-icon">▶</span>
+                                        <div class="date-column">
+                                            <div class="date-full">2026-01-04</div>
+                                            <div class="weekday-text">Sunday</div>
                                         </div>
                                     </div>
-                                    <!-- Summary Stats: ALWAYS VISIBLE -->
-                                    <div class="summary-stats">
-                                        <div class="stat-item">
-                                            <div class="stat-label">Exercises</div>
-                                            <div class="stat-value">
-                                                <span class="stat-number">6</span>
-                                                <span class="stat-fraction"> / 11</span>
-                                            </div>
+                                    <div class="stats-row">
+                                        <div class="stat-col">
+                                            <span class="stat-label">Exercises</span>
+                                            <span class="stat-value">5 / 11</span>
                                         </div>
-                                        <div class="stat-item">
-                                            <div class="stat-label">Total Sets</div>
-                                            <div class="stat-number">18</div>
+                                        <div class="stat-col">
+                                            <span class="stat-label">Total Sets</span>
+                                            <span class="stat-value">20</span>
                                         </div>
+                                    </div>
+                                    <div class="action-row">
+                                        <button class="btn-edit-pwa">Edit</button>
+                                        <button class="btn-delete-pwa">Delete</button>
                                     </div>
                                 </div>
                             </div>
                             <div class="nav-tabs">
-                                <div class="nav-tab"><span class="nav-icon">🏠</span>Home</div>
-                                <div class="nav-tab active"><span class="nav-icon">📅</span>History</div>
-                                <div class="nav-tab"><span class="nav-icon">💪</span>ABS</div>
+                                <div class="nav-tab active"><span class="nav-icon">🏠</span>Home</div>
+                                <div class="nav-tab"><span class="nav-icon">⭐</span>My ABS</div>
                                 <div class="nav-tab"><span class="nav-icon">📱</span>Scan</div>
-                                <div class="nav-tab"><span class="nav-icon">🎵</span>Listen</div>
+                                <div class="nav-tab"><span class="nav-icon">🎧</span>Listen</div>
+                                <div class="nav-tab"><span class="nav-icon">🎁</span>Rewards</div>
                             </div>
                         </div>
                     </div>

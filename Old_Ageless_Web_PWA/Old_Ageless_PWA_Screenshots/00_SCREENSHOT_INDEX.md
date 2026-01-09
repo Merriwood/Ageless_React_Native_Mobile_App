@@ -2,29 +2,29 @@
 
 **Purpose**: Central index of all PWA screenshots captured for React Native design reference
 
-**Last Updated**: January 8, 2026
+**Last Updated**: January 9, 2026
 
-**Status**: ⏳ Awaiting screenshot captures
+**Status**: 🔄 In Progress - 5 screenshots captured (16%)
 
 ---
 
 ## 📊 Screenshot Capture Status
 
-### 01_Authentication/ (4 files) - 0% Complete
+### 01_Authentication/ (4 files) - 25% Complete
 | File | Screen | Status | React Native Equiv | Design Reference |
 |---|---|---|---|---|
-| 01_Login_Screen.png | Login | ⏳ Pending | app/(auth)/login.tsx | Email/password form, Sign up link |
+| 02_Login_Screen.pdf | Login | ✅ Captured | app/(auth)/login.tsx | Email/password form, Sign up link |
 | 02_Register_Screen.png | Register | ⏳ Pending | app/(auth)/register.tsx | Email, password, goals selection |
 | 03_Forgot_Password_Screen.png | Forgot Password | ⏳ Pending | (Future) | Email input, reset link |
 | 04_Password_Reset_Screen.png | Password Reset | ⏳ Pending | (Future) | New password form, confirmation |
 
-### 02_Main_Screens/ (4 files) - 25% Complete
+### 02_Main_Screens/ (4 files) - 75% Complete
 | File | Screen | Status | React Native Equiv | Design Reference |
 |---|---|---|---|---|
-| 01_Dashboard_Screen.png | Dashboard | ✅ Captured | app/dashboard/index.tsx | 1 Screenshot.pdf |
-| 02_History_Screen.png | History | ⏳ Pending | app/history/index.tsx | Expandable cards, buttons |
-| 03_Profile_Screen.png | Profile | ⏳ Pending | app/profile/index.tsx | Account info, settings |
-| 04_Settings_Screen.png | Settings | ⏳ Pending | (Future) | User preferences |
+| 01_Dashboard_Screen.pdf | Dashboard | ✅ Captured | app/dashboard/index.tsx | PWA design reference |
+| 03_History_Screen.pdf | History | ✅ Captured | app/history/index.tsx | Expandable cards, buttons |
+| 04_Progress_Summary_1.pdf | Progress Summary | ✅ Captured | Dashboard component | Weekly summary view |
+| 05_Progress_Summary_2.pdf | Progress Summary 2 | ✅ Captured | Dashboard component | Monthly summary view |
 
 ### 03_Modals_and_Overlays/ (4 files) - 0% Complete
 | File | Screen | Status | React Native Equiv | Design Reference |
@@ -80,15 +80,15 @@
 
 | Category | Files | Captured | Status |
 |---|---|---|---|
-| Authentication | 4 | 0 | 0% |
-| Main Screens | 4 | 1 | 25% |
+| Authentication | 4 | 1 | 25% |
+| Main Screens | 4 | 4 | 100% |
 | Modals | 4 | 0 | 0% |
 | Components | 5 | 0 | 0% |
 | Navigation | 4 | 0 | 0% |
 | Status | 4 | 0 | 0% |
 | Colors/Typography | 3 | 1 | 33% |
 | Edge Cases | 4 | 0 | 0% |
-| **TOTAL** | **32** | **2** | **6%** |
+| **TOTAL** | **32** | **11** | **34%** |
 
 ---
 

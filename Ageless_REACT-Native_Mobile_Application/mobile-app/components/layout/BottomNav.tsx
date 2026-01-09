@@ -132,27 +132,27 @@ export function BottomNav({ onNavigate, activeTab = 'home' }: BottomNavProps) {
 
 // Icon Components (matching Web PWA icon style)
 function HomeIcon({ active }: { active: boolean }) {
-  return <Ionicons name={active ? "home" : "home-outline"} size={20} color={active ? theme.colors.primary : "#000"} />;
+  return <Ionicons name={active ? "home" : "home-outline"} size={20} color={active ? theme.colors.primary : theme.colors.text.primary} />;
 }
 
 function StarIcon({ active }: { active: boolean }) {
-  return <Ionicons name={active ? "star" : "star-outline"} size={20} color={active ? theme.colors.primary : "#000"} />;
+  return <Ionicons name={active ? "star" : "star-outline"} size={20} color={active ? theme.colors.primary : theme.colors.text.primary} />;
 }
 
 function ScanIcon({ active }: { active: boolean }) {
-  return <MaterialIcons name="qr-code" size={20} color={active ? theme.colors.primary : "#000"} />;
+  return <MaterialIcons name="qr-code" size={20} color={active ? theme.colors.primary : theme.colors.text.primary} />;
 }
 
 function ListenIcon({ active }: { active: boolean }) {
-  return <Ionicons name={active ? "headphones" : "headphones-outline"} size={20} color={active ? theme.colors.primary : "#000"} />;
+  return <Ionicons name={active ? "headphones" : "headphones-outline"} size={20} color={active ? theme.colors.primary : theme.colors.text.primary} />;
 }
 
 function HistoryIcon({ active }: { active: boolean }) {
-  return <Ionicons name={active ? "time" : "time-outline"} size={20} color={active ? theme.colors.primary : "#000"} />;
+  return <Ionicons name={active ? "time" : "time-outline"} size={20} color={active ? theme.colors.primary : theme.colors.text.primary} />;
 }
 
 function ProfileIcon({ active }: { active: boolean }) {
-  return <Ionicons name={active ? "person" : "person-outline"} size={20} color={active ? theme.colors.primary : "#000"} />;
+  return <Ionicons name={active ? "person" : "person-outline"} size={20} color={active ? theme.colors.primary : theme.colors.text.primary} />;
 }
 
 const styles = StyleSheet.create({
@@ -166,10 +166,10 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     backgroundColor: theme.colors.surface,
     borderTopWidth: 1,
-    borderTopColor: '#d2d2d2', // CRITICAL FIX: Web PWA uses #d2d2d2 (not #E2E3E6)
-    paddingTop: 6, // CRITICAL FIX: Web PWA uses 6px (not 4px from theme.spacing.xs)
-    paddingHorizontal: 4, // CRITICAL FIX: Web PWA uses 4px (not 8px from theme.spacing.base)
-    zIndex: 410, // CRITICAL FIX: Web PWA uses z-[410]
+    borderTopColor: theme.colors.border.light,
+    paddingTop: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.xs,
+    zIndex: 410, // Fixed positioning: z-[410]
   },
   navButton: {
     flex: 1,

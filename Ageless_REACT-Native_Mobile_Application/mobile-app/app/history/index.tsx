@@ -272,14 +272,12 @@ export default function HistoryScreen() {
                 onPress={() => handleEdit(item)}
                 style={styles.editButton}
               >
-                <Ionicons name="pencil-outline" size={16} color={theme.colors.text.primary} />
                 <Text style={styles.editText}>Edit</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => handleDelete(item)}
                 style={styles.deleteButton}
               >
-                <Ionicons name="trash-outline" size={16} color={theme.colors.status.error} />
                 <Text style={styles.deleteText}>Delete</Text>
               </TouchableOpacity>
             </View>
@@ -545,38 +543,38 @@ const styles = StyleSheet.create({
   },
   actionButtons: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 12,
     marginTop: 16,
   },
   editButton: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
+    minWidth: 0,
+    paddingVertical: 11,
+    paddingHorizontal: 16,
+    height: 40,
+    backgroundColor: '#E8E8E8',
+    borderRadius: 8,
     justifyContent: 'center',
-    paddingVertical: 8,
-    backgroundColor: theme.colors.border.light,
-    borderRadius: theme.radius.md,
-    gap: 6,
+    alignItems: 'center',
   },
   editText: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
-    color: theme.colors.text.primary,
+    color: '#111111',
   },
   deleteButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    paddingVertical: 11,
+    paddingHorizontal: 22,
+    height: 40,
+    backgroundColor: '#C5282F',
+    borderRadius: 20,
     justifyContent: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: '#FEE2E2',
-    borderRadius: theme.radius.md,
-    gap: 6,
+    alignItems: 'center',
   },
   deleteText: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
-    color: theme.colors.status.error,
+    color: '#FFFFFF',
   },
   loadMoreButton: {
     paddingVertical: theme.spacing.md,

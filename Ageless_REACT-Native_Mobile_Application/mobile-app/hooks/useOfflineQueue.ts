@@ -483,10 +483,23 @@ export function useOfflineQueue() {
   // ========================================================================
 
   const removeFromQueue = useCallback((itemId: string) => {
-    setQueueState(prev => ({
-      ...prev,
-      items: prev.items.filter(i => i.id !== itemId),
-    }));
+    setQueueState(prev => {
+      const updatedItems = prev.items.filter(i => i.id !== itemId);
+      const pendingCount = updatedItems.filter(i => i.status === 'pending').length;
+      const failedCount = updatedItems.filter(i => i.status === 'failed').length;
+      const conflictCount = updatedItems.filter(i => i.status === 'conflict').length;
+
+      return {
+        items: updatedItems,
+        totalSize: updatedItems.length,
+        maxSize: MAX_QUEUE_SIZE,
+        syncInProgress: prev.syncInProgress,
+        lastSyncTime: prev.lastSyncTime,
+        pendingCount,
+        failedCount,
+        conflictCount,
+      };
+    });
   }, []);
 
   // ========================================================================

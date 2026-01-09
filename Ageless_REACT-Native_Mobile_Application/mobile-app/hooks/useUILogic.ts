@@ -1,12 +1,12 @@
 /**
- * UIContext
+ * useUILogic Hook
  *
- * Global UI state management
- * Handles toast notifications, sync status, network connectivity
- * Uses React Context API with useCallback for performance
+ * Pure logic hook for UI state management without React Context JSX
+ * Can be tested independently without JSX/CSS interop issues
+ * Handles toasts, network connectivity, and sync status
  */
 
-import React, { createContext, useCallback, useContext, useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import NetInfo from '@react-native-community/netinfo';
 
 // ============================================================================
@@ -25,7 +25,7 @@ export interface Toast {
 
 export type SyncStatus = 'idle' | 'syncing' | 'error';
 
-export interface UIContextType {
+export interface UILogicState {
   // Toast State
   toasts: Toast[];
   showToast: (
@@ -33,7 +33,7 @@ export interface UIContextType {
     type?: ToastType,
     duration?: number,
     dismissible?: boolean
-  ) => string; // Returns toast ID
+  ) => string;
   dismissToast: (id: string) => void;
   clearToasts: () => void;
 
@@ -52,16 +52,10 @@ export interface UIContextType {
 }
 
 // ============================================================================
-// CONTEXT CREATION
+// HOOK IMPLEMENTATION
 // ============================================================================
 
-const UIContext = createContext<UIContextType | undefined>(undefined);
-
-// ============================================================================
-// PROVIDER COMPONENT
-// ============================================================================
-
-export function UIProvider({ children }: { children: React.ReactNode }) {
+export function useUILogic(): UILogicState {
   // Toast State
   const [toasts, setToasts] = useState<Toast[]>([]);
 
@@ -164,22 +158,25 @@ export function UIProvider({ children }: { children: React.ReactNode }) {
   // SYNC STATUS MANAGEMENT
   // ========================================================================
 
-  const handleSetSyncStatus = useCallback((status: SyncStatus) => {
-    setSyncStatus(status);
+  const handleSetSyncStatus = useCallback(
+    (status: SyncStatus) => {
+      setSyncStatus(status);
 
-    // Show toast for sync completion
-    if (status === 'idle') {
-      if (offlineQueueSize === 0) {
-        // Only show if there were pending items
-        // (Don't spam with "synced" if nothing was queued)
+      // Show toast for sync completion
+      if (status === 'idle') {
+        if (offlineQueueSize === 0) {
+          // Only show if there were pending items
+          // (Don't spam with "synced" if nothing was queued)
+        }
+      } else if (status === 'syncing') {
+        // Optionally show "syncing..." but it can clutter UI
+        // Most apps don't show this unless there's a noticeable delay
+      } else if (status === 'error') {
+        showToast('Sync failed. Will retry when online.', 'error', 4000);
       }
-    } else if (status === 'syncing') {
-      // Optionally show "syncing..." but it can clutter UI
-      // Most apps don't show this unless there's a noticeable delay
-    } else if (status === 'error') {
-      showToast('Sync failed. Will retry when online.', 'error', 4000);
-    }
-  }, [offlineQueueSize, showToast]);
+    },
+    [offlineQueueSize, showToast]
+  );
 
   // ========================================================================
   // COMPUTED VALUES
@@ -189,10 +186,10 @@ export function UIProvider({ children }: { children: React.ReactNode }) {
   const showOfflineBadge = !isOnline || syncStatus === 'syncing';
 
   // ========================================================================
-  // CONTEXT VALUE
+  // RETURN STATE AND ACTIONS
   // ========================================================================
 
-  const value: UIContextType = {
+  return {
     // Toast
     toasts,
     showToast,
@@ -212,73 +209,4 @@ export function UIProvider({ children }: { children: React.ReactNode }) {
     // UI Flags
     showOfflineBadge,
   };
-
-  return (
-    <UIContext.Provider value={value}>
-      {children}
-    </UIContext.Provider>
-  );
 }
-
-// ============================================================================
-// CUSTOM HOOK
-// ============================================================================
-
-export function useUI(): UIContextType {
-  const context = useContext(UIContext);
-
-  if (context === undefined) {
-    throw new Error('useUI must be used within UIProvider');
-  }
-
-  return context;
-}
-
-// ============================================================================
-// CONVENIENCE HOOKS (for common operations)
-// ============================================================================
-
-export function useToast() {
-  const { showToast, dismissToast, clearToasts } = useUI();
-
-  return {
-    success: (message: string, duration?: number) =>
-      showToast(message, 'success', duration),
-    error: (message: string, duration?: number) =>
-      showToast(message, 'error', duration),
-    warning: (message: string, duration?: number) =>
-      showToast(message, 'warning', duration),
-    info: (message: string, duration?: number) =>
-      showToast(message, 'info', duration),
-    dismiss: dismissToast,
-    clearAll: clearToasts,
-  };
-}
-
-export function useSync() {
-  const { syncStatus, setSyncStatus, offlineQueueSize, setOfflineQueueSize } = useUI();
-
-  return {
-    status: syncStatus,
-    setStatus: setSyncStatus,
-    queueSize: offlineQueueSize,
-    setQueueSize: setOfflineQueueSize,
-    isSyncing: syncStatus === 'syncing',
-  };
-}
-
-export function useNetwork() {
-  const { isOnline, isConnecting } = useUI();
-
-  return {
-    isOnline,
-    isConnecting,
-    isOffline: !isOnline,
-  };
-}
-
-// ============================================================================
-// EXPORT
-// ============================================================================
-
-export default UIContext;

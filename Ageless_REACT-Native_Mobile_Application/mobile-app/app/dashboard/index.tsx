@@ -14,6 +14,7 @@ import { BottomNav } from '../../components/layout/BottomNav';
 import { HistoryModal } from '../../components/modals/HistoryModal';
 import { SummaryModal } from '../../components/modals/SummaryModal';
 import { ScanModal } from '../../components/modals/ScanModal';
+import { ProgressSummaryScreen } from '../../components/modals/ProgressSummaryScreen';
 import { MyABSDrawer } from '../../components/layout/MyABSDrawer';
 import { EXERCISES, Exercise } from '../../lib/constants/exercises';
 import { useOfflineQueue } from '../../hooks/useOfflineQueue';
@@ -31,6 +32,7 @@ export default function Dashboard() {
   const [historyModalVisible, setHistoryModalVisible] = useState(false);
   const [summaryModalVisible, setSummaryModalVisible] = useState(false);
   const [scanModalVisible, setScanModalVisible] = useState(false);
+  const [progressSummaryVisible, setProgressSummaryVisible] = useState(false);
   const [myAbsDrawerVisible, setMyAbsDrawerVisible] = useState(false);
 
   const { enqueue, getQueue } = useOfflineQueue();
@@ -555,6 +557,10 @@ export default function Dashboard() {
         isVisible={scanModalVisible}
         onClose={() => setScanModalVisible(false)}
       />
+      <ProgressSummaryScreen
+        isVisible={progressSummaryVisible}
+        onClose={() => setProgressSummaryVisible(false)}
+      />
       <MyABSDrawer
         isVisible={myAbsDrawerVisible}
         onClose={() => setMyAbsDrawerVisible(false)}
@@ -565,6 +571,10 @@ export default function Dashboard() {
         onSummaryPress={() => {
           setMyAbsDrawerVisible(false);
           setSummaryModalVisible(true);
+        }}
+        onProgressPress={() => {
+          setMyAbsDrawerVisible(false);
+          setProgressSummaryVisible(true);
         }}
         onWeightChange={(value) => {
           setWeight(value);

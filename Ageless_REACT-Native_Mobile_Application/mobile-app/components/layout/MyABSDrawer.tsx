@@ -18,6 +18,7 @@ interface MyABSDrawerProps {
   onClose?: () => void;
   onHistoryPress?: () => void;
   onSummaryPress?: () => void;
+  onProgressPress?: () => void;
   onWeightChange?: (weight: string) => void;
 }
 
@@ -33,6 +34,7 @@ export function MyABSDrawer({
   onClose,
   onHistoryPress,
   onSummaryPress,
+  onProgressPress,
   onWeightChange,
 }: MyABSDrawerProps) {
   const { user } = useAuth();
@@ -41,6 +43,7 @@ export function MyABSDrawer({
   const menuItems: MenuItem[] = [
     { id: 'history', label: 'History', enabled: true, onPress: onHistoryPress },
     { id: 'summary', label: 'Summary', enabled: true, onPress: onSummaryPress },
+    { id: 'progress', label: 'Progress', enabled: true, onPress: onProgressPress },
     { id: 'aerobic', label: 'Aerobic (Coming Soon)', enabled: false },
     { id: 'strength', label: 'Strength (Coming Soon)', enabled: false },
     { id: 'balance', label: 'Balance & Flex (Coming Soon)', enabled: false },
@@ -48,7 +51,6 @@ export function MyABSDrawer({
     { id: 'custom', label: 'Custom (Coming Soon)', enabled: false },
     { id: 'assessments', label: 'Assessments (Coming Soon)', enabled: false },
     { id: 'goals', label: 'Goals (Coming Soon)', enabled: false },
-    { id: 'progress', label: 'Progress (Coming Soon)', enabled: false },
     { id: 'rewards', label: 'Rewards (Coming Soon)', enabled: false },
   ];
 

@@ -142,7 +142,7 @@ export default function RegisterScreen() {
             style={{
               borderWidth: 1,
               borderColor: error ? theme.colors.error : theme.colors.border,
-              borderRadius: theme.borderRadius.md,
+              borderRadius: theme.radius.md,
               paddingHorizontal: theme.spacing.md,
               paddingVertical: theme.spacing.md,
               ...theme.typography.body,
@@ -202,7 +202,7 @@ export default function RegisterScreen() {
               alignItems: "center",
               borderWidth: 1,
               borderColor: error ? theme.colors.error : theme.colors.border,
-              borderRadius: theme.borderRadius.md,
+              borderRadius: theme.radius.md,
               backgroundColor: theme.colors.surface,
               paddingHorizontal: theme.spacing.md,
             }}
@@ -252,7 +252,7 @@ export default function RegisterScreen() {
               alignItems: "center",
               borderWidth: 1,
               borderColor: error ? theme.colors.error : theme.colors.border,
-              borderRadius: theme.borderRadius.md,
+              borderRadius: theme.radius.md,
               backgroundColor: theme.colors.surface,
               paddingHorizontal: theme.spacing.md,
             }}
@@ -300,7 +300,7 @@ export default function RegisterScreen() {
             style={{
               borderWidth: 1,
               borderColor: theme.colors.border,
-              borderRadius: theme.borderRadius.md,
+              borderRadius: theme.radius.md,
               paddingHorizontal: theme.spacing.md,
               paddingVertical: theme.spacing.md,
               ...theme.typography.body,
@@ -324,7 +324,7 @@ export default function RegisterScreen() {
               borderLeftColor: theme.colors.error,
               padding: theme.spacing.md,
               marginBottom: theme.spacing.lg,
-              borderRadius: theme.borderRadius.sm,
+              borderRadius: theme.radius.sm,
             }}
           >
             <Text
@@ -344,8 +344,8 @@ export default function RegisterScreen() {
           disabled={isLoading}
           style={{
             backgroundColor: isLoading ? theme.colors.border : theme.colors.primary,
-            paddingVertical: 12,
-            borderRadius: theme.borderRadius.md,
+            paddingVertical: theme.spacing.base,
+            borderRadius: theme.radius.button,
             alignItems: "center",
             justifyContent: "center",
             minHeight: 44,

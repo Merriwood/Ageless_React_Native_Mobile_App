@@ -4,6 +4,9 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/__tests__/setup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
+    '^react-native-css-interop/runtime/native$': '<rootDir>/__tests__/mocks/react-native-css-interop-native.js',
+    '^react-native-css-interop/runtime/native/(.*)': '<rootDir>/__tests__/mocks/react-native-css-interop-native.js',
+    '^react-native-css-interop$': '<rootDir>/__tests__/mocks/react-native-css-interop.js',
   },
   transform: {
     '^.+\.(ts|tsx)$': 'babel-jest',
@@ -12,7 +15,7 @@ module.exports = {
     '<rootDir>/__tests__/**/*.test.ts',
     '<rootDir>/__tests__/**/*.test.tsx',
   ],
-  testPathIgnorePatterns: ['/node_modules/', '/__tests__/setup.ts', '__tests__/unit/context/WorkoutContext.test.tsx'],
+  testPathIgnorePatterns: ['/node_modules/', '/__tests__/setup.ts'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   collectCoverageFrom: [
     'api/**/*.ts',

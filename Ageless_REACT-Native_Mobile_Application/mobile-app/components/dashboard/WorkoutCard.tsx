@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { Input } from '../ui/Input';
 import { Exercise } from '../../lib/constants/exercises';
+import { theme } from '../../theme';
 
 interface WorkoutCardProps {
   exercise: Exercise;
@@ -13,22 +14,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,
+    paddingVertical: theme.spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: theme.colors.border.light,
   },
   leftSection: {
     flex: 1,
   },
   exerciseName: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#1f2937',
+    fontSize: 18,
+    fontWeight: '600',
+    color: theme.colors.text.primary,
   },
   exerciseDetails: {
-    fontSize: 12,
-    color: '#a1aeb8',
-    marginTop: 2,
+    ...theme.typography.bodySmall,
+    color: theme.colors.text.secondary,
+    marginTop: theme.spacing.xs,
   },
   inputContainer: {
     width: 96,

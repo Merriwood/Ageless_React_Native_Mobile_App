@@ -1,0 +1,22 @@
+[
+    {
+        "filename":  "web/index.html",
+        "size_bytes":  68154,
+        "sha256":  "672C23B6AE7405217652D5FBAAF2F34E0439F6EA1E76AA19ED7FBCAAE059B691",
+        "iso_timestamp":  "2025-08-24T21:29:53.8383751Z",
+        "encoding":  "UTF-8",
+        "line_endings":  "LF",
+        "parity_group":  "modern-production",
+        "provenance_notes":  "verbatim recreation from MODERN_UI_INDEX.snapshot.html (legacy artifacts removed)"
+    },
+    {
+        "filename":  "Consolidated_project_build_instructions/MODERN_UI_INDEX.snapshot.html",
+        "size_bytes":  68154,
+        "sha256":  "672C23B6AE7405217652D5FBAAF2F34E0439F6EA1E76AA19ED7FBCAAE059B691",
+        "iso_timestamp":  "2025-08-24T21:29:53.8383751Z",
+        "encoding":  "UTF-8",
+        "line_endings":  "LF",
+        "parity_group":  "modern-production",
+        "provenance_notes":  "authoritative modern snapshot"
+    }
+]

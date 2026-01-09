@@ -1,0 +1,13 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Benjamin Moore Red background -->
+  <rect width="200" height="200" fill="#CC092F"/>
+
+  <!-- Profile head -->
+
+  <circle cx="100" cy="75" r="25" fill="none" stroke="white" stroke-width="7"/>
+
+  <!-- Profile body/shoulders -->
+
+<path d="M 55 150 Q 55 120 75 115 Q 87.5 118 100 118 Q 112.5 118 125 115 Q 145 120 145 150" 
+fill="none" stroke="white" stroke-width="7"/>
+</svg>

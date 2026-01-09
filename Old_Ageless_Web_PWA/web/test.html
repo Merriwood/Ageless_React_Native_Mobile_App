@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Tracker Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        input, button {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Fitness Tracker - Test Page</h1>
+        
+        <div class="auth-form">
+            <h2>Register/Login Test</h2>
+            <input type="email" id="email" placeholder="Email" value="test@example.com">
+            <input type="password" id="password" placeholder="Password" value="testpass123">
+            <button onclick="testRegister()">Test Register</button>
+            <button onclick="testLogin()">Test Login</button>
+        </div>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = "https://locali-corp.onrender.com";
+        
+        function showResult(message, isError = false) {
+            const result = document.getElementById('result');
+            result.innerHTML = `<p style="color: ${isError ? 'red' : 'green'}">${message}</p>`;
+        }
+        
+        async function makeRequest(endpoint, options = {}) {
+            try {
+                console.log(`Making request to: ${API_BASE}${endpoint}`);
+                
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                return data;
+                
+            } catch (error) {
+                console.error('Request failed:', error);
+                throw error;
+            }
+        }
+        
+        async function testRegister() {
+            try {
+                showResult("Testing registration...");
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                const result = await makeRequest('/api/auth/register', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+                
+                showResult(`Registration successful! Token: ${result.token.substring(0, 20)}...`);
+                
+            } catch (error) {
+                showResult(`Registration failed: ${error.message}`, true);
+            }
+        }
+        
+        async function testLogin() {
+            try {
+                showResult("Testing login...");
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                const result = await makeRequest('/api/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+                
+                showResult(`Login successful! Token: ${result.token.substring(0, 20)}...`);
+                
+            } catch (error) {
+                showResult(`Login failed: ${error.message}`, true);
+            }
+        }
+        
+        // Test API connectivity on load
+        window.addEventListener('load', async () => {
+            try {
+                console.log("Testing API connectivity...");
+                const response = await fetch(`${API_BASE}/`);
+                const text = await response.text();
+                console.log("API test result:", text);
+                showResult(`API Connected: ${text}`);
+            } catch (error) {
+                console.error("API connectivity test failed:", error);
+                showResult(`API Connection Failed: ${error.message}`, true);
+            }
+        });
+    </script>
+</body>
+</html>

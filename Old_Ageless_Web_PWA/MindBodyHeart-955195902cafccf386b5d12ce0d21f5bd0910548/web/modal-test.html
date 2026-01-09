@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modal Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .btn { padding: 10px 20px; margin: 10px; background: #434C5E; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 20px; border-radius: 8px; min-width: 300px; text-align: center; }
+        .close-btn { background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Modal Close Button Test</h1>
+    <button class="btn" onclick="showTestModal()">Test Modal</button>
+    
+    <div id="test-modal" class="modal">
+        <div class="modal-content">
+            <h3>Test Modal</h3>
+            <p>This tests if the close button works properly.</p>
+            <button class="close-btn">Close</button>
+        </div>
+    </div>
+
+    <script>
+        function showTestModal() {
+            const modal = document.getElementById('test-modal');
+            const closeBtn = modal.querySelector('.close-btn');
+            
+            // Set up close button
+            closeBtn.onclick = null;
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                console.log("Close button clicked");
+                closeTestModal();
+            });
+            
+            // Set up click-outside-to-close
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    console.log("Clicking outside modal");
+                    closeTestModal();
+                }
+            });
+            
+            modal.style.display = 'flex';
+        }
+        
+        function closeTestModal() {
+            console.log("Closing modal");
+            const modal = document.getElementById('test-modal');
+            modal.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

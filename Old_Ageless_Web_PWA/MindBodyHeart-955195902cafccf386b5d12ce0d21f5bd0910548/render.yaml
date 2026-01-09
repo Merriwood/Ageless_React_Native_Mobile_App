@@ -1,0 +1,15 @@
+services:
+  # Web Service
+  - type: web
+    name: fitness-tracker-backend
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    rootDir: server
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Add DATABASE_URL manually in Render dashboard after creating PostgreSQL database
+      # - key: DATABASE_URL
+      #   value: [YOUR_POSTGRES_CONNECTION_STRING_FROM_RENDER_DASHBOARD]

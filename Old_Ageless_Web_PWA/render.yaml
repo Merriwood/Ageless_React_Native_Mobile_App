@@ -1,0 +1,13 @@
+﻿services:
+  - type: web
+    name: fitness-tracker-backend
+    env: node
+    rootDir: .
+    buildCommand: npm --prefix server install --ignore-scripts --production
+    startCommand: npm --prefix server start
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NPM_CONFIG_IGNORE_SCRIPTS
+        value: 'true'

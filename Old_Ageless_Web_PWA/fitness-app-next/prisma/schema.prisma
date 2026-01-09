@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model alembic_version {
+  version_num String @id(map: "alembic_version_pkc") @db.VarChar(32)
+}
+
+model entries {
+  id           Int       @id @default(autoincrement())
+  user_id      Int?
+  entry_date   DateTime  @db.Date
+  weight       Decimal?  @db.Decimal(5, 2)
+  fitness_data Json      @default("{}")
+  created_at   DateTime? @default(now()) @db.Timestamp(6)
+  updated_at   DateTime? @default(now()) @db.Timestamp(6)
+  users        users?    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, entry_date])
+  @@index([entry_date], map: "idx_entries_date")
+  @@index([user_id, entry_date], map: "idx_entries_user_date")
+}
+
+model field_observations {
+  id           String    @id @db.VarChar
+  user_id      String    @db.VarChar
+  created_at   DateTime  @default(now()) @db.Timestamp(6)
+  updated_at   DateTime? @db.Timestamp(6)
+  category     String?   @db.VarChar
+  keyword_tags String?
+  content      String
+  attachments  String?
+  pii_flags    String?
+  visibility   String    @db.VarChar
+
+  @@index([category], map: "ix_field_observations_category")
+  @@index([user_id], map: "ix_field_observations_user_id")
+}
+
+model ingest_runs {
+  id          String    @id @db.VarChar
+  source_id   String    @db.VarChar
+  source_name String?   @db.VarChar
+  started_at  DateTime  @default(now()) @db.Timestamp(6)
+  finished_at DateTime? @db.Timestamp(6)
+  status      String    @db.VarChar
+  total_items Int?
+  new_items   Int?
+  error_text  String?
+
+  @@index([source_id], map: "ix_ingest_runs_source_id")
+}
+
+/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
+model mentions {
+  id                String    @id @db.VarChar
+  source_id         String    @db.VarChar
+  source_name       String?   @db.VarChar
+  url               String    @unique(map: "ix_mentions_url") @db.VarChar
+  title             String?   @db.VarChar
+  snippet           String?
+  publish_date      DateTime? @db.Timestamp(6)
+  source_type       String?   @db.VarChar
+  credibility_score Float?
+  entities          String?
+  created_at        DateTime? @default(now()) @db.Timestamp(6)
+
+  @@index([publish_date], map: "ix_mentions_publish_date")
+  @@index([source_id], map: "ix_mentions_source_id")
+  @@index([source_type], map: "ix_mentions_source_type")
+}
+
+model profiles {
+  user_id     String    @id @db.VarChar
+  name        String?   @db.VarChar
+  role        String?   @db.VarChar
+  categories  String?
+  keywords    String?
+  time_period String?   @db.VarChar
+  concise     String?   @db.VarChar
+  updated_at  DateTime? @default(now()) @db.Timestamp(6)
+}
+
+model reports {
+  id                String    @id @db.VarChar
+  user_id           String    @db.VarChar
+  title             String    @db.VarChar
+  date              DateTime  @db.Timestamp(6)
+  summary_short     String
+  summary_long      String
+  created_at        DateTime? @default(now()) @db.Timestamp(6)
+  dataset_origin    String?   @db.VarChar
+  terms_json        String?
+  mentions_json     String?
+  scoring_meta_json String?
+  report_version    String?   @db.VarChar(255)
+
+  @@index([dataset_origin], map: "ix_reports_dataset_origin")
+  @@index([date], map: "ix_reports_date")
+  @@index([user_id], map: "ix_reports_user_id")
+}
+
+model training_events {
+  id         String    @id @db.VarChar
+  kind       String    @db.VarChar
+  user_id    String?   @db.VarChar
+  payload    String
+  meta       String?
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+
+  @@index([created_at], map: "ix_training_events_created_at")
+  @@index([kind], map: "ix_training_events_kind")
+  @@index([user_id], map: "ix_training_events_user_id")
+}
+
+model users {
+  id            Int       @id @default(autoincrement())
+  email         String    @unique @db.VarChar(255)
+  password_hash String    @db.VarChar(255)
+  created_at    DateTime? @default(now()) @db.Timestamp(6)
+  goal          String?
+  entries       entries[]
+
+  @@index([email], map: "idx_users_email")
+}

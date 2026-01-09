@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Generate Transactions Icon (bagicon → PNG 60/30)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 16px; }
+    h1 { font-size: 18px; margin: 0 0 12px; }
+    .row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+    .card { border: 1px solid #ddd; border-radius: 10px; padding: 12px; }
+    canvas { border: 1px solid #ccc; border-radius: 8px; background: #fff; }
+    label { display:block; margin:8px 0 4px; font-weight:600; }
+    input[type="range"]{ width: 240px; }
+    .actions { display:flex; gap:8px; flex-wrap: wrap; margin-top:8px; }
+    button { background:#2f3437; color:#fff; border:none; border-radius:8px; padding:8px 12px; cursor:pointer; }
+    button.secondary { background:#5a6064; }
+    .hint { color:#555; font-size:12px; margin-top:6px; }
+    .note { font-size:13px; color:#333; }
+  </style>
+  <noscript>This tool requires JavaScript.</noscript>
+  <script>
+    let srcImage = null;
+    let workCanvas, workCtx, preview2x, preview1x;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      workCanvas = document.getElementById('work');
+      workCtx = workCanvas.getContext('2d');
+      preview2x = document.getElementById('preview2x');
+      preview1x = document.getElementById('preview1x');
+
+      // Try to preload web/icons/bagicon.jpg if accessible
+      tryLoadDefault();
+
+      document.getElementById('file').addEventListener('change', onFile);
+      document.getElementById('bgThr').addEventListener('input', () => processAndPreview());
+      document.getElementById('padding').addEventListener('input', () => processAndPreview());
+      document.getElementById('export2x').addEventListener('click', () => downloadCanvas(preview2x, 'bagicon-transactions@2x.png'));
+      document.getElementById('export1x').addEventListener('click', () => downloadCanvas(preview1x, 'bagicon-transactions.png'));
+    });
+
+    function tryLoadDefault(){
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => { srcImage = img; processAndPreview(); };
+      img.onerror = () => { /* ignore */ };
+      img.src = 'icons/bagicon.jpg';
+    }
+
+    function onFile(e){
+      const f = e.target.files && e.target.files[0];
+      if(!f) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const img = new Image();
+        img.onload = () => { srcImage = img; processAndPreview(); };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(f);
+    }
+
+    function processAndPreview(){
+      if(!srcImage) return;
+      const bgThr = parseInt(document.getElementById('bgThr').value, 10) || 245; // 0..255
+      const padding = parseInt(document.getElementById('padding').value, 10) || 3; // px
+
+      // Draw source onto work canvas
+      workCanvas.width = srcImage.width;
+      workCanvas.height = srcImage.height;
+      workCtx.clearRect(0,0,workCanvas.width,workCanvas.height);
+      workCtx.drawImage(srcImage, 0, 0);
+
+      // Read data and make background transparent for near-white
+      let imgData = workCtx.getImageData(0,0,workCanvas.width,workCanvas.height);
+      const d = imgData.data;
+      for(let i=0;i<d.length;i+=4){
+        const r=d[i], g=d[i+1], b=d[i+2], a=d[i+3];
+        if(a>0 && r>=bgThr && g>=bgThr && b>=bgThr){ d[i+3] = 0; }
+      }
+      // Write back, then convert non-transparent to solid black
+      workCtx.putImageData(imgData, 0, 0);
+      imgData = workCtx.getImageData(0,0,workCanvas.width,workCanvas.height);
+      for(let i=0;i<imgData.data.length;i+=4){
+        const a = imgData.data[i+3];
+        if(a>10){ imgData.data[i]=0; imgData.data[i+1]=0; imgData.data[i+2]=0; imgData.data[i+3]=255; }
+      }
+      workCtx.putImageData(imgData, 0, 0);
+
+      // Auto-crop to bounds of non-transparent pixels
+      const bounds = getOpaqueBounds(imgData);
+      const w = bounds ? bounds.w : workCanvas.width;
+      const h = bounds ? bounds.h : workCanvas.height;
+      const sx = bounds ? bounds.x : 0;
+      const sy = bounds ? bounds.y : 0;
+
+      const tmp = document.createElement('canvas');
+      tmp.width = w; tmp.height = h;
+      tmp.getContext('2d').drawImage(workCanvas, sx, sy, w, h, 0, 0, w, h);
+
+      // Fit into 60x60 with padding, then derive 30x30
+      drawFitInto(preview2x, tmp, 60, 60, padding);
+      drawFitInto(preview1x, preview2x, 30, 30, 0);
+    }
+
+    function getOpaqueBounds(imgData){
+      const w = imgData.width, h = imgData.height, d = imgData.data;
+      let minX = w, minY = h, maxX = -1, maxY = -1;
+      for(let y=0;y<h;y++){
+        for(let x=0;x<w;x++){
+          const i=(y*w + x)*4;
+          const a=d[i+3];
+          if(a>10){ if(x<minX)minX=x; if(y<minY)minY=y; if(x>maxX)maxX=x; if(y>maxY)maxY=y; }
+        }
+      }
+      if(maxX<0) return null;
+      return { x:minX, y:minY, w:maxX-minX+1, h:maxY-minY+1 };
+    }
+
+    function drawFitInto(canvas, srcCanvas, targetW, targetH, pad){
+      canvas.width = targetW; canvas.height = targetH;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0,0,targetW,targetH);
+      const fitW = targetW - pad*2;
+      const fitH = targetH - pad*2;
+      const scale = Math.min(fitW/srcCanvas.width, fitH/srcCanvas.height);
+      const dw = Math.max(1, Math.round(srcCanvas.width * scale));
+      const dh = Math.max(1, Math.round(srcCanvas.height * scale));
+      const dx = Math.round((targetW - dw)/2);
+      const dy = Math.round((targetH - dh)/2);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(srcCanvas, 0, 0, srcCanvas.width, srcCanvas.height, dx, dy, dw, dh);
+    }
+
+    function downloadCanvas(canvas, filename){
+      canvas.toBlob((blob) => {
+        if(!blob){ alert('Export failed'); return; }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = filename; a.click();
+        setTimeout(()=> URL.revokeObjectURL(url), 2000);
+      }, 'image/png');
+    }
+  </script>
+</head>
+<body>
+  <h1>Generate Transactions Icon (bagicon → monochrome PNG 60/30)</h1>
+  <div class="row">
+    <div class="card">
+      <label>Source file (defaults to web/icons/bagicon.jpg if present)</label>
+      <input type="file" id="file" accept="image/*">
+      <div class="note">This tool removes near-white backgrounds, converts to solid black, auto-crops, and centers into 60×60 with padding.</div>
+      <label for="bgThr">Background removal threshold: <span id="thrVal">245</span></label>
+      <input type="range" id="bgThr" min="200" max="255" value="245" oninput="thrVal.textContent=this.value">
+      <label for="padding">Padding (px at 60×60): <span id="padVal">3</span></label>
+      <input type="range" id="padding" min="0" max="8" value="3" oninput="padVal.textContent=this.value">
+      <div class="hint">Tip: Increase threshold if the background isn’t fully transparent; decrease if details are being erased.</div>
+    </div>
+    <div class="card">
+      <div>Working canvas</div>
+      <canvas id="work" width="300" height="300"></canvas>
+    </div>
+    <div class="card">
+      <div>Preview @2x (60×60)</div>
+      <canvas id="preview2x" width="60" height="60"></canvas>
+      <div class="actions">
+        <button id="export2x">Export 60×60</button>
+      </div>
+    </div>
+    <div class="card">
+      <div>Preview 1x (30×30)</div>
+      <canvas id="preview1x" width="30" height="30"></canvas>
+      <div class="actions">
+        <button id="export1x" class="secondary">Export 30×30</button>
+      </div>
+    </div>
+  </div>
+  <p class="note">After exporting, place the files in <code>web/icons/</code> as <code>bagicon-transactions@2x.png</code> and <code>bagicon-transactions.png</code>, then reload the app. The Transactions icon will appear automatically.</p>
+</body>
+</html>

@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mind. Body. Heart. - Fitness Tracker</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#C5282F">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            overflow-x: auto;
+            overflow-y: auto;
+        }
+
+        /* LOGIN INTERFACE STYLES */
+        .login-container {
+            background: #F2F2F7;
+            width: 375px;
+            min-height: 667px;
+            height: fit-content;
+            max-height: none;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            border: 2px solid #000000;
+            border-radius: 20px;
+            overflow: visible;
+            margin: 20px auto;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            padding-bottom: 0;
+        }
+
+        .login-container.hidden {
+            display: none;
+        }
+
+        /* Header Section */
+        .login-header {
+            background: #F2F2F7;
+            color: #C5282F;
+            padding: 40px 30px 20px 30px;
+            text-align: center;
+            height: auto;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .app-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 0;
+            color: #C5282F;
+            line-height: 1.1;
+            letter-spacing: 0.5px;
+        }
+
+        /* Welcome Section with Face ID Icon */
+        .welcome-section {
+            padding: 0;
+            text-align: center;
+            background: #F2F2F7;
+            margin: 0 20px 20px 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #E5E5EA;
+            overflow: visible;
+        }
+
+        .welcome-content {
+            background: #FFFFFF;
+            padding: 25px 20px 30px 20px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .welcome-title {
+            font-size: 28px;
+            color: #2D2D2D;
+            margin-bottom: 8px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .welcome-subtitle {
+            color: #666666;
+            font-size: 16px;
+            margin-bottom: 20px;
+            font-weight: 400;
+            line-height: 1.3;
+        }
+
+        /* Face ID Icon */
+        .face-id-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #8B5A9F 0%, #A855F7 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 0 auto;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 24px;
+        }
+
+        .face-id-icon::before {
+            content: '🔒';
+            display: block;
+        }
+
+        .face-id-icon:hover {
+            transform: scale(1.05);
+            filter: drop-shadow(0 4px 15px rgba(139, 90, 159, 0.3));
+        }
+
+        .face-id-icon.scanning {
+            animation: faceIdScan 2s ease-in-out;
+        }
+
+        @keyframes faceIdScan {
+            0%, 100% { 
+                transform: scale(1);
+                filter: none;
+            }
+            50% { 
+                transform: scale(1.1);
+                filter: drop-shadow(0 0 20px rgba(52, 199, 89, 0.5)) brightness(1.2);
+            }
+        }
+
+        /* Sign In Section */
+        .sign-in-section {
+            padding: 0;
+            background: #F2F2F7;
+            margin: 0 20px 20px 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #E5E5EA;
+            overflow: visible;
+        }
+
+        .sign-in-header {
+            background: #FFFFFF;
+            padding: 20px 20px 15px 20px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid #F0F0F0;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .sign-in-title {
+            font-size: 20px;
+            color: #000000;
+            font-weight: 500;
+            margin: 0;
+            text-align: center;
+        }
+
+        .collapse-arrow {
+            font-size: 42px !important;
+            color: #C7C7CC !important;
+            transform: rotate(0deg);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            user-select: none;
+            position: absolute;
+            right: 15px;
+            font-weight: 400;
+            line-height: 1;
+            width: 66px;
+            height: 66px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .collapse-arrow.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        /* Form Content */
+        .form-content {
+            background: #FFFFFF;
+            padding: 20px 20px 25px 20px;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            max-height: 1000px;
+        }
+
+        .form-content.collapsed {
+            max-height: 0;
+            padding: 0 20px;
+            opacity: 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            color: #666666;
+            font-size: 16px;
+            font-weight: 400;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 50px;
+            padding: 0 15px;
+            border: 1px solid #D1D1D6;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #FFFFFF;
+            color: #000000;
+            font-weight: 400;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #8B5A9F;
+            box-shadow: 0 0 0 2px rgba(139, 90, 159, 0.2);
+        }
+
+        .user-id-input {
+            color: #000000;
+            font-family: monospace;
+            letter-spacing: 1px;
+        }
+
+        /* Password field with eye icon */
+        .password-group {
+            position: relative;
+        }
+
+        .password-eye {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            color: #666666;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        /* Checkbox styling */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .checkbox-input {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            accent-color: #00796B;
+            border-radius: 4px;
+        }
+
+        .checkbox-label {
+            color: #000000;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 1;
+        }
+
+        /* Sign In Button - Left aligned */
+        .sign-in-button {
+            width: auto;
+            min-width: 120px;
+            height: 50px;
+            background: #C5282F;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 0;
+            margin-left: 0;
+            padding: 0 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            align-self: flex-start;
+            transition: background-color 0.3s ease;
+        }
+
+        .sign-in-button:hover {
+            background: #B02328;
+        }
+
+        /* Forgot Link Section - Reduced spacing */
+        .forgot-section {
+            padding: 0;
+            background: #F2F2F7;
+            margin: 10px 20px 20px 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #E5E5EA;
+            overflow: visible;
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .forgot-section.show {
+            display: block;
+        }
+
+        .forgot-content {
+            background: #FFFFFF;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .forgot-link {
+            color: #8B5A9F;
+            font-size: 16px;
+            text-decoration: none;
+            font-weight: 400;
+            line-height: 1;
+            margin: 0;
+        }
+
+        /* Bottom Navigation - Reduced height */
+        .bottom-navigation {
+            background: #2D2D2D;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            margin-top: auto;
+            border-bottom-left-radius: 18px;
+            border-bottom-right-radius: 18px;
+            flex-shrink: 0;
+            border-top: 1px solid #1C1C1E;
+            margin-bottom: 0;
+        }
+
+        .nav-button {
+            flex: 1;
+            height: 60px;
+            background: transparent;
+            color: #FFFFFF;
+            border: none;
+            border-right: 1px solid #48484A;
+            font-size: 16px;
+            font-weight: 400;
+            cursor: pointer;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .nav-button:last-child {
+            border-right: none;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* MAIN APP STYLES */
+        .main-app {
+            display: none;
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+
+        .main-app.active {
+            display: block;
+        }
+
+        .app-header {
+            background: #C5282F;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .app-header h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .app-content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #C5282F;
+        }
+
+        .section h2 {
+            color: #C5282F;
+            margin-bottom: 15px;
+        }
+
+        .exercise-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 10px;
+            align-items: end;
+            margin-bottom: 20px;
+        }
+
+        .exercise-form input, .exercise-form select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .btn {
+            background: #C5282F;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background: #B02328;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .exercise-list {
+            list-style: none;
+        }
+
+        .exercise-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .exercise-details {
+            flex-grow: 1;
+        }
+
+        .exercise-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .exercise-stats {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .exercise-form {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .login-container {
+                margin: 10px auto;
+                width: 100%;
+                max-width: 375px;
+            }
+        }
+
+        .login-container.expanded {
+            height: auto;
+            min-height: 800px;
+        }
+    </style>
+</head>
+<body>
+    <!-- LOGIN INTERFACE -->
+    <div class="login-container" id="loginContainer">
+        <!-- Header Section -->
+        <div class="login-header">
+            <div class="app-title">Mind. Body. Heart.</div>
+        </div>
+
+        <!-- Welcome Section with Face ID Icon -->
+        <div class="welcome-section">
+            <div class="welcome-content" id="welcomeContent">
+                <div class="welcome-title">Welcome back</div>
+                <div class="welcome-subtitle">Sign in with Face ID</div>
+                <div class="face-id-icon" id="faceIdIcon"></div>
+            </div>
+        </div>
+
+        <!-- Sign In Section -->
+        <div class="sign-in-section">
+            <div class="sign-in-header" id="signInHeader">
+                <h3 class="sign-in-title">Sign in</h3>
+                <span class="collapse-arrow" id="collapseArrow">⌄</span>
+            </div>
+            <div class="form-content" id="formContent">
+                <div class="form-group">
+                    <label class="form-label">User ID</label>
+                    <input type="text" class="form-input user-id-input" id="userIdInput" value="demo123">
+                </div>
+
+                <div class="form-group password-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="passwordInput" value="password123">
+                    <span class="password-eye" id="passwordEye">👁</span>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" class="checkbox-input" id="save-userid" checked>
+                    <label for="save-userid" class="checkbox-label">Save user ID</label>
+                </div>
+
+                <button class="sign-in-button" id="signInButton">Sign in</button>
+            </div>
+        </div>
+
+        <!-- Forgot Link Section -->
+        <div class="forgot-section" id="forgotSection">
+            <div class="forgot-content">
+                <a href="#" class="forgot-link">Forgot user ID or password?</a>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-navigation">
+            <button class="nav-button">📞 Call us</button>
+            <button class="nav-button">📍 Find us</button>
+            <button class="nav-button">⋯ More</button>
+        </div>
+    </div>
+
+    <!-- MAIN FITNESS TRACKER APP -->
+    <div class="main-app" id="mainApp">
+        <div class="app-header">
+            <h1>Mind. Body. Heart.</h1>
+            <p>Your Personal Fitness Tracker</p>
+            <button class="logout-btn" id="logoutBtn">Logout</button>
+        </div>
+        
+        <div class="app-content">
+            <!-- Add Exercise Section -->
+            <div class="section">
+                <h2>📝 Add Exercise</h2>
+                <div class="exercise-form">
+                    <input type="text" id="exerciseName" placeholder="Exercise name" required>
+                    <input type="number" id="exerciseSets" placeholder="Sets" min="1" required>
+                    <input type="number" id="exerciseReps" placeholder="Reps per set" min="1" required>
+                    <button type="button" class="btn" id="addExerciseBtn">Add Exercise</button>
+                </div>
+            </div>
+
+            <!-- Today's Exercises -->
+            <div class="section">
+                <h2>🏋️‍♂️ Today's Exercises</h2>
+                <ul class="exercise-list" id="todayExercises">
+                    <!-- Exercises will be added here dynamically -->
+                </ul>
+                <button class="btn btn-secondary" id="clearTodayBtn">Clear Today's Exercises</button>
+            </div>
+
+            <!-- Exercise History -->
+            <div class="section">
+                <h2>📊 Exercise History</h2>
+                <button class="btn btn-secondary" id="viewHistoryBtn">View Full History</button>
+                <ul class="exercise-list" id="exerciseHistory">
+                    <!-- History will be shown here -->
+                </ul>
+            </div>
+
+            <!-- Summary Statistics -->
+            <div class="section">
+                <h2>📈 Summary</h2>
+                <div id="summaryStats">
+                    <p><strong>Total Exercises Today:</strong> <span id="totalToday">0</span></p>
+                    <p><strong>Total Sets Today:</strong> <span id="totalSetsToday">0</span></p>
+                    <p><strong>Total Exercises This Week:</strong> <span id="totalWeek">0</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Authentication Management
+        class AuthManager {
+            constructor() {
+                this.isAuthenticated = false;
+                this.authMode = 'faceId';
+                this.isFormCollapsed = false;
+                this.initializeElements();
+                this.setupEventListeners();
+                this.initializeAuthState();
+            }
+
+            initializeElements() {
+                this.elements = {
+                    loginContainer: document.getElementById('loginContainer'),
+                    mainApp: document.getElementById('mainApp'),
+                    signInHeader: document.getElementById('signInHeader'),
+                    collapseArrow: document.getElementById('collapseArrow'),
+                    formContent: document.getElementById('formContent'),
+                    signInButton: document.getElementById('signInButton'),
+                    faceIdIcon: document.getElementById('faceIdIcon'),
+                    passwordEye: document.getElementById('passwordEye'),
+                    passwordInput: document.getElementById('passwordInput'),
+                    userIdInput: document.getElementById('userIdInput'),
+                    welcomeContent: document.getElementById('welcomeContent'),
+                    forgotSection: document.getElementById('forgotSection'),
+                    logoutBtn: document.getElementById('logoutBtn')
+                };
+            }
+
+            setupEventListeners() {
+                // Login form toggle
+                this.elements.signInHeader.addEventListener('click', () => this.toggleFormCollapse());
+                this.elements.collapseArrow.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.toggleFormCollapse();
+                });
+
+                // Authentication methods
+                this.elements.faceIdIcon.addEventListener('click', () => this.performFaceIdAuth());
+                this.elements.signInButton.addEventListener('click', () => this.performManualAuth());
+
+                // Password visibility toggle
+                this.elements.passwordEye.addEventListener('click', () => this.togglePasswordVisibility());
+
+                // Logout
+                this.elements.logoutBtn.addEventListener('click', () => this.logout());
+
+                // Keyboard navigation
+                document.addEventListener('keydown', (e) => this.handleKeyNavigation(e));
+
+                // Bottom navigation
+                document.querySelectorAll('.nav-button').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const originalText = this.textContent;
+                        this.textContent = 'Coming Soon...';
+                        this.style.background = 'rgba(255,255,255,0.2)';
+                        setTimeout(() => {
+                            this.textContent = originalText;
+                            this.style.background = 'transparent';
+                        }, 1500);
+                    });
+                });
+            }
+
+            initializeAuthState() {
+                // Start with Face ID mode (collapsed form)
+                setTimeout(() => {
+                    this.toggleFormCollapse();
+                }, 500);
+
+                // Make Face ID icon accessible
+                this.elements.faceIdIcon.setAttribute('tabindex', '0');
+                this.elements.faceIdIcon.setAttribute('role', 'button');
+                this.elements.faceIdIcon.setAttribute('aria-label', 'Authenticate with Face ID');
+            }
+
+            toggleFormCollapse() {
+                this.isFormCollapsed = !this.isFormCollapsed;
+                
+                if (this.isFormCollapsed) {
+                    this.elements.formContent.classList.add('collapsed');
+                    this.elements.collapseArrow.classList.add('collapsed');
+                    this.authMode = 'faceId';
+                    this.elements.welcomeContent.classList.add('face-id-mode');
+                    this.elements.forgotSection.classList.remove('show');
+                    this.elements.loginContainer.classList.remove('expanded');
+                } else {
+                    this.elements.formContent.classList.remove('collapsed');
+                    this.elements.collapseArrow.classList.remove('collapsed');
+                    this.authMode = 'manual';
+                    this.elements.welcomeContent.classList.remove('face-id-mode');
+                    this.elements.forgotSection.classList.add('show');
+                    this.elements.loginContainer.classList.add('expanded');
+                }
+            }
+
+            performFaceIdAuth() {
+                if (this.authMode !== 'faceId' && !this.isFormCollapsed) {
+                    alert('Please collapse form to use Face ID');
+                    return;
+                }
+
+                this.elements.faceIdIcon.classList.add('scanning');
+
+                // Simulate Face ID scanning process
+                setTimeout(() => {
+                    const success = Math.random() > 0.2; // 80% success rate for demo
+                    
+                    this.elements.faceIdIcon.classList.remove('scanning');
+                    
+                    if (success) {
+                        setTimeout(() => {
+                            this.authenticateUser('Face ID');
+                        }, 500);
+                    } else {
+                        alert('Face ID failed. Try again or use manual login.');
+                    }
+                }, 2000);
+            }
+
+            performManualAuth() {
+                if (!this.elements.userIdInput.value || !this.elements.passwordInput.value) {
+                    alert('Please enter both User ID and Password');
+                    return;
+                }
+
+                this.elements.signInButton.textContent = 'Signing in...';
+                this.elements.signInButton.style.background = '#C5282F';
+                this.elements.signInButton.disabled = true;
+
+                // Simulate authentication process
+                setTimeout(() => {
+                    this.elements.signInButton.textContent = '✓ Success!';
+                    this.elements.signInButton.style.background = '#34C759';
+                    
+                    setTimeout(() => {
+                        this.authenticateUser('Manual Login');
+                        this.elements.signInButton.textContent = 'Sign in';
+                        this.elements.signInButton.style.background = '#C5282F';
+                        this.elements.signInButton.disabled = false;
+                    }, 1500);
+                }, 2000);
+            }
+
+            authenticateUser(method) {
+                this.isAuthenticated = true;
+                localStorage.setItem('isAuthenticated', 'true');
+                localStorage.setItem('loginMethod', method);
+                localStorage.setItem('loginTime', new Date().toISOString());
+                
+                // Hide login, show main app
+                this.elements.loginContainer.classList.add('hidden');
+                this.elements.mainApp.classList.add('active');
+                
+                // Initialize the fitness tracker
+                if (window.fitnessTracker) {
+                    window.fitnessTracker.loadData();
+                    window.fitnessTracker.updateSummary();
+                }
+            }
+
+            logout() {
+                this.isAuthenticated = false;
+                localStorage.removeItem('isAuthenticated');
+                localStorage.removeItem('loginMethod');
+                localStorage.removeItem('loginTime');
+                
+                // Show login, hide main app
+                this.elements.loginContainer.classList.remove('hidden');
+                this.elements.mainApp.classList.remove('active');
+                
+                // Reset form state
+                this.elements.passwordInput.value = 'password123';
+                this.elements.userIdInput.value = 'demo123';
+            }
+
+            togglePasswordVisibility() {
+                if (this.elements.passwordInput.type === 'password') {
+                    this.elements.passwordInput.type = 'text';
+                    this.elements.passwordEye.textContent = '🙈';
+                } else {
+                    this.elements.passwordInput.type = 'password';
+                    this.elements.passwordEye.textContent = '👁';
+                }
+            }
+
+            handleKeyNavigation(e) {
+                if (e.key === 'Enter') {
+                    if (this.authMode === 'faceId' && document.activeElement === this.elements.faceIdIcon) {
+                        this.performFaceIdAuth();
+                    } else if (this.authMode === 'manual' && !this.isFormCollapsed) {
+                        this.performManualAuth();
+                    }
+                }
+                
+                if (e.key === 'Escape') {
+                    if (!this.isFormCollapsed) {
+                        this.toggleFormCollapse();
+                    }
+                }
+            }
+
+            checkAuthStatus() {
+                const isAuth = localStorage.getItem('isAuthenticated') === 'true';
+                if (isAuth) {
+                    this.isAuthenticated = true;
+                    this.elements.loginContainer.classList.add('hidden');
+                    this.elements.mainApp.classList.add('active');
+                }
+            }
+        }
+
+        // Fitness Tracker Management
+        class FitnessTracker {
+            constructor() {
+                this.exercises = JSON.parse(localStorage.getItem('exercises')) || [];
+                this.initializeElements();
+                this.setupEventListeners();
+            }
+
+            initializeElements() {
+                this.elements = {
+                    exerciseName: document.getElementById('exerciseName'),
+                    exerciseSets: document.getElementById('exerciseSets'),
+                    exerciseReps: document.getElementById('exerciseReps'),
+                    addExerciseBtn: document.getElementById('addExerciseBtn'),
+                    todayExercises: document.getElementById('todayExercises'),
+                    clearTodayBtn: document.getElementById('clearTodayBtn'),
+                    viewHistoryBtn: document.getElementById('viewHistoryBtn'),
+                    exerciseHistory: document.getElementById('exerciseHistory'),
+                    totalToday: document.getElementById('totalToday'),
+                    totalSetsToday: document.getElementById('totalSetsToday'),
+                    totalWeek: document.getElementById('totalWeek')
+                };
+            }
+
+            setupEventListeners() {
+                this.elements.addExerciseBtn.addEventListener('click', () => this.addExercise());
+                this.elements.clearTodayBtn.addEventListener('click', () => this.clearTodayExercises());
+                this.elements.viewHistoryBtn.addEventListener('click', () => this.toggleHistory());
+                
+                // Enter key support for add exercise
+                [this.elements.exerciseName, this.elements.exerciseSets, this.elements.exerciseReps].forEach(input => {
+                    input.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            this.addExercise();
+                        }
+                    });
+                });
+            }
+
+            addExercise() {
+                const name = this.elements.exerciseName.value.trim();
+                const sets = parseInt(this.elements.exerciseSets.value);
+                const reps = parseInt(this.elements.exerciseReps.value);
+
+                if (!name || !sets || !reps) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+
+                const exercise = {
+                    id: Date.now(),
+                    name,
+                    sets,
+                    reps,
+                    date: new Date().toISOString(),
+                    totalReps: sets * reps
+                };
+
+                this.exercises.push(exercise);
+                this.saveData();
+                this.displayTodayExercises();
+                this.updateSummary();
+                this.clearForm();
+            }
+
+            clearForm() {
+                this.elements.exerciseName.value = '';
+                this.elements.exerciseSets.value = '';
+                this.elements.exerciseReps.value = '';
+                this.elements.exerciseName.focus();
+            }
+
+            displayTodayExercises() {
+                const today = new Date().toDateString();
+                const todayExercises = this.exercises.filter(ex => 
+                    new Date(ex.date).toDateString() === today
+                );
+
+                this.elements.todayExercises.innerHTML = todayExercises.map(exercise => `
+                    <li class="exercise-item">
+                        <div class="exercise-details">
+                            <div class="exercise-name">${exercise.name}</div>
+                            <div class="exercise-stats">${exercise.sets} sets × ${exercise.reps} reps = ${exercise.totalReps} total reps</div>
+                        </div>
+                        <button class="btn btn-secondary" onclick="fitnessTracker.removeExercise(${exercise.id})">Remove</button>
+                    </li>
+                `).join('');
+            }
+
+            removeExercise(id) {
+                this.exercises = this.exercises.filter(ex => ex.id !== id);
+                this.saveData();
+                this.displayTodayExercises();
+                this.updateSummary();
+            }
+
+            clearTodayExercises() {
+                if (confirm('Are you sure you want to clear all exercises for today?')) {
+                    const today = new Date().toDateString();
+                    this.exercises = this.exercises.filter(ex => 
+                        new Date(ex.date).toDateString() !== today
+                    );
+                    this.saveData();
+                    this.displayTodayExercises();
+                    this.updateSummary();
+                }
+            }
+
+            toggleHistory() {
+                const historyVisible = this.elements.exerciseHistory.style.display !== 'none';
+                
+                if (historyVisible) {
+                    this.elements.exerciseHistory.style.display = 'none';
+                    this.elements.viewHistoryBtn.textContent = 'View Full History';
+                } else {
+                    this.displayHistory();
+                    this.elements.exerciseHistory.style.display = 'block';
+                    this.elements.viewHistoryBtn.textContent = 'Hide History';
+                }
+            }
+
+            displayHistory() {
+                const historyByDate = {};
+                
+                this.exercises.forEach(exercise => {
+                    const date = new Date(exercise.date).toDateString();
+                    if (!historyByDate[date]) {
+                        historyByDate[date] = [];
+                    }
+                    historyByDate[date].push(exercise);
+                });
+
+                const historyHtml = Object.keys(historyByDate)
+                    .sort((a, b) => new Date(b) - new Date(a))
+                    .map(date => {
+                        const exercises = historyByDate[date];
+                        const totalSets = exercises.reduce((sum, ex) => sum + ex.sets, 0);
+                        const totalReps = exercises.reduce((sum, ex) => sum + ex.totalReps, 0);
+                        
+                        return `
+                            <li class="exercise-item">
+                                <div class="exercise-details">
+                                    <div class="exercise-name">${date}</div>
+                                    <div class="exercise-stats">${exercises.length} exercises, ${totalSets} sets, ${totalReps} total reps</div>
+                                </div>
+                            </li>
+                        `;
+                    }).join('');
+
+                this.elements.exerciseHistory.innerHTML = historyHtml;
+            }
+
+            updateSummary() {
+                const today = new Date().toDateString();
+                const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+                const todayExercises = this.exercises.filter(ex => 
+                    new Date(ex.date).toDateString() === today
+                );
+
+                const weekExercises = this.exercises.filter(ex => 
+                    new Date(ex.date) >= weekAgo
+                );
+
+                const totalSetsToday = todayExercises.reduce((sum, ex) => sum + ex.sets, 0);
+
+                this.elements.totalToday.textContent = todayExercises.length;
+                this.elements.totalSetsToday.textContent = totalSetsToday;
+                this.elements.totalWeek.textContent = weekExercises.length;
+            }
+
+            saveData() {
+                localStorage.setItem('exercises', JSON.stringify(this.exercises));
+            }
+
+            loadData() {
+                this.displayTodayExercises();
+                this.updateSummary();
+            }
+        }
+
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize authentication manager
+            window.authManager = new AuthManager();
+            
+            // Initialize fitness tracker
+            window.fitnessTracker = new FitnessTracker();
+            
+            // Check if user was previously authenticated
+            window.authManager.checkAuthStatus();
+            
+            // If authenticated, load fitness data
+            if (window.authManager.isAuthenticated) {
+                window.fitnessTracker.loadData();
+            }
+        });
+    </script>
+</body>
+</html>

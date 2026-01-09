@@ -24,7 +24,11 @@
       "Bash(npm pkg set:*)",
       "Bash(NODE_ENV=test npx jest:*)",
       "Bash(tee:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(dir \"C:\\\\Users\\\\SDWOR\\\\Desktop\\\\Ageless_React_Native_Mobile_App\\\\Old_Ageless_PWA_Screenshots\")",
+      "Bash(xcopy:*)",
+      "Bash(copy \"C:\\\\Users\\\\SDWOR\\\\Desktop\\\\Ageless_React_Native_Mobile_App\\\\Old_Ageless_PWA_Screenshots\\\\*.pdf\" \"c:\\\\Users\\\\SDWOR\\\\Ageless_React_Native_Mobile_App\\\\Ageless_React_Native_Mobile_App\\\\Old_Ageless_Web_PWA\\\\Old_Ageless_PWA_Screenshots\"\")",
+      "Bash(find:*)"
     ]
   }
 }

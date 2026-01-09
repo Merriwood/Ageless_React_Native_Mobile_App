@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crop: Credit Card Icon</title>
+  <style>
+    body{font-family:system-ui,Segoe UI,sans-serif;margin:20px;color:#222}
+    .wrap{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start}
+    canvas{border:1px solid #ddd;border-radius:8px;max-width:90vw;height:auto}
+    .btn{padding:8px 12px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer}
+    .btn:hover{background:#f5f5f7}
+    .meta{color:#666;font-size:12px}
+    .err{color:#C5282F;font-weight:600;margin-top:8px}
+    .picker{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+  </style>
+  <script>
+    function centerCropToSquare(img){
+      const w=img.naturalWidth, h=img.naturalHeight;
+      const size=Math.min(w,h);
+      const sx=Math.floor((w-size)/2);
+      const sy=Math.floor((h-size)/2);
+      const canvas=document.getElementById('out');
+      canvas.width=size; canvas.height=size;
+      const ctx=canvas.getContext('2d');
+      ctx.drawImage(img, sx, sy, size, size, 0, 0, size, size);
+      document.getElementById('meta').textContent=`Source: ${w}×${h} → Crop: ${size}×${size}`;
+      document.getElementById('err').textContent='';
+    }
+    function download(){
+      const link=document.createElement('a');
+      link.download='Credit_card_icon_cropped.png';
+      link.href=document.getElementById('out').toDataURL('image/png');
+      link.click();
+    }
+    function loadDefault(){
+      const img=new Image();
+      img.onload=()=>centerCropToSquare(img);
+      img.onerror=()=>{
+        document.getElementById('err').textContent='Could not load the default file in this preview. Use "Choose Image" to select it manually.';
+      };
+      img.src='icons/Credit_card_icon.jpg';
+    }
+    function onPick(ev){
+      const f=ev.target.files && ev.target.files[0];
+      if(!f) return;
+      const url=URL.createObjectURL(f);
+      const img=new Image();
+      img.onload=()=>{ centerCropToSquare(img); URL.revokeObjectURL(url); };
+      img.onerror=()=>{ document.getElementById('err').textContent='Failed to load selected file.'; URL.revokeObjectURL(url); };
+      img.src=url;
+    }
+    window.addEventListener('DOMContentLoaded',()=>{
+      document.getElementById('pick').addEventListener('change', onPick);
+      loadDefault();
+    });
+  </script>
+  </head>
+<body>
+  <h1>Crop: Credit_card_icon.jpg → square</h1>
+  <div class="picker">
+    <input id="pick" type="file" accept="image/*" />
+    <button class="btn" onclick="loadDefault()">Load default</button>
+    <span class="meta">Default path: web/icons/Credit_card_icon.jpg</span>
+  </div>
+  <div class="wrap">
+    <div>
+      <div class="meta" id="meta">Loading…</div>
+      <canvas id="out"></canvas>
+      <div style="margin-top:10px">
+        <button class="btn" onclick="download()">Download cropped PNG</button>
+      </div>
+      <div id="err" class="err"></div>
+    </div>
+    <div>
+      <div>Source preview</div>
+      <img src="icons/Credit_card_icon.jpg" alt="source" style="max-width:280px;display:block;border:1px solid #ddd;border-radius:8px;margin-top:6px"/>
+    </div>
+  </div>
+</body>
+</html>

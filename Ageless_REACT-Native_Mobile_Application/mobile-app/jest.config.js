@@ -9,10 +9,8 @@ module.exports = {
     '^.+\.(ts|tsx)$': 'babel-jest',
   },
   testMatch: [
-    '**/__tests__/**/__tests__/**/*.test.ts',
-    '**/__tests__/**/__tests__/**/*.test.tsx',
-    '**/__tests__/**/integration/*.test.ts',
-    '**/__tests__/**/integration/*.test.tsx',
+    '<rootDir>/__tests__/**/*.test.ts',
+    '<rootDir>/__tests__/**/*.test.tsx',
   ],
   testPathIgnorePatterns: ['/node_modules/', '/__tests__/setup.ts'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
@@ -26,4 +24,12 @@ module.exports = {
     '!**/node_modules/**',
   ],
   coveragePathIgnorePatterns: ['/node_modules/'],
+  coverageThreshold: {
+    global: {
+      branches: 70,
+      functions: 70,
+      lines: 70,
+      statements: 70,
+    },
+  },
 };

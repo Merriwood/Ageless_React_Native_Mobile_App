@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Logo Editor - Benjamin Moore Red</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        .canvas-area {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .canvas-box {
+            text-align: center;
+        }
+        canvas {
+            border: 2px solid #333;
+            background: white;
+            max-width: 300px;
+            max-height: 300px;
+        }
+        .big-button {
+            background: #CC0000;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            min-width: 200px;
+        }
+        .big-button:hover {
+            background: #aa0000;
+        }
+        .big-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        input[type="file"] {
+            margin: 10px 0;
+            padding: 10px;
+            border: 2px dashed #ccc;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .status {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+        .status.info {
+            background: #cce7f0;
+            color: #055160;
+            border: 2px solid #b3d7e8;
+        }
+        .specs {
+            background: #e8f4fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .color-sample {
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+            border: 1px solid #000;
+            vertical-align: middle;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Professional Heart Logo Editor</h1>
+        
+        <div class="specs">
+            <h3>Design Specifications:</h3>
+            <p><strong>Background:</strong> Benjamin Moore Red #2000-10 <span class="color-sample" style="background: #CC0000;"></span> (#CC0000)</p>
+            <p><strong>Outline:</strong> White <span class="color-sample" style="background: #FFFFFF;"></span> (replacing black)</p>
+            <p><strong>Format:</strong> PNG with transparency</p>
+        </div>
+
+        <div class="section">
+            <h3>📁 Step 1: Load Your Logo</h3>
+            <input type="file" id="fileInput" accept="image/*">
+            <button class="big-button" onclick="loadExistingLogo()">📂 Load heart_logo_icon.png</button>
+            <div id="loadStatus" class="status info">Ready to load logo</div>
+        </div>
+
+        <div class="section">
+            <div class="canvas-area">
+                <div class="canvas-box">
+                    <h3>Original Logo</h3>
+                    <canvas id="originalCanvas" width="300" height="300"></canvas>
+                </div>
+                <div class="canvas-box">
+                    <h3>Modified Logo</h3>
+                    <canvas id="modifiedCanvas" width="300" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>🛠️ Step 2: Apply Changes</h3>
+            <button class="big-button" onclick="processLogo()" id="processBtn" disabled>
+                🎨 APPLY PROFESSIONAL CHANGES
+            </button>
+            <div id="processStatus" class="status info">Load a logo first</div>
+        </div>
+
+        <div class="section">
+            <h3>💾 Step 3: Download</h3>
+            <button class="big-button" onclick="downloadLogo()" id="downloadBtn" disabled>
+                ⬇️ DOWNLOAD PNG LOGO
+            </button>
+            <div id="downloadStatus" class="status info">Process logo first</div>
+        </div>
+    </div>
+
+    <script>
+        const originalCanvas = document.getElementById('originalCanvas');
+        const modifiedCanvas = document.getElementById('modifiedCanvas');
+        const originalCtx = originalCanvas.getContext('2d');
+        const modifiedCtx = modifiedCanvas.getContext('2d');
+        const fileInput = document.getElementById('fileInput');
+        
+        let originalImageData = null;
+        let isLogoLoaded = false;
+
+        function updateStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${type}`;
+        }
+
+        function loadExistingLogo() {
+            const img = new Image();
+            img.onload = function() {
+                // Resize canvas to fit image
+                originalCanvas.width = Math.min(img.width, 300);
+                originalCanvas.height = Math.min(img.height, 300);
+                modifiedCanvas.width = originalCanvas.width;
+                modifiedCanvas.height = originalCanvas.height;
+                
+                // Clear and draw
+                originalCtx.clearRect(0, 0, originalCanvas.width, originalCanvas.height);
+                originalCtx.drawImage(img, 0, 0, originalCanvas.width, originalCanvas.height);
+                
+                // Store image data
+                originalImageData = originalCtx.getImageData(0, 0, originalCanvas.width, originalCanvas.height);
+                isLogoLoaded = true;
+                
+                // Enable process button
+                document.getElementById('processBtn').disabled = false;
+                updateStatus('loadStatus', '✅ Logo loaded successfully!', 'success');
+                updateStatus('processStatus', 'Ready to apply changes', 'info');
+            };
+            
+            img.onerror = function() {
+                updateStatus('loadStatus', '❌ Could not find heart_logo_icon.png. Please upload manually.', 'info');
+            };
+            
+            // Try to load the existing logo
+            img.src = 'icons/heart_logo_icon.png';
+        }
+
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        originalCanvas.width = Math.min(img.width, 300);
+                        originalCanvas.height = Math.min(img.height, 300);
+                        modifiedCanvas.width = originalCanvas.width;
+                        modifiedCanvas.height = originalCanvas.height;
+                        
+                        originalCtx.clearRect(0, 0, originalCanvas.width, originalCanvas.height);
+                        originalCtx.drawImage(img, 0, 0, originalCanvas.width, originalCanvas.height);
+                        
+                        originalImageData = originalCtx.getImageData(0, 0, originalCanvas.width, originalCanvas.height);
+                        isLogoLoaded = true;
+                        
+                        document.getElementById('processBtn').disabled = false;
+                        updateStatus('loadStatus', '✅ Logo uploaded successfully!', 'success');
+                        updateStatus('processStatus', 'Ready to apply changes', 'info');
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function processLogo() {
+            if (!isLogoLoaded || !originalImageData) {
+                updateStatus('processStatus', '❌ Please load a logo first!', 'info');
+                return;
+            }
+
+            updateStatus('processStatus', '🔄 Processing logo...', 'info');
+
+            // Create new image data for modified canvas
+            const imageData = modifiedCtx.createImageData(originalImageData.width, originalImageData.height);
+            const data = imageData.data;
+            const originalData = originalImageData.data;
+
+            // Benjamin Moore Red #CC0000
+            const redColor = { r: 204, g: 0, b: 0 };
+            const whiteColor = { r: 255, g: 255, b: 255 };
+
+            for (let i = 0; i < originalData.length; i += 4) {
+                const r = originalData[i];
+                const g = originalData[i + 1];
+                const b = originalData[i + 2];
+                const a = originalData[i + 3];
+
+                if (a === 0) {
+                    // Transparent pixel - keep transparent
+                    data[i] = 0;
+                    data[i + 1] = 0;
+                    data[i + 2] = 0;
+                    data[i + 3] = 0;
+                } else {
+                    // Check if pixel is dark (likely outline)
+                    const isDark = (r + g + b) < 150;
+                    
+                    // Check if pixel is light (likely fill)
+                    const isLight = (r + g + b) > 400;
+                    
+                    if (isDark) {
+                        // Dark pixels become white outline
+                        data[i] = whiteColor.r;
+                        data[i + 1] = whiteColor.g;
+                        data[i + 2] = whiteColor.b;
+                        data[i + 3] = a;
+                    } else if (isLight) {
+                        // Light pixels become Benjamin Moore red
+                        data[i] = redColor.r;
+                        data[i + 1] = redColor.g;
+                        data[i + 2] = redColor.b;
+                        data[i + 3] = a;
+                    } else {
+                        // Keep other colors as is
+                        data[i] = r;
+                        data[i + 1] = g;
+                        data[i + 2] = b;
+                        data[i + 3] = a;
+                    }
+                }
+            }
+
+            // Draw the processed image
+            modifiedCtx.putImageData(imageData, 0, 0);
+            
+            // Enable download
+            document.getElementById('downloadBtn').disabled = false;
+            updateStatus('processStatus', '✅ Professional changes applied!', 'success');
+            updateStatus('downloadStatus', 'Ready to download', 'success');
+        }
+
+        function downloadLogo() {
+            const link = document.createElement('a');
+            link.download = 'heart_logo_icon_benjamin_moore_red.png';
+            link.href = modifiedCanvas.toDataURL('image/png');
+            link.click();
+            updateStatus('downloadStatus', '✅ Logo downloaded successfully!', 'success');
+        }
+
+        // Auto-load on page start
+        window.onload = function() {
+            loadExistingLogo();
+        };
+    </script>
+</body>
+</html>

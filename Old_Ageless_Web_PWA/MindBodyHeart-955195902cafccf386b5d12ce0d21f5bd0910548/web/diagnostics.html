@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Diagnostics</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .log { background: #f8f9fa; padding: 10px; margin: 10px 0; border-radius: 4px; white-space: pre-wrap; font-family: monospace; }
+        input { padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Fitness Tracker API Diagnostics</h1>
+    
+    <div class="test-section">
+        <h3>1. Health Check</h3>
+        <button onclick="testHealth()">Test Health Endpoint</button>
+        <div id="health-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Registration Test</h3>
+        <input type="email" id="reg-email" placeholder="test@example.com" value="test@example.com">
+        <input type="password" id="reg-password" placeholder="password" value="testpass123">
+        <button onclick="testRegister()">Test Registration</button>
+        <div id="register-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. Login Test</h3>
+        <input type="email" id="login-email" placeholder="test@example.com" value="test@example.com">
+        <input type="password" id="login-password" placeholder="password" value="testpass123">
+        <button onclick="testLogin()">Test Login</button>
+        <div id="login-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. API Summary</h3>
+        <div id="summary"></div>
+    </div>
+
+    <script>
+        let testResults = { health: null, register: null, login: null };
+
+        async function testHealth() {
+            const resultDiv = document.getElementById('health-result');
+            resultDiv.innerHTML = '<div class="log">Testing health endpoint...</div>';
+            
+            try {
+                const response = await fetch('/healthz');
+                const data = await response.json();
+                
+                const status = response.ok ? 'success' : 'error';
+                resultDiv.className = `test-section ${status}`;
+                resultDiv.innerHTML = `
+                    <div class="log">Status: ${response.status}</div>
+                    <div class="log">${JSON.stringify(data, null, 2)}</div>
+                `;
+                testResults.health = { ok: response.ok, data };
+            } catch (error) {
+                resultDiv.className = 'test-section error';
+                resultDiv.innerHTML = `<div class="log">Error: ${error.message}</div>`;
+                testResults.health = { ok: false, error: error.message };
+            }
+            updateSummary();
+        }
+
+        async function testRegister() {
+            const resultDiv = document.getElementById('register-result');
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            
+            resultDiv.innerHTML = '<div class="log">Testing registration...</div>';
+            
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+                
+                const status = response.ok ? 'success' : (response.status === 400 && data.error.includes('already') ? 'warning' : 'error');
+                resultDiv.className = `test-section ${status}`;
+                resultDiv.innerHTML = `
+                    <div class="log">Status: ${response.status}</div>
+                    <div class="log">${JSON.stringify(data, null, 2)}</div>
+                `;
+                testResults.register = { ok: response.ok || status === 'warning', data };
+            } catch (error) {
+                resultDiv.className = 'test-section error';
+                resultDiv.innerHTML = `<div class="log">Error: ${error.message}</div>`;
+                testResults.register = { ok: false, error: error.message };
+            }
+            updateSummary();
+        }
+
+        async function testLogin() {
+            const resultDiv = document.getElementById('login-result');
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            resultDiv.innerHTML = '<div class="log">Testing login...</div>';
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+                
+                const status = response.ok ? 'success' : 'error';
+                resultDiv.className = `test-section ${status}`;
+                resultDiv.innerHTML = `
+                    <div class="log">Status: ${response.status}</div>
+                    <div class="log">${JSON.stringify(data, null, 2)}</div>
+                `;
+                testResults.login = { ok: response.ok, data };
+            } catch (error) {
+                resultDiv.className = 'test-section error';
+                resultDiv.innerHTML = `<div class="log">Error: ${error.message}</div>`;
+                testResults.login = { ok: false, error: error.message };
+            }
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const summaryDiv = document.getElementById('summary');
+            const tests = Object.entries(testResults).filter(([_, result]) => result !== null);
+            
+            if (tests.length === 0) {
+                summaryDiv.innerHTML = '<div class="log">Run tests to see summary</div>';
+                return;
+            }
+
+            const passed = tests.filter(([_, result]) => result.ok).length;
+            const total = tests.length;
+            
+            let diagnosis = '';
+            if (testResults.health && !testResults.health.ok) {
+                diagnosis = '❌ Database connection issue - check DATABASE_URL';
+            } else if (testResults.health?.ok && testResults.register?.ok && !testResults.login?.ok) {
+                diagnosis = '⚠️ Database connected but login failing - check user exists or credentials';
+            } else if (passed === total) {
+                diagnosis = '✅ All systems working correctly';
+            } else {
+                diagnosis = '⚠️ Some issues detected - see individual tests';
+            }
+
+            summaryDiv.innerHTML = `
+                <div class="log">Tests: ${passed}/${total} passed</div>
+                <div class="log">${diagnosis}</div>
+            `;
+        }
+
+        // Auto-run health check on page load
+        window.addEventListener('load', () => {
+            setTimeout(testHealth, 1000);
+        });
+    </script>
+</body>
+</html>

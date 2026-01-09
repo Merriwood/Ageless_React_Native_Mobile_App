@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Icon Resizer - Make 180x180 Apple Touch Icon</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            max-width: 800px; 
+            margin: 0 auto; 
+        }
+        .container { 
+            text-align: center; 
+            margin: 20px 0; 
+        }
+        canvas { 
+            border: 2px solid #ccc; 
+            margin: 10px; 
+        }
+        button { 
+            background: #434C5E; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 5px; 
+        }
+        button:hover { 
+            background: #2E3440; 
+        }
+        #fileInput {
+            margin: 10px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Apple Touch Icon Resizer</h1>
+    <p>This tool will resize your current icon to exactly 180x180 pixels for optimal iPhone display.</p>
+    
+    <div class="container">
+        <h3>Step 1: Select your current apple-touch-icon.png</h3>
+        <input type="file" id="fileInput" accept="image/*">
+    </div>
+    
+    <div class="container">
+        <h3>Step 2: Preview (Original)</h3>
+        <canvas id="originalCanvas"></canvas>
+        <div id="originalInfo"></div>
+    </div>
+    
+    <div class="container">
+        <h3>Step 3: Resized to 180x180</h3>
+        <canvas id="resizedCanvas" width="180" height="180"></canvas>
+        <br>
+        <button onclick="resizeImage()">Resize to 180x180</button>
+        <button onclick="downloadResized()">Download 180x180 Icon</button>
+        <p style="color: #666; font-size: 14px;">
+            <strong>If download doesn't work:</strong> Right-click the canvas above and select "Save image as..."
+        </p>
+    </div>
+
+    <div class="container">
+        <h3>Instructions:</h3>
+        <ol>
+            <li>Click "Choose File" and select your current apple-touch-icon.png</li>
+            <li>Click "Resize to 180x180" to create the properly sized version</li>
+            <li>Click "Download 180x180 Icon" to save the new file</li>
+            <li>Replace the old apple-touch-icon.png with the downloaded file</li>
+            <li>Commit and push to GitHub</li>
+        </ol>
+    </div>
+
+    <script>
+        let originalImage = null;
+        
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    originalImage = img;
+                    displayOriginal();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+        
+        function displayOriginal() {
+            const canvas = document.getElementById('originalCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size to match image (but limit display size)
+            const maxDisplay = 200;
+            const scale = Math.min(maxDisplay / originalImage.width, maxDisplay / originalImage.height);
+            
+            canvas.width = originalImage.width * scale;
+            canvas.height = originalImage.height * scale;
+            
+            ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
+            
+            document.getElementById('originalInfo').innerHTML = 
+                `Original size: ${originalImage.width} x ${originalImage.height} pixels`;
+        }
+        
+        function resizeImage() {
+            if (!originalImage) {
+                alert('Please select an image first!');
+                return;
+            }
+            
+            const canvas = document.getElementById('resizedCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, 180, 180);
+            
+            // Draw image resized to exactly 180x180
+            ctx.drawImage(originalImage, 0, 0, 180, 180);
+            
+            alert('Image resized to 180x180! Click "Download" to save.');
+        }
+        
+        function downloadResized() {
+            const canvas = document.getElementById('resizedCanvas');
+            
+            // Check if canvas has content
+            const imageData = canvas.getImageData(0, 0, 180, 180);
+            const hasContent = imageData.data.some(channel => channel !== 0);
+            
+            if (!hasContent) {
+                alert('Please resize the image first!');
+                return;
+            }
+            
+            // Create download link with better compatibility
+            try {
+                const dataURL = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = dataURL;
+                link.download = 'apple-touch-icon-180x180.png';
+                
+                // Force download
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                
+                // Clean up
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                }, 100);
+                
+                alert('Downloaded! Check your Downloads folder for apple-touch-icon-180x180.png');
+            } catch (error) {
+                // Fallback: show instructions for manual save
+                alert('Download failed. Right-click the 180x180 canvas above and select "Save image as..." to save manually.');
+                console.error('Download error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

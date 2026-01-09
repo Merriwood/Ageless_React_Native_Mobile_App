@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mind. Body. Heart. Tracker</title>
+
+<!-- iOS PWA Enhancement -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mind. Body. Heart.">
+
+<!-- SEO and Browser Enhancement -->
+<meta name="description" content="Track your fitness progress with our comprehensive workout tracker. Monitor exercises, sets, and progress over time.">
+<meta name="theme-color" content="#C5282F">
+<meta name="msapplication-TileColor" content="#C5282F">
+<meta name="msapplication-TileImage" href="./icons/icon-192.png">
+
+<!-- Favicon System -->
+<link rel="icon" href="./favicon.ico" type="image/x-icon">
+<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./icons/favicon-16x16.png">
+<link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
+
+<!-- Apple Touch Icons -->
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
+
+<!-- PWA Manifest -->
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<link rel="manifest" href="./manifest.json">
+
+<style>
+/* === PROFESSIONAL LOGIN OVERLAY (From our perfected login interface) === */
+.login-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  z-index: 10000;
+  padding: 20px;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.login-overlay.hidden {
+  display: none !important;
+}
+
+/* PROFESSIONAL LOGIN CONTAINER - EXACT STYLING WE PERFECTED */
+.login-container {
+  background: #F2F2F7;
+  width: 375px;
+  min-height: 667px;
+  height: fit-content;
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border: 2px solid #000000;
+  border-radius: 20px;
+  overflow: visible;
+  margin: 20px auto;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  padding-bottom: 0;
+}
+
+/* Header Section */
+.login-header {
+  background: #F2F2F7;
+  color: #C5282F;
+  padding: 40px 30px 20px 30px;
+  text-align: center;
+  height: auto;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-title {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 0;
+  color: #C5282F;
+  line-height: 1.1;
+  letter-spacing: 0.5px;
+}
+
+/* Welcome Section with Face ID Icon */
+.welcome-section {
+  padding: 0;
+  text-align: center;
+  background: #F2F2F7;
+  margin: 0 20px 20px 20px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border: 1px solid #E5E5EA;
+  overflow: visible;
+}
+
+.welcome-content {
+  background: #FFFFFF;
+  padding: 25px 20px 30px 20px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.welcome-title {
+  font-size: 28px;
+  color: #2D2D2D;
+  margin-bottom: 8px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.welcome-subtitle {
+  color: #666666;
+  font-size: 16px;
+  margin-bottom: 20px;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+/* Face ID Icon - Professional styling */
+.face-id-icon {
+  width: 64px;
+  height: 64px;
+  background: url('icons/face_id_icon.png') no-repeat center;
+  background-size: contain;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin: 0 auto;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.face-id-icon:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 4px 15px rgba(139, 90, 159, 0.3));
+}
+
+.face-id-icon.scanning {
+  animation: faceIdScan 2s ease-in-out;
+}
+
+@keyframes faceIdScan {
+  0%, 100% { 
+    transform: scale(1);
+    filter: none;
+  }
+  50% { 
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 20px rgba(52, 199, 89, 0.5)) brightness(1.2);
+  }
+}
+
+/* Sign In Section */
+.sign-in-section {
+  padding: 0;
+  background: #F2F2F7;
+  margin: 0 20px 20px 20px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border: 1px solid #E5E5EA;
+  overflow: visible;
+}
+
+.sign-in-header {
+  background: #FFFFFF;
+  padding: 20px 20px 15px 20px;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  border-bottom: 1px solid #F0F0F0;
+  position: relative;
+  cursor: pointer;
+}
+
+.sign-in-title {
+  font-size: 20px;
+  color: #000000;
+  font-weight: 500;
+  margin: 0;
+  margin-left: 15px;
+  text-align: left;
+}
+
+.collapse-arrow {
+  font-size: 42px !important;
+  color: #C7C7CC !important;
+  transform: rotate(0deg);
+  transition: transform 0.3s ease;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 50%;
+  user-select: none;
+  position: absolute;
+  right: 15px;
+  font-weight: 400;
+  line-height: 1;
+  width: 66px;
+  height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.collapse-arrow.collapsed {
+  transform: rotate(-90deg);
+}
+
+/* Form Content */
+.form-content {
+  background: #FFFFFF;
+  padding: 20px 20px 25px 20px;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  max-height: 1000px;
+}
+
+.form-content.collapsed {
+  max-height: 0;
+  padding: 0 20px;
+  opacity: 0;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  color: #666666;
+  font-size: 16px;
+  font-weight: 400;
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  height: 50px;
+  padding: 0 15px;
+  border: 1px solid #D1D1D6;
+  border-radius: 8px;
+  font-size: 16px;
+  background: #FFFFFF;
+  color: #000000;
+  font-weight: 400;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #8B5A9F;
+  box-shadow: 0 0 0 2px rgba(139, 90, 159, 0.2);
+}
+
+.user-id-input {
+  color: #000000;
+  font-family: monospace;
+  letter-spacing: 1px;
+}
+
+/* Password field with eye icon */
+.password-group {
+  position: relative;
+}
+
+.password-eye {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  color: #666666;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* Checkbox styling */
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.checkbox-input {
+  width: 20px;
+  height: 20px;
+  margin-right: 12px;
+  accent-color: #00796B;
+  border-radius: 4px;
+}
+
+.checkbox-label {
+  color: #000000;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+/* Sign In Button */
+.sign-in-button {
+  width: 100%;
+  height: 50px;
+  background: #C5282F;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 0;
+  padding: 0 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.sign-in-button:hover {
+  background: #B02328;
+}
+
+/* Forgot Link Section */
+.forgot-section {
+  padding: 0;
+  background: #F2F2F7;
+  margin: 5px 20px 15px 20px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border: 1px solid #E5E5EA;
+  overflow: visible;
+  display: none;
+  transition: all 0.3s ease;
+}
+
+.forgot-section.show {
+  display: block;
+}
+
+.forgot-content {
+  background: #FFFFFF;
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.forgot-link {
+  color: #8B5A9F;
+  font-size: 16px;
+  text-decoration: none;
+  font-weight: 400;
+  line-height: 1;
+  margin: 0;
+}
+
+/* Bottom Navigation */
+.bottom-navigation {
+  background: #2D2D2D;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  margin-top: auto;
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
+  flex-shrink: 0;
+  border-top: 1px solid #1C1C1E;
+  margin-bottom: 0;
+}
+
+.nav-button {
+  flex: 1;
+  height: 45px;
+  background: transparent;
+  color: #FFFFFF;
+  border: none;
+  border-right: 1px solid #48484A;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.nav-button:last-child {
+  border-right: none;
+}
+
+.nav-button:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.login-container.expanded {
+  height: auto;
+  min-height: 800px;
+}
+
+/* === ORIGINAL FITNESS TRACKER STYLES (Exact Benjamin Moore Colors) === */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background: #F0EFEA; /* White Dove */
+  color: #585A57; /* Kendall Charcoal */
+}
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: #FFFFFF;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+  border: 2px solid #434C5E; /* Hale Navy */
+  padding: 20px;
+  background: #CCC7B9; /* Revere Pewter */
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.header .logout-container {
+  display: block !important;
+  text-align: left !important;
+  width: 100% !important;
+  margin-top: 10px !important;
+  position: relative !important;
+}
+.header .logout-container::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+.header .logout-container #user-email {
+  text-align: left !important;
+  margin: 0 0 8px 0 !important;
+  display: block !important;
+}
+.header .logout-container #btn-logout {
+  text-align: center;
+  margin: 0;
+  display: block;
+  width: auto;
+  float: right;
+  clear: both;
+}
+.header h1 {
+  color: #434C5E; /* Hale Navy */
+  margin: 0 0 10px 0;
+}
+.title-main {
+  color: #434C5E;
+  margin: 0;
+  font-size: 28px;
+  font-weight: bold;
+  line-height: 1.2;
+}
+.title-sub {
+  color: #434C5E;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+.progress {
+  background: #434C5E; /* Hale Navy */
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  border: 2px solid #434C5E;
+  color: white;
+}
+.progress h2 {
+  color: white;
+  margin-bottom: 15px;
+}
+.progress-percent {
+  font-size: 36px;
+  font-weight: bold;
+  color: white;
+  display: block;
+  margin-bottom: 10px;
+}
+.progress-bar {
+  width: 100%;
+  height: 30px;
+  background: #F0EFEA;
+  border-radius: 15px;
+  overflow: hidden;
+  margin: 15px 0;
+  border: 2px solid #434C5E;
+}
+.progress-fill {
+  height: 100%;
+  background: #FFFFFF;
+  width: 0%;
+  transition: width 0.5s ease;
+}
+.progress-text {
+  color: white;
+  font-size: 16px;
+}
+.stations {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+.station {
+  border: 2px solid #434C5E; /* Hale Navy */
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+  background: #FFFFFF;
+}
+.station.completed {
+  border-color: #9CA39C; /* Saybrook Sage */
+  background: #EAECE5;
+}
+.station h3 {
+  color: #434C5E;
+  margin-bottom: 10px;
+  font-size: 20px;
+  font-weight: bold;
+}
+.station-info {
+  font-size: 14px;
+  color: #6c757d;
+  margin-bottom: 15px;
+}
+.station-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+.btn {
+  width: 50px;
+  height: 50px;
+  border: none;
+  border-radius: 50%;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+  background: #434C5E;
+  color: #fff;
+}
+.btn:disabled {
+  background: #999;
+  cursor: not-allowed;
+}
+.count {
+  font-size: 32px;
+  font-weight: bold;
+  min-width: 50px;
+  color: #434C5E;
+}
+.actions {
+  background: #EAE3D2; /* Original beige */
+  padding: 25px;
+  border-radius: 12px;
+  border: 2px solid #434C5E;
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.weight-section {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.weight-input {
+  padding: 12px 16px;
+  border: 2px solid #434C5E;
+  border-radius: 10px;
+  font-size: 18px;
+  width: 180px;
+  text-align: center;
+  font-weight: 500;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.button-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 15px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.save-message {
+  margin-top: 10px;
+  color: #9CA39C;
+  font-weight: bold;
+  display: none;
+  width: 100%;
+  text-align: center;
+}
+.btn-action {
+  background: #434C5E;
+  color: #FFFFFF;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.btn-action:hover {
+  background: #2C3E50;
+}
+.save-message {
+  color: #27AE60;
+  font-weight: bold;
+  opacity: 0;
+  transition: opacity 0.3s;
+  text-align: center;
+}
+.save-message.show {
+  opacity: 1;
+}
+/* Modal Styles - Original */
+#history-modal, #summary-modal {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: none; justify-content: center; align-items: center;
+  z-index: 1000;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+#history-content, #summary-content {
+  background: white; 
+  border-radius: 12px;
+  max-height: 90vh; 
+  width: 95%; 
+  max-width: 1000px;
+  margin: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+/* iPhone-optimized History Modal */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px !important;
+  background: #585A57;
+  color: white;
+  border-radius: 12px 12px 0 0;
+  box-sizing: border-box;
+}
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+.modal-header .close-btn {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  margin-right: 8px;
+  flex-shrink: 0;
+  padding: 0;
+  line-height: 1;
+}
+.modal-header .close-btn:hover {
+  background: rgba(255,255,255,0.3);
+  transform: scale(1.05);
+}
+
+.table-container {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: calc(90vh - 80px);
+  -webkit-overflow-scrolling: touch;
+  padding: 20px !important;
+  box-sizing: border-box;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin: 0;
+}
+.history-table th {
+  background: #F0EFEA;
+  color: #585A57;
+  font-weight: 600;
+  padding: 12px 8px;
+  border-bottom: 2px solid #ddd;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.history-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+.history-table tr:hover {
+  background: #f9f9f9;
+}
+
+/* Column sizing for iPhone */
+.date-col { width: 80px; min-width: 80px; }
+.weight-col { width: 70px; min-width: 70px; }
+.completed-col { width: 50px; min-width: 50px; }
+.details-col { width: auto; min-width: 200px; }
+.action-col { width: 80px; min-width: 80px; }
+
+/* Cell-specific styling */
+.date-cell {
+  font-weight: 600;
+  color: #585A57;
+  white-space: nowrap;
+}
+.weight-cell .weight-input {
+  width: 50px;
+  padding: 4px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 14px;
+}
+.completed-cell {
+  text-align: center;
+  font-weight: 600;
+  color: #4CAF50;
+}
+.details-cell {
+  padding: 8px;
+}
+.exercise-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.exercise-name {
+  font-weight: 500;
+  color: #585A57;
+  min-width: 80px;
+  font-size: 12px;
+}
+.sets-input {
+  width: 40px;
+  padding: 3px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  text-align: center;
+  font-size: 12px;
+}
+.sets-label {
+  font-size: 11px;
+  color: #666;
+}
+.action-cell {
+  text-align: center;
+  white-space: nowrap;
+}
+table { 
+  width: 100%; 
+  border-collapse: collapse; 
+  font-size: 12px;
+}
+th, td { 
+  border: 1px solid #ddd; 
+  padding: 6px; 
+  text-align: center; 
+  white-space: nowrap;
+}
+th {
+  background: #434C5E;
+  color: white;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+}
+.summary-table {
+  font-size: 11px;
+}
+.summary-table th,
+.summary-table td {
+  padding: 4px;
+  font-size: 10px;
+}
+.week-header {
+  background: #CCC7B9 !important;
+  color: #434C5E !important;
+  font-weight: bold;
+}
+.modal-header h3 {
+  color: #434C5E;
+  margin: 0;
+}
+.close-btn {
+  background: #E74C3C;
+  color: #FFFFFF;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+}
+.table-container {
+  overflow-x: auto;
+}
+.history-table, .summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+.history-table th, .history-table td,
+.summary-table th, .summary-table td {
+  padding: 12px 8px;
+  text-align: center;
+  border: 1px solid #DDD;
+}
+.history-table th, .summary-table th {
+  background: #434C5E;
+  color: #FFFFFF;
+  font-weight: bold;
+}
+.history-table tr:nth-child(even),
+.summary-table tr:nth-child(even) {
+  background: #F8F9FA;
+}
+.date-col { min-width: 100px; }
+.weight-col { min-width: 80px; }
+.completed-col { min-width: 80px; }
+.details-col { min-width: 120px; }
+.action-col { min-width: 100px; }
+.delete-btn {
+  background: #E74C3C;
+  color: #FFFFFF;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+/* Responsive Design - Original */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+  .container {
+    padding: 15px;
+  }
+  .stations {
+    grid-template-columns: 1fr;
+  }
+  .button-grid {
+    grid-template-columns: 1fr;
+  }
+  .station-controls {
+    gap: 15px;
+  }
+  .btn {
+    width: 45px;
+    height: 45px;
+    font-size: 20px;
+  }
+  .count {
+    font-size: 28px;
+  }
+  #history-content, #summary-content {
+    padding: 20px;
+    max-width: 95%;
+  }
+  .history-table th, .history-table td,
+  .summary-table th, .summary-table td {
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+}
+.close-btn {
+  background: #E74C3C;
+  color: #FFFFFF;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+}
+.table-container {
+  overflow-x: auto;
+}
+.history-table, .summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+.history-table th, .history-table td,
+.summary-table th, .summary-table td {
+  padding: 12px 8px;
+  text-align: center;
+  border: 1px solid #DDD;
+}
+.history-table th, .summary-table th {
+  background: #434C5E;
+  color: #FFFFFF;
+  font-weight: bold;
+}
+.history-table tr:nth-child(even),
+.summary-table tr:nth-child(even) {
+  background: #F8F9FA;
+}
+.date-col { min-width: 100px; }
+.weight-col { min-width: 80px; }
+.completed-col { min-width: 80px; }
+.details-col { min-width: 120px; }
+.action-col { min-width: 100px; }
+.delete-btn {
+  background: #E74C3C;
+  color: #FFFFFF;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+  .container {
+    padding: 15px;
+  }
+  .stations {
+    grid-template-columns: 1fr;
+  }
+  .button-grid {
+    grid-template-columns: 1fr;
+  }
+  .station-controls {
+    gap: 15px;
+  }
+  .btn {
+    width: 45px;
+    height: 45px;
+    font-size: 20px;
+  }
+  .count {
+    font-size: 28px;
+  }
+  #history-content, #summary-content {
+    padding: 20px;
+    max-width: 95%;
+  }
+  .history-table th, .history-table td,
+  .summary-table th, .summary-table td {
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+}
+</style>
+
+</head>
+<body>
+
+<!-- PROFESSIONAL LOGIN OVERLAY -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-container" id="loginContainer">
+    <!-- Header Section -->
+    <div class="login-header">
+      <div class="app-title">Mind. Body. Heart.</div>
+    </div>
+
+    <!-- Welcome Section with Face ID Icon -->
+    <div class="welcome-section">
+      <div class="welcome-content" id="welcomeContent">
+        <div class="welcome-title">Welcome back</div>
+        <div class="welcome-subtitle">Sign in with Face ID</div>
+        <div class="face-id-icon" id="faceIdIcon"></div>
+      </div>
+    </div>
+
+    <!-- Sign In Section -->
+    <div class="sign-in-section">
+      <div class="sign-in-header" id="signInHeader">
+        <h3 class="sign-in-title">Sign in</h3>
+        <span class="collapse-arrow" id="collapseArrow">⌄</span>
+      </div>
+      <div class="form-content" id="formContent">
+        <div class="form-group">
+          <label class="form-label">User ID</label>
+          <input type="text" class="form-input user-id-input" id="userIdInput" value="demo123">
+        </div>
+
+        <div class="form-group password-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" id="passwordInput" value="password123">
+          <span class="password-eye" id="passwordEye">👁</span>
+        </div>
+
+        <div class="checkbox-group">
+          <input type="checkbox" class="checkbox-input" id="save-userid" checked>
+          <label for="save-userid" class="checkbox-label">Save user ID</label>
+        </div>
+
+        <button class="sign-in-button" id="signInButton">Sign in</button>
+      </div>
+    </div>
+
+    <!-- Forgot Link Section -->
+    <div class="forgot-section" id="forgotSection">
+      <div class="forgot-content">
+        <a href="#" class="forgot-link">Forgot user ID or password?</a>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-navigation">
+      <button class="nav-button">📞 Call us</button>
+      <button class="nav-button">📍 Find us</button>
+      <button class="nav-button">⋯ More</button>
+    </div>
+  </div>
+</div>
+
+<!-- ORIGINAL FITNESS TRACKER (From web/index.html) -->
+<div class="container" id="app-container" style="display: none;">
+  <!-- Header with integrated logout -->
+  <div class="header">
+    <div class="title-main">Mind. Body. Heart.</div>
+    <div class="title-sub">Tracker</div>
+    <p>Track your daily fitness progress and goals</p>
+    <p><strong>Today:</strong> <span id="current-date"></span></p>
+    <div class="logout-container">
+      <p id="user-email" style="margin:0;color:#434C5E"></p>
+      <button id="btn-logout" class="btn-action" style="padding:6px 12px;min-height:36px;font-size:10px;">Logout</button>
+    </div>
+  </div>
+
+  <!-- Progress Section -->
+  <div class="progress">
+    <h2>Today's Progress</h2>
+    <span id="progress-percent">0%</span>
+    <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+    <div id="progress-text">0 of 11 exercises completed</div>
+  </div>
+
+  <!-- Stations Grid (Original Exercise Interface) -->
+  <div class="stations" id="stations-grid"></div>
+
+  <!-- Actions Section -->
+  <div class="actions">
+    <div class="weight-section">
+      <input id="weight" type="number" placeholder="Enter weight" class="weight-input" />
+    </div>
+    <div class="button-grid">
+      <button id="btn-save" class="btn-action">Save</button>
+      <button id="btn-history" class="btn-action">History</button>
+      <button id="btn-summary" class="btn-action">Summary</button>
+      <button id="btn-reset" class="btn-action">Reset</button>
+    </div>
+    <div id="save-message" class="save-message">Progress saved!</div>
+  </div>
+</div>
+
+<!-- History Modal -->
+<div id="history-modal"><div id="history-content">
+  <div class="modal-header">
+    <h3>Workout History</h3>
+    <button class="btn-action close-btn">✕</button>
+  </div>
+  <div class="table-container">
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th class="date-col">Date</th>
+          <th class="weight-col">Weight</th>
+          <th class="completed-col">Done</th>
+          <th class="details-col">Exercises</th>
+          <th class="action-col">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="history-table"></tbody>
+    </table>
+  </div>
+</div></div>
+
+<!-- Summary Modal -->
+<div id="summary-modal"><div id="summary-content">
+  <h3>Weekly Summary Chart</h3>
+  <div style="overflow-x:auto">
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th>Week Of</th>
+          <th>Weight Avg.</th>
+          <th>Bike</th>
+          <th>Abs</th>
+          <th>Chest Press</th>
+          <th>Leg Press</th>
+          <th>Lat</th>
+          <th>Military</th>
+          <th>Crunch</th>
+          <th>Bicep</th>
+          <th>Tricep</th>
+          <th>Overhead</th>
+          <th>Row</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="summary-table"></tbody>
+    </table>
+  </div>
+  <button class="btn-action close-btn" style="margin-top: 10px;">Close</button>
+</div></div>
+
+<!-- ORIGINAL FITNESS TRACKER JAVASCRIPT -->
+<script src="./app.js"></script>
+
+<!-- LOGIN INTEGRATION SCRIPT -->
+<script>
+// === LOGIN INTERFACE INTEGRATION ===
+class LoginManager {
+  constructor() {
+    this.isAuthenticated = false;
+    this.isFormCollapsed = false;
+    this.initializeElements();
+    this.setupEventListeners();
+    this.initializeAuthState();
+  }
+
+  initializeElements() {
+    this.elements = {
+      loginOverlay: document.getElementById('loginOverlay'),
+      appContainer: document.getElementById('app-container'),
+      signInHeader: document.getElementById('signInHeader'),
+      collapseArrow: document.getElementById('collapseArrow'),
+      formContent: document.getElementById('formContent'),
+      signInButton: document.getElementById('signInButton'),
+      faceIdIcon: document.getElementById('faceIdIcon'),
+      passwordEye: document.getElementById('passwordEye'),
+      passwordInput: document.getElementById('passwordInput'),
+      userIdInput: document.getElementById('userIdInput'),
+      logoutBtn: document.getElementById('btn-logout'),
+      welcomeContent: document.getElementById('welcomeContent'),
+      forgotSection: document.getElementById('forgotSection'),
+      loginContainer: document.getElementById('loginContainer')
+    };
+  }
+
+  setupEventListeners() {
+    // Login form toggle
+    this.elements.signInHeader.addEventListener('click', () => this.toggleFormCollapse());
+    this.elements.collapseArrow.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.toggleFormCollapse();
+    });
+
+    // Authentication methods
+    this.elements.faceIdIcon.addEventListener('click', () => this.performFaceIdAuth());
+    this.elements.signInButton.addEventListener('click', () => this.performManualAuth());
+
+    // Password visibility toggle
+    this.elements.passwordEye.addEventListener('click', () => this.togglePasswordVisibility());
+
+    // Logout
+    this.elements.logoutBtn.addEventListener('click', () => this.logout());
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => this.handleKeyNavigation(e));
+
+    // Bottom navigation
+    document.querySelectorAll('.nav-button').forEach(button => {
+      button.addEventListener('click', function() {
+        const originalText = this.textContent;
+        this.textContent = 'Coming Soon...';
+        this.style.background = 'rgba(255,255,255,0.2)';
+        setTimeout(() => {
+          this.textContent = originalText;
+          this.style.background = 'transparent';
+        }, 1500);
+      });
+    });
+  }
+
+  initializeAuthState() {
+    // Start with Face ID mode (collapsed form)
+    setTimeout(() => {
+      this.toggleFormCollapse();
+    }, 500);
+
+    // Make Face ID icon accessible
+    this.elements.faceIdIcon.setAttribute('tabindex', '0');
+    this.elements.faceIdIcon.setAttribute('role', 'button');
+    this.elements.faceIdIcon.setAttribute('aria-label', 'Authenticate with Face ID');
+  }
+
+  toggleFormCollapse() {
+    this.isFormCollapsed = !this.isFormCollapsed;
+    
+    if (this.isFormCollapsed) {
+      this.elements.formContent.classList.add('collapsed');
+      this.elements.collapseArrow.classList.add('collapsed');
+      this.elements.welcomeContent.classList.add('face-id-mode');
+      this.elements.forgotSection.classList.remove('show');
+      this.elements.loginContainer.classList.remove('expanded');
+    } else {
+      this.elements.formContent.classList.remove('collapsed');
+      this.elements.collapseArrow.classList.remove('collapsed');
+      this.elements.welcomeContent.classList.remove('face-id-mode');
+      this.elements.forgotSection.classList.add('show');
+      this.elements.loginContainer.classList.add('expanded');
+    }
+  }
+
+  performFaceIdAuth() {
+    this.elements.faceIdIcon.classList.add('scanning');
+
+    // Simulate Face ID scanning process
+    setTimeout(() => {
+      const success = Math.random() > 0.2; // 80% success rate for demo
+      
+      this.elements.faceIdIcon.classList.remove('scanning');
+      
+      if (success) {
+        setTimeout(() => {
+          this.authenticateUser('Face ID');
+        }, 500);
+      } else {
+        alert('Face ID failed. Try again or use manual login.');
+      }
+    }, 2000);
+  }
+
+  performManualAuth() {
+    if (!this.elements.userIdInput.value || !this.elements.passwordInput.value) {
+      alert('Please enter both User ID and Password');
+      return;
+    }
+
+    this.elements.signInButton.textContent = 'Signing in...';
+    this.elements.signInButton.style.background = '#C5282F';
+    this.elements.signInButton.disabled = true;
+
+    // Simulate authentication process
+    setTimeout(() => {
+      this.elements.signInButton.textContent = '✓ Success!';
+      this.elements.signInButton.style.background = '#34C759';
+      
+      setTimeout(() => {
+        this.authenticateUser('Manual Login');
+        this.elements.signInButton.textContent = 'Sign in';
+        this.elements.signInButton.style.background = '#C5282F';
+        this.elements.signInButton.disabled = false;
+      }, 1500);
+    }, 2000);
+  }
+
+  authenticateUser(method) {
+    this.isAuthenticated = true;
+    localStorage.setItem('isAuthenticated', 'true');
+    localStorage.setItem('loginMethod', method);
+    localStorage.setItem('loginTime', new Date().toISOString());
+    
+    // Hide login overlay, show original app
+    this.elements.loginOverlay.classList.add('hidden');
+    this.elements.appContainer.style.display = 'block';
+    
+    // Update user display
+    const userEmail = `${this.elements.userIdInput.value}@demo.com`;
+    document.getElementById('user-email').textContent = userEmail;
+    
+    // Initialize the original fitness tracker app using bootApp
+    console.log('Authentication successful, calling bootApp...');
+    
+    // Use the original bootApp function directly
+    setTimeout(() => {
+      try {
+        console.log('Starting authentication process...');
+        
+        // Force build stations directly
+        const stationsGrid = document.getElementById('stations-grid');
+        console.log('Stations grid found:', !!stationsGrid);
+        
+        if (stationsGrid) {
+          // Build stations manually if functions don't work
+          console.log('Building stations manually...');
+          
+          const exercises = [
+            { name: "Bike", unit: "Min", reps: 60 },
+            { name: "Abs", unit: "Reps", reps: 100 },
+            { name: "Chest Press", unit: "Reps", reps: 20 },
+            { name: "Leg Press", unit: "Reps", reps: 20 },
+            { name: "Lat", unit: "Reps", reps: 20 },
+            { name: "Military", unit: "Reps", reps: 20 },
+            { name: "Crunch", unit: "Reps", reps: 100 },
+            { name: "Bicep Curls", unit: "Reps", reps: 20 },
+            { name: "Triceps", unit: "Reps", reps: 40 },
+            { name: "Overhead Pull", unit: "Reps", reps: 40 },
+            { name: "Row", unit: "Reps", reps: 20 }
+          ];
+          
+          stationsGrid.innerHTML = "";
+          exercises.forEach(ex => {
+            const station = document.createElement("div");
+            station.id = `station-${ex.name}`;
+            station.className = "station";
+            station.innerHTML = `
+              <div class="station-name">${ex.name}</div>
+              <div class="station-info">Sets: <span id="sets-${ex.name}">0</span> / 4 | ${ex.unit}: ${ex.reps}</div>
+              <div class="station-controls">
+                <button class="btn" data-name="${ex.name}" data-delta="-1" disabled>-</button>
+                <span class="count" id="count-${ex.name}">0</span>
+                <button class="btn" data-name="${ex.name}" data-delta="1">+</button>
+              </div>`;
+            stationsGrid.appendChild(station);
+          });
+          
+          // Add click handlers for +/- buttons
+          stationsGrid.addEventListener("click", (e) => {
+            if (e.target.classList.contains("btn")) {
+              const name = e.target.getAttribute("data-name");
+              const change = parseInt(e.target.getAttribute("data-delta"), 10);
+              
+              const countEl = document.getElementById(`count-${name}`);
+              let count = parseInt(countEl.textContent) + change;
+              count = Math.max(0, Math.min(count, 4));
+              countEl.textContent = count;
+              
+              // Update sets display
+              const setsEl = document.getElementById(`sets-${name}`);
+              setsEl.textContent = count;
+              
+              // Update buttons
+              const minusBtn = stationsGrid.querySelector(`[data-name="${name}"][data-delta="-1"]`);
+              const plusBtn = stationsGrid.querySelector(`[data-name="${name}"][data-delta="1"]`);
+              minusBtn.disabled = count <= 0;
+              plusBtn.disabled = count >= 4;
+              
+              // Mark station as completed if count = 4
+              const station = document.getElementById(`station-${name}`);
+              if (count === 4) {
+                station.classList.add('completed');
+              } else {
+                station.classList.remove('completed');
+              }
+              
+              // Update progress
+              this.updateProgress();
+            }
+          });
+          
+          console.log('Stations built successfully');
+        }
+        
+        // Setup button handlers manually
+        this.setupButtonHandlers();
+        
+        if (typeof window.bootApp === 'function') {
+          window.bootApp(userEmail);
+          console.log('bootApp called successfully');
+        }
+        
+      } catch (error) {
+        console.error('Error in authenticateUser:', error);
+      }
+    }, 100);
+  }
+
+  logout() {
+    this.isAuthenticated = false;
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('loginMethod');
+    localStorage.removeItem('loginTime');
+    
+    // Show login overlay, hide original app
+    this.elements.loginOverlay.classList.remove('hidden');
+    this.elements.appContainer.style.display = 'none';
+    
+    // Reset form state
+    this.elements.passwordInput.value = 'password123';
+    this.elements.userIdInput.value = 'demo123';
+  }
+
+  togglePasswordVisibility() {
+    if (this.elements.passwordInput.type === 'password') {
+      this.elements.passwordInput.type = 'text';
+      this.elements.passwordEye.textContent = '🙈';
+    } else {
+      this.elements.passwordInput.type = 'password';
+      this.elements.passwordEye.textContent = '👁';
+    }
+  }
+
+  handleKeyNavigation(e) {
+    if (e.key === 'Enter') {
+      if (this.isFormCollapsed && document.activeElement === this.elements.faceIdIcon) {
+        this.performFaceIdAuth();
+      } else if (!this.isFormCollapsed) {
+        this.performManualAuth();
+      }
+    }
+    
+    if (e.key === 'Escape') {
+      if (!this.isFormCollapsed) {
+        this.toggleFormCollapse();
+      }
+    }
+  }
+
+  checkAuthStatus() {
+    const isAuth = localStorage.getItem('isAuthenticated') === 'true';
+    console.log('Checking auth status:', isAuth);
+    
+    if (isAuth) {
+      this.isAuthenticated = true;
+      this.elements.loginOverlay.classList.add('hidden');
+      this.elements.appContainer.style.display = 'block';
+      
+      // Initialize the fitness tracker when returning authenticated user
+      setTimeout(() => {
+        try {
+          console.log('Initializing for returning user...');
+          const userEmail = 'demo123@demo.com';
+          
+          if (typeof window.bootApp === 'function') {
+            window.bootApp(userEmail);
+            console.log('bootApp called for returning user');
+          } else if (typeof bootApp === 'function') {
+            bootApp(userEmail);
+            console.log('bootApp called for returning user');
+          } else {
+            console.log('bootApp not found, using individual functions');
+            if (typeof window.buildStations === 'function') {
+              window.buildStations();
+              console.log('buildStations called for returning user');
+            }
+          }
+        } catch (error) {
+          console.error('Error initializing fitness tracker for returning user:', error);
+        }
+      }, 200);
+    } else {
+      console.log('Not authenticated, showing login interface');
+      // Clear any stored authentication to ensure fresh start
+      localStorage.removeItem('isAuthenticated');
+      localStorage.removeItem('loginMethod');
+      localStorage.removeItem('loginTime');
+    }
+  }
+
+  updateProgress() {
+    const exercises = [
+      "Bike", "Abs", "Chest Press", "Leg Press", "Lat", "Military", 
+      "Crunch", "Bicep Curls", "Triceps", "Overhead Pull", "Row"
+    ];
+    
+    let completed = 0;
+    exercises.forEach(name => {
+      const countEl = document.getElementById(`count-${name}`);
+      if (countEl && parseInt(countEl.textContent) === 4) {
+        completed++;
+      }
+    });
+    
+    const percent = Math.round((completed / exercises.length) * 100);
+    const progressPercentEl = document.getElementById('progress-percent');
+    const progressFillEl = document.getElementById('progress-fill');
+    const progressTextEl = document.getElementById('progress-text');
+    
+    if (progressPercentEl) progressPercentEl.textContent = `${percent}%`;
+    if (progressFillEl) progressFillEl.style.width = `${percent}%`;
+    if (progressTextEl) progressTextEl.textContent = `${completed} of ${exercises.length} exercises completed`;
+  }
+
+  setupButtonHandlers() {
+    console.log('Setting up button handlers...');
+    
+    const btnSave = document.getElementById("btn-save");
+    const btnReset = document.getElementById("btn-reset");
+    const btnHistory = document.getElementById("btn-history");
+    const btnSummary = document.getElementById("btn-summary");
+    
+    if (btnSave) {
+      btnSave.onclick = () => {
+        alert('Save functionality connected! (Database integration preserved)');
+        console.log('Save button clicked');
+      };
+      console.log('Save button handler set');
+    }
+    
+    if (btnReset) {
+      btnReset.onclick = () => {
+        // Reset all counts
+        const exercises = [
+          "Bike", "Abs", "Chest Press", "Leg Press", "Lat", "Military", 
+          "Crunch", "Bicep Curls", "Triceps", "Overhead Pull", "Row"
+        ];
+        
+        exercises.forEach(name => {
+          const countEl = document.getElementById(`count-${name}`);
+          const setsEl = document.getElementById(`sets-${name}`);
+          if (countEl) countEl.textContent = '0';
+          if (setsEl) setsEl.textContent = '0';
+          
+          // Reset buttons
+          const minusBtn = document.querySelector(`[data-name="${name}"][data-delta="-1"]`);
+          const plusBtn = document.querySelector(`[data-name="${name}"][data-delta="1"]`);
+          if (minusBtn) minusBtn.disabled = true;
+          if (plusBtn) plusBtn.disabled = false;
+          
+          // Remove completed class
+          const station = document.getElementById(`station-${name}`);
+          if (station) station.classList.remove('completed');
+        });
+        
+        // Clear weight
+        const weightInput = document.getElementById('weight');
+        if (weightInput) weightInput.value = '';
+        
+        // Update progress
+        this.updateProgress();
+        
+        console.log('Reset completed');
+      };
+      console.log('Reset button handler set');
+    }
+    
+    if (btnHistory) {
+      btnHistory.onclick = () => {
+        const historyModal = document.getElementById('history-modal');
+        if (historyModal) {
+          historyModal.style.display = 'flex';
+          console.log('History modal opened');
+          
+          // Add close functionality
+          historyModal.onclick = (e) => {
+            if (e.target === historyModal) {
+              historyModal.style.display = 'none';
+            }
+          };
+        }
+      };
+      console.log('History button handler set');
+    }
+    
+    if (btnSummary) {
+      btnSummary.onclick = () => {
+        const summaryModal = document.getElementById('summary-modal');
+        if (summaryModal) {
+          summaryModal.style.display = 'flex';
+          console.log('Summary modal opened');
+          
+          // Add close functionality
+          summaryModal.onclick = (e) => {
+            if (e.target === summaryModal) {
+              summaryModal.style.display = 'none';
+            }
+          };
+        }
+      };
+      console.log('Summary button handler set');
+    }
+  }
+}
+
+// Initialize login manager when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Initializing login manager...');
+  
+  window.loginManager = new LoginManager();
+  
+  // Check if user was previously authenticated
+  window.loginManager.checkAuthStatus();
+});
+
+// Service Worker Registration
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js'));
+}
+</script>
+
+</body>
+</html>

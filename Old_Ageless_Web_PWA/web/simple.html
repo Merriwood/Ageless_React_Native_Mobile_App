@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fitness Tracker - Simple</title>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #F0EFEA;
+    color: #585A57;
+  }
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: #FFFFFF;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+  input, button {
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid #434C5E;
+    border-radius: 8px;
+  }
+  button {
+    background: #434C5E;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  button:hover {
+    background: #2e3642;
+  }
+  #result {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 2px solid #434C5E;
+  }
+  .hidden {
+    display: none;
+  }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1>Fitness Tracker</h1>
+        
+        <!-- Auth Screen -->
+        <div id="auth-screen">
+            <h2>Login or Register</h2>
+            <div class="auth-form">
+                <input type="email" id="email" placeholder="Email" value="test@example.com">
+                <input type="password" id="password" placeholder="Password" value="testpass123">
+                <button onclick="handleRegister()">Register</button>
+                <button onclick="handleLogin()">Login</button>
+            </div>
+        </div>
+        
+        <!-- App Screen -->
+        <div id="app-screen" class="hidden">
+            <h2>Welcome to Fitness Tracker!</h2>
+            <p>User: <span id="user-email"></span></p>
+            <button onclick="handleLogout()">Logout</button>
+            <p>🎉 Your database connection is working!</p>
+            <p>Frontend and backend are now communicating successfully.</p>
+        </div>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = "https://locali-corp.onrender.com";
+        
+        // Simple auth functions
+        function showResult(message, isError = false) {
+            const result = document.getElementById('result');
+            result.innerHTML = `<p style="color: ${isError ? 'red' : 'green'}">${message}</p>`;
+        }
+        
+        function showAuthScreen() {
+            document.getElementById('auth-screen').classList.remove('hidden');
+            document.getElementById('app-screen').classList.add('hidden');
+        }
+        
+        function showAppScreen(email) {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app-screen').classList.remove('hidden');
+            document.getElementById('user-email').textContent = email;
+        }
+        
+        async function makeRequest(endpoint, options = {}) {
+            try {
+                console.log(`Making request to: ${API_BASE}${endpoint}`);
+                
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                return data;
+                
+            } catch (error) {
+                console.error('Request failed:', error);
+                throw error;
+            }
+        }
+        
+        async function handleRegister() {
+            try {
+                showResult("Registering...");
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                const result = await makeRequest('/api/auth/register', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+                
+                showResult(`Registration successful!`);
+                showAppScreen(email);
+                
+            } catch (error) {
+                showResult(`Registration failed: ${error.message}`, true);
+            }
+        }
+        
+        async function handleLogin() {
+            try {
+                showResult("Logging in...");
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                const result = await makeRequest('/api/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+                
+                showResult(`Login successful!`);
+                showAppScreen(email);
+                
+            } catch (error) {
+                showResult(`Login failed: ${error.message}`, true);
+            }
+        }
+        
+        function handleLogout() {
+            showResult("Logged out");
+            showAuthScreen();
+        }
+        
+        // Initialize
+        console.log("Simple fitness tracker loaded");
+        showAuthScreen();
+    </script>
+</body>
+</html>

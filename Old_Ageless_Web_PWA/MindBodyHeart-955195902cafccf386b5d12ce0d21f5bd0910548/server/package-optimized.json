@@ -1,0 +1,35 @@
+{
+  "name": "fitness-tracker-optimized",
+  "version": "2.0.0",
+  "description": "Optimized Fitness Tracker with Professional Login Interface",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "npm run migrate && node server-optimized.js",
+    "dev": "node --watch server-optimized.js", 
+    "migrate": "node -e \"import('./db.js').then(({query}) => Promise.all([import('fs').then(fs => query(fs.readFileSync('./schema.sql', 'utf8'))), import('fs').then(fs => query(fs.readFileSync('./schema-optimized.sql', 'utf8')))])).catch(e => console.warn('Migration failed:', e.message))\"",
+    "build": "node ../build-prod.js",
+    "build:icons": "node ../scripts/generate-icons.js",
+    "test": "npm run migrate && echo 'Tests would run here'",
+    "lint": "echo 'Linting would run here'",
+    "clean": "rm -rf ../dist"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5", 
+    "helmet": "^7.0.0",
+    "morgan": "^1.10.0",
+    "dotenv": "^16.3.1",
+    "pg": "^8.11.3",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.7.4",
+    "express-rate-limit": "^6.10.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": ["fitness", "tracker", "pwa", "health"],
+  "author": "Fitness Tracker Team",
+  "license": "MIT"
+}

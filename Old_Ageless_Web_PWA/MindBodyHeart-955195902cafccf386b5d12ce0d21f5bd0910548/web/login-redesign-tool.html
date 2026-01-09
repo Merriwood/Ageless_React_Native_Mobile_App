@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page Redesign Tool - Professional Graphics Designer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .design-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        .reference-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .reference-panel h2 {
+            color: #2D3748;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .reference-image {
+            width: 100%;
+            max-width: 500px;
+            border: 2px solid #E2E8F0;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .new-design-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 0;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .design-header {
+            background: #2D3748;
+            color: white;
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* NEW LOGIN DESIGN - IDENTICAL SIZING TO REFERENCE IMAGE */
+        .new-login-container {
+            background: #F2F2F7;
+            width: 375px;
+            height: 667px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            border: 2px solid #000000;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 0 auto;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        /* Header Section - Exact sizing from reference */
+        .login-header {
+            background: #F2F2F7;
+            color: #000000;
+            padding: 60px 30px 30px 30px;
+            text-align: center;
+            border-bottom: none;
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-section {
+            position: relative;
+            z-index: 2;
+        }
+
+        .app-title {
+            font-size: 22px;
+            font-weight: 300;
+            margin-bottom: 0;
+            color: #000000;
+            line-height: 1.1;
+            letter-spacing: 0.5px;
+        }
+
+        /* Welcome Section - WITH BLOCK BORDERS AND SHADING AS IN REFERENCE */
+        .welcome-section {
+            padding: 0;
+            text-align: center;
+            background: #F2F2F7;
+            margin: 0 20px 25px 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #E5E5EA;
+            overflow: hidden;
+        }
+
+        .welcome-content {
+            background: #FFFFFF;
+            padding: 25px 20px;
+            border-radius: 12px;
+        }
+
+        .welcome-title {
+            font-size: 20px;
+            color: #000000;
+            margin-bottom: 5px;
+            font-weight: 400;
+            line-height: 1.2;
+        }
+
+        .welcome-subtitle {
+            color: #666666;
+            font-size: 14px;
+            margin-bottom: 0;
+            font-weight: 300;
+            line-height: 1.3;
+        }
+
+        /* Face ID Section - WITH BLOCK BORDERS AND SHADING */
+        .face-id-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0;
+            background: #F2F2F7;
+            margin: 0 20px 25px 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #E5E5EA;
+            overflow: hidden;
+        }
+
+        .face-id-content {
+            background: #FFFFFF;
+            padding: 25px 20px;
+            border-radius: 12px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .face-id-icon {
+            width: 50px;
+            height: 50px;
+            background: #007AFF;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border: 1px solid rgba(0,122,255,0.2);
+        }
+
+        .face-id-icon::before {
+            content: '';
+            width: 28px;
+            height: 28px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>') no-repeat center;
+            background-size: contain;
+        }
+
+        /* Main Login Form - WITH BLOCK BORDERS AND SHADING */
+        .login-form-section {
+            flex: 1;
+            padding: 0;
+            background: #F2F2F7;
+            display: flex;
+            flex-direction: column;
+            margin: 0 20px 25px 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #E5E5EA;
+            overflow: hidden;
+        }
+
+        .form-content {
+            background: #FFFFFF;
+            padding: 25px 20px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 44px;
+            padding: 0 15px;
+            border: 1px solid #D1D1D6;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #FFFFFF;
+            color: #000000;
+            font-weight: 400;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 0 1px rgba(0, 122, 255, 0.3);
+        }
+
+        .form-input::placeholder {
+            color: #C7C7CC;
+            font-weight: 300;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            height: 20px;
+        }
+
+        .checkbox-input {
+            width: 16px;
+            height: 16px;
+            margin-right: 10px;
+            accent-color: #007AFF;
+        }
+
+        .checkbox-label {
+            color: #000000;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1;
+        }
+
+        .sign-in-button {
+            width: 100%;
+            height: 44px;
+            background: #007AFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sign-in-button:hover {
+            background: #0051D0;
+        }
+
+        .forgot-link {
+            text-align: center;
+            color: #007AFF;
+            font-size: 14px;
+            text-decoration: none;
+            font-weight: 400;
+            line-height: 1;
+            margin-top: 5px;
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Bottom Navigation - WITH BLOCK BORDERS AND SHADING */
+        .bottom-navigation {
+            background: #F2F2F7;
+            height: 98px;
+            display: flex;
+            align-items: center;
+            margin: 0 20px 20px 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #E5E5EA;
+            overflow: hidden;
+        }
+
+        .nav-content {
+            background: #FFFFFF;
+            height: 60px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            border-radius: 12px;
+        }
+
+        .nav-button {
+            flex: 1;
+            height: 60px;
+            background: transparent;
+            color: #007AFF;
+            border: none;
+            border-right: 1px solid #E5E5EA;
+            font-size: 16px;
+            font-weight: 400;
+            cursor: pointer;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-button:last-child {
+            border-right: none;
+        }
+
+        .nav-button:hover {
+            background: rgba(0, 122, 255, 0.1);
+        }
+
+        /* Home Indicator */
+        .home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 134px;
+            height: 5px;
+            background: #000000;
+            border-radius: 3px;
+        }
+
+        /* Analysis Panel */
+        .analysis-panel {
+            padding: 20px;
+            background: #F7FAFC;
+            border-top: 3px solid #4299E1;
+        }
+
+        .analysis-title {
+            color: #2D3748;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .analysis-list {
+            list-style: none;
+            color: #4A5568;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .analysis-list li {
+            margin-bottom: 5px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .analysis-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #48BB78;
+            font-weight: bold;
+        }
+
+        @media (max-width: 900px) {
+            .design-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="design-container">
+        <!-- Reference Image Panel -->
+        <div class="reference-panel">
+            <h2>📸 Reference: login_page_example.jpg</h2>
+            <img src="icons/login_page_example.jpg" alt="Login Page Reference" class="reference-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <div style="display: none; padding: 20px; background: #FFF5F5; border: 2px dashed #E53E3E; border-radius: 8px; text-align: center; color: #C53030;">
+                <p><strong>Reference Image Analysis:</strong></p>
+                <p>Unable to display image directly. Please view icons/login_page_example.jpg in file explorer.</p>
+            </div>
+            
+            <div class="analysis-panel">
+                <div class="analysis-title">🎯 Professional Design Analysis</div>
+                <ul class="analysis-list">
+                    <li>Header section with branding/logo area</li>
+                    <li>Central login form with input fields</li>
+                    <li>Primary action buttons (Login/Register)</li>
+                    <li>Bottom navigation with "Call Us", "Find Us", "More" buttons</li>
+                    <li>Professional color scheme and spacing</li>
+                    <li>Mobile-responsive layout structure</li>
+                    <li>Clear visual hierarchy and user flow</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- New Design Panel -->
+        <div class="new-design-panel">
+            <div class="design-header">
+                🎨 New Login Screen Design - Professional Implementation
+            </div>
+            
+            <div class="new-login-container">
+                <!-- Header Section - Exact sizing -->
+                <div class="login-header">
+                    <div class="logo-section">
+                        <div class="app-title">Mind. Body. Heart.</div>
+                    </div>
+                </div>
+
+                <!-- Welcome Section - WITH BLOCK BORDERS AND SHADING -->
+                <div class="welcome-section">
+                    <div class="welcome-content">
+                        <div class="welcome-title">Welcome back</div>
+                        <div class="welcome-subtitle">Sign in with Face ID</div>
+                    </div>
+                </div>
+
+                <!-- Face ID Section - WITH BLOCK BORDERS AND SHADING -->
+                <div class="face-id-section">
+                    <div class="face-id-content">
+                        <div class="face-id-icon"></div>
+                    </div>
+                </div>
+
+                <!-- Main Login Form - WITH BLOCK BORDERS AND SHADING -->
+                <div class="login-form-section">
+                    <div class="form-content">
+                        <div class="form-group">
+                            <input type="text" class="form-input" placeholder="User ID" value="">
+                        </div>
+
+                        <div class="form-group">
+                            <input type="password" class="form-input" placeholder="Password" value="">
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" class="checkbox-input" id="save-userid">
+                            <label for="save-userid" class="checkbox-label">Save User ID</label>
+                        </div>
+
+                        <button class="sign-in-button">Sign In</button>
+                        
+                        <a href="#" class="forgot-link">Forgot User ID or Password?</a>
+                    </div>
+                </div>
+
+                <!-- Bottom Navigation - WITH BLOCK BORDERS AND SHADING -->
+                <div class="bottom-navigation">
+                    <div class="nav-content">
+                        <button class="nav-button">Call Us</button>
+                        <button class="nav-button">Find Us</button>
+                        <button class="nav-button">More</button>
+                    </div>
+                </div>
+
+                <!-- Home Indicator -->
+                <div class="home-indicator"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add interactive preview functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const signInButton = document.querySelector('.sign-in-button');
+            const navButtons = document.querySelectorAll('.nav-button');
+            const faceIdIcon = document.querySelector('.face-id-icon');
+
+            // Add click effects for demonstration
+            signInButton.addEventListener('click', function() {
+                this.textContent = 'Signing In...';
+                this.style.background = '#34C759';
+                setTimeout(() => {
+                    this.textContent = 'Sign In';
+                    this.style.background = '#007AFF';
+                }, 1500);
+            });
+
+            faceIdIcon.addEventListener('click', function() {
+                this.style.transform = 'scale(1.1)';
+                this.style.background = '#34C759';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                    this.style.background = '#007AFF';
+                }, 1000);
+            });
+
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const originalText = this.textContent;
+                    this.textContent = 'Coming Soon...';
+                    this.style.background = 'rgba(0, 122, 255, 0.2)';
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                        this.style.background = 'transparent';
+                    }, 1500);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

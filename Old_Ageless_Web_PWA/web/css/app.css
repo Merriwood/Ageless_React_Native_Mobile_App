@@ -1,0 +1,513 @@
+/* Consolidated external stylesheet extracted from original snapshot */
+:root { --color-primary:#C5282F; --color-bg:#F7F7F9; --color-surface:#FFFFFF; --color-surface-alt:#F2F2F7; --color-text:#111111; --color-text-muted:#666666; --color-border:#E2E3E6; --color-border-strong:#D0D1D4; --color-focus:rgba(197,40,47,0.35); --shadow-elev:0 4px 12px rgba(0,0,0,0.08); --shadow-elev-hover:0 6px 16px rgba(0,0,0,0.12); --radius-sm:4px; --radius-md:8px; --radius-lg:12px; --radius-xl:20px; --space-2:4px; --space-3:6px; --space-4:8px; --space-5:10px; --space-6:12px; --space-8:16px; --space-10:20px; --space-12:24px; --transition-fast:120ms ease-out; --transition:160ms ease-out; }
+* { box-sizing: border-box; }
+body { background:var(--color-bg); color:var(--color-text); font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; margin:0; padding:20px; }
+
+/* LOGIN / AUTH OVERLAY */
+.login-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:#FFFFFF; display:flex; justify-content:center; align-items:flex-start; z-index:10000; padding:20px; overflow:auto; }
+.login-overlay.hidden { display:none !important; }
+.login-container { background:var(--color-surface); width:375px; min-height:667px; display:flex; flex-direction:column; position:relative; border:1px solid var(--color-border); border-radius:var(--radius-xl); margin:20px auto; box-shadow:var(--shadow-elev); }
+.login-header { background:var(--color-surface); padding:40px 30px 24px; text-align:center; }
+.app-title { font-size:28px; font-weight:600; margin:0; }
+.welcome-section { padding:0; text-align:center; background:var(--color-surface); margin:0 20px 20px; border-radius:var(--radius-lg); box-shadow:var(--shadow-elev); border:1px solid var(--color-border); }
+.welcome-content { background:var(--color-surface); padding:24px 20px 28px; border-radius:var(--radius-lg); display:flex; flex-direction:column; align-items:center; }
+.welcome-title { font-size:26px; margin:0 0 6px; }
+.welcome-subtitle { color:var(--color-text-muted); font-size:15px; margin:0 0 18px; }
+.face-id-icon { width:64px; height:64px; background:url('../icons/face_id_icon.png') no-repeat center/contain; border-radius:var(--radius-lg); cursor:pointer; transition:transform var(--transition-fast),filter var(--transition-fast); box-shadow:0 2px 8px rgba(0,0,0,0.18); background-color:#fff; }
+.face-id-icon:hover { transform:scale(1.05); filter:drop-shadow(0 4px 15px rgba(139,90,159,0.3)); }
+.face-id-icon.scanning { animation:faceIdScan 2s ease-in-out; }
+@keyframes faceIdScan { 0%,100% { transform:scale(1); } 50% { transform:scale(1.1); filter:drop-shadow(0 0 20px rgba(52,199,89,0.5)) brightness(1.2); } }
+.sign-in-section, .form-section, .forgot-section { background:var(--color-surface); margin:0 20px 20px; border-radius:var(--radius-xl); box-shadow:var(--shadow-elev); border:1px solid var(--color-border); }
+/* Ensure all inner segments share continuous rounding */
+.sign-in-header { border-top-left-radius:var(--radius-xl); border-top-right-radius:var(--radius-xl); }
+.form-section .form-content { border-bottom-left-radius:var(--radius-xl); border-bottom-right-radius:var(--radius-xl); }
+.sign-in-section { margin-bottom:10px; }
+.form-section { display:none; }
+.sign-in-header { background:var(--color-surface); padding:22px 26px; border-top-left-radius:var(--radius-xl); border-top-right-radius:var(--radius-xl); display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
+.sign-in-title { font-size:20px; font-weight:600; margin:0; }
+.collapse-arrow { font-size:28.8px; transition:transform var(--transition-fast); }
+.sign-in-header.expanded .collapse-arrow { transform:rotate(180deg); }
+.form-content { background:var(--color-surface); padding:24px 28px 30px; display:none; border-bottom-left-radius:var(--radius-xl); border-bottom-right-radius:var(--radius-xl); }
+.form-content { padding:24px 28px 30px !important; }
+.form-content.show { display:block; }
+.form-group { margin-bottom:20px; position:relative; }
+.form-label { display:block; font-size:15px; font-weight:500; margin:0 0 8px; }
+.form-input { width:100%; height:44px; padding:12px 14px; border:1px solid var(--color-border); border-radius:var(--radius-md); font-size:15px; background:var(--color-surface); }
+.form-input:focus { outline:none; border-color:var(--color-primary); box-shadow:0 0 0 2px var(--color-focus); }
+.password-group { position:relative; }
+.password-group { padding-bottom:4px; }
+.password-eye { position:absolute; right:16px; top:38px; font-size:18px; cursor:pointer; }
+.checkbox-group { display:flex; align-items:center; margin-bottom:25px; }
+.checkbox-input { width:20px; height:20px; margin-right:12px; accent-color:#C5282F; }
+.sign-in-button { width:100%; height:48px; background:var(--color-primary); color:#fff; border:none; border-radius:24px; font-size:16px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.sign-in-button:hover { background:#b12228; }
+.sign-in-button:active { background:#9a1d23; }
+.forgot-section { display:none; }
+.forgot-section.show { display:block; }
+.forgot-content { background:var(--color-surface); padding:20px; border-radius:var(--radius-lg); text-align:center; }
+.forgot-link { color:var(--color-primary); font-size:15px; text-decoration:none; font-weight:500; }
+.forgot-link:hover { text-decoration:underline; }
+.bottom-navigation { background:#222; height:72px; display:flex; align-items:center; margin-top:auto; border-bottom-left-radius:var(--radius-xl); border-bottom-right-radius:var(--radius-xl); justify-content:space-around; padding:0 20px; }
+.nav-button { background:transparent; border:none; color:#fff; font-size:14px; font-weight:500; cursor:pointer; padding:12px 8px; border-radius:var(--radius-md); flex:1; }
+.nav-button:hover { background:rgba(255,255,255,0.12); }
+
+/* MAIN APP */
+.container { max-width:860px; margin:0 auto; background:var(--color-surface); padding:24px 24px 40px; border-radius:var(--radius-lg); box-shadow:var(--shadow-elev); position:relative; }
+.menu-container { position:fixed; top:24px; right:52px; /* shifted left ~40px per request, moved down +10px */ z-index:1500; display:flex; align-items:center; justify-content:center; }
+.menu-container.hidden { display:none !important; }
+.menu-icon { width:40px; height:40px; cursor:pointer; touch-action:manipulation; display:block; }
+.menu-icon img, .menu-icon { max-width:100%; max-height:100%; }
+.menu-icon.active, .menu-icon:hover { background:rgba(0,0,0,0.06); border-radius:12px; }
+.menu-icon.global-fixed { position:fixed !important; top:16px !important; right:16px !important; z-index:12000 !important; }
+.dropdown-menu { position:absolute; top:44px; right:0; left:auto; background:#fff; border:1px solid var(--color-border); border-radius:12px; padding:8px 0 12px; width:220px; max-width:80vw; display:none; box-shadow:var(--shadow-elev); z-index:500; backdrop-filter:blur(6px); overflow:hidden; }
+.dropdown-menu.show { display:block; }
+.dropdown-menu#food-submenu { top:44px; right:230px; max-height:60vh; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
+/* New hierarchical submenus */
+.dropdown-menu#beauty-submenu { top:44px; right:230px; max-height:60vh; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
+.dropdown-menu#mind-submenu { top:44px; right:230px; max-height:60vh; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
+/* Nested Skin submenu cascades further left */
+.dropdown-menu#skin-submenu { top:44px; max-height:60vh; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; z-index:2000; width:240px; }
+/* Allow future submenus to be scrollable when content exceeds viewport */
+.dropdown-menu.scrollable { max-height:60vh; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
+.dropdown-item#menu-fitness-root::after { content:'▸'; position:absolute; right:16px; opacity:.6; }
+.dropdown-item { background:none; border:none; width:100%; text-align:left; padding:10px 16px; cursor:pointer; font-size:14px; color:#222; transition:background-color .15s ease,color .15s ease; position:relative; }
+.dropdown-item[data-disabled="true"] { opacity:.55; cursor:default; }
+.dropdown-item[data-disabled="true"]:hover { background:rgba(0,0,0,0.08); }
+.dropdown-item:hover { background:rgba(0,0,0,0.08); }
+.dropdown-item:focus-visible { outline:2px solid #C5282F; outline-offset:0; }
+.header { text-align:center; margin:0 0 24px; padding:24px 16px 8px; }
+.title-main { font-size:28px; font-weight:600; }
+.app-logo { width:96px; height:96px; border-radius:24px; }
+
+.stations { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:20px; }
+.station { background:var(--color-surface); border:1px solid var(--color-border); border-radius:16px; padding:18px 16px 20px; position:relative; box-shadow:var(--shadow-elev); display:flex; flex-direction:column; gap:10px; transition:box-shadow var(--transition-fast), transform var(--transition-fast); }
+.station.completed { border-color:#31a24c; box-shadow:0 4px 18px rgba(49,162,76,0.25); }
+.station-name { font-size:18px; font-weight:600; margin:0 0 6px; }
+.station-info { font-size:13px; color:#555; margin:0 0 10px; }
+.station-controls { display:flex; align-items:center; gap:12px; }
+.station-controls .btn { background:var(--color-primary); color:#fff; border:none; width:44px; height:44px; border-radius:14px; cursor:pointer; font-size:18px; font-weight:600; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.12); }
+.station-controls .btn:disabled { background:#ccc; cursor:not-allowed; box-shadow:none; }
+.count { font-size:22px; font-weight:700; width:40px; text-align:center; }
+
+/* HISTORY & SUMMARY MODALS */
+#history-modal,#summary-modal { position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:flex-start; justify-content:center; padding:40px 20px; z-index:3200; overflow:auto; }
+#history-content,#summary-content { background:#fff; width:100%; max-width:1000px; border-radius:20px; padding:26px 28px 34px; box-shadow:0 8px 30px rgba(0,0,0,0.15); }
+.modal-header { display:flex; align-items:center; justify-content:space-between; margin:0 0 18px; }
+.modal-header h3 { font-size:24px; font-weight:600; margin:0; }
+.btn-action { background:var(--color-primary); color:#fff; border:none; border-radius:12px; font-size:14px; font-weight:600; padding:10px 16px; cursor:pointer; }
+.btn-action:hover { background:#b12228; }
+.btn-action.close-btn { background:#000 !important; color:#fff !important; }
+.btn-action.close-btn:hover { background:#111 !important; }
+.modal-header .btn-action.close-btn { background:#000 !important; }
+.modal-header .btn-action.close-btn:hover { background:#111 !important; }
+.table-container { width:100%; overflow:auto; }
+.history-table, .summary-table { width:100%; border-collapse:collapse; font-size:14px; }
+.history-table th, .history-table td, .summary-table th, .summary-table td { padding:10px 12px; text-align:left; border-bottom:1px solid #eee; vertical-align:top; }
+.history-table th.weight-col, .history-table td.weight-col { width:70px; text-align:right; }
+.history-table th.completed-col, .history-table td.completed-col { width:95px; text-align:right; }
+.history-table tbody tr:hover { background:#fafafa; }
+.history-edit, .history-delete { cursor:pointer; }
+
+/* Right-aligned exercise details numbers */
+.exercise-details { padding:0 4px; }
+.exercise-details .ex-line { display:flex; justify-content:space-between; gap:12px; }
+.exercise-details .ex-name { flex:1; }
+.exercise-details .ex-val { min-width:22px; text-align:right; font-variant-numeric:tabular-nums; }
+
+/* STATUS MESSAGE */
+#status-message { font-size:14px; }
+
+/* RESPONSIVE */
+@media (max-width:600px){ .stations { grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); } .station { padding:16px 14px 18px; } }
+
+/* UTIL */
+.hidden { display:none !important; }
+.login-heart-logo { background:#fff; }
+/* Splash Screen */
+/* Splash: phase 1 (0-2.4s) solid brand red, phase 2 (2.4-3.0s) background clears to reveal app before fade-out */
+.splash-screen { position:fixed; inset:0; background:#C5282F; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:11000; transition:background-color .6s ease; }
+.splash-screen.bg-clear { background:transparent; }
+/* Remove any added visual chrome so only intrinsic icon shows (needs transparent PNG for perfect result) */
+/* Reverted: simple fade-in (0 -> 1) over 3.5s */
+.splash-logo { width:170px; height:170px; opacity:0; animation:mbhSplashFade 3.5s ease forwards; object-fit:cover; background:transparent !important; border:none !important; box-shadow:none !important; border-radius:0 !important; image-rendering:auto; }
+@media (max-width:480px){ .splash-logo { width:130px; height:130px; } }
+@keyframes mbhSplashFade {
+	0% { opacity:0; transform:scale(.92); }
+	100% { opacity:1; transform:scale(1); }
+}
+.splash-tagline { font-size:20px; font-weight:600; color:#FFFFFF; letter-spacing:.5px; margin-top:22px; opacity:0; animation:splashTaglineFade 2.8s ease forwards; animation-delay:.7s; }
+@keyframes splashTaglineFade { 0% { opacity:0; transform:translateY(6px); } 100% { opacity:1; transform:translateY(0); } }
+.splash-screen.fade-out { opacity:0; transition:opacity .35s ease; }
+@media (prefers-reduced-motion: reduce){ .splash-logo { animation:none; opacity:1; } }
+/* History edit modal */
+#history-edit-modal { position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:flex-start; justify-content:center; padding:40px 20px; z-index:3000; overflow:auto; }
+#history-edit-content { background:#fff; width:100%; max-width:900px; border-radius:24px; padding:30px 34px 40px; box-shadow:0 10px 34px rgba(0,0,0,0.18); max-height:calc(100vh - 120px); overflow:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
+#history-edit-form input { font-size:14px; }
+#history-table td.num-right, #summary-table td.num-right, .num-right { text-align:right !important; }
+#edit-exercises .edit-ex-block { background:#fafafa; border:none; border-radius:14px; padding:10px 12px; display:flex; flex-direction:column; gap:6px; box-shadow:0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px #e6e6e6; }
+#edit-exercises .edit-ex-block label { font-size:12px; color:#444; font-weight:600; }
+#edit-exercises .edit-ex-block input { padding:6px 8px; border:1px solid #ccc; border-radius:8px; font-size:13px; }
+/* Force override to eliminate any legacy gradient styles from older snapshot or cached CSS */
+.login-overlay { background:#FFFFFF !important; }
+
+/* --- Menu Fly-out Preview (non-destructive enhancement) --- */
+.menu-flyout-preview { position:fixed; min-width:230px; max-width:260px; background:#fff; border:1px solid #e3e3e3; box-shadow:0 6px 24px rgba(0,0,0,.12); border-radius:14px; padding:14px 16px 16px; font-family:system-ui,sans-serif; z-index:12000; display:none; opacity:0; transform:translateY(4px); transition:opacity .18s ease, transform .18s ease; pointer-events:none; }
+.menu-flyout-preview.left { transform-origin:top right; }
+.menu-flyout-preview.right { transform-origin:top left; }
+.menu-flyout-preview.visible { display:block; opacity:1; transform:translateY(0); pointer-events:auto; }
+.menu-flyout-title { font-size:15px; font-weight:700; margin:0 0 6px; color:#000 !important; line-height:1.2; }
+.menu-flyout-desc { font-size:12.5px; line-height:1.35; color:#444; margin:0 0 10px; }
+.menu-flyout-subhead { font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:#777; margin:4px 0 6px; font-weight:600; }
+.menu-flyout-subitems { display:flex; flex-direction:column; gap:4px; }
+.menu-flyout-subitem { font-size:12.5px; padding:6px 8px; border:1px solid #e1e1e1; border-radius:8px; background:#fafafa; cursor:default; display:flex; flex-direction:column; gap:2px; transition:background-color .15s ease; }
+.menu-flyout-subitem:hover { background:rgba(0,0,0,0.08); }
+.menu-flyout-subitem.disabled:hover { background:rgba(0,0,0,0.08); }
+.menu-flyout-subitem.disabled { opacity:.55; }
+.menu-flyout-subitem span.label { font-weight:600; font-size:12.5px; color:#333; }
+.menu-flyout-subitem span.note { font-size:11px; color:#666; }
+@media (max-width:650px){ .menu-flyout-preview { position:absolute; right:0; left:auto; top:100%; transform:translateY(6px); } }
+
+/* ===== PWA Bottom Nav (Isolated) ===== */
+.pwa-nav { position:fixed; left:0; right:0; bottom:0; display:flex; justify-content:space-around; gap:0; background:#fff; border-top:1px solid #d2d2d2; padding:6px 4px calc(6px + env(safe-area-inset-bottom)); z-index:410; font-family:system-ui,sans-serif; }
+/* Buttons: no rectangle, transparent, only text/icon (monochrome) */
+.pwa-nav__btn { flex:1; background:transparent; border:none; border-radius:0; padding:6px 2px 8px; font-size:13px; font-weight:400; color:#111; cursor:pointer; line-height:1.1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; -webkit-tap-highlight-color:transparent; transition:color .15s; }
+/* Remove previously added spacing rule between buttons */
+.pwa-nav__btn + .pwa-nav__btn { margin-left:0; }
+/* Subtle focus ring only */
+.pwa-nav__btn:focus-visible { outline:2px solid #000; outline-offset:2px; }
+/* Hover (desktop only) just darkens slightly */
+@media (hover:hover){ .pwa-nav__btn:hover { color:#000; } }
+/* Active (pressed) reduce opacity briefly */
+.pwa-nav__btn:active { opacity:.6; }
+/* Active tab: bold only the icon + label (not adding background) */
+/* Active state: default behavior for all tabs */
+.pwa-nav__btn.is-active .pwa-nav__label { font-weight:700; color:#C5282F; }
+.pwa-nav__btn.is-active .pwa-nav__icon svg { stroke:#C5282F; }
+/* Keep fills intact for better legibility; only tint strokes if present */
+.pwa-nav__btn.is-active .pwa-nav__icon svg * { stroke:#C5282F; }
+
+/* Scan tab: turn QR modules red via currentColor while keeping white squares crisp */
+/* Active: colorize only fills that inherit currentColor (white rects remain #fff) */
+.pwa-nav__btn[data-tab="scan"].is-active .pwa-nav__icon { color:#C5282F; }
+/* Prevent any inherited strokes from adding outlines to QR rects */
+.pwa-nav__btn[data-tab="scan"] .pwa-nav__icon svg,
+.pwa-nav__btn[data-tab="scan"] .pwa-nav__icon svg * { stroke:none !important; }
+/* Ensure pixel edges stay sharp for the QR grid */
+.pwa-nav__btn[data-tab="scan"] .pwa-nav__icon svg { shape-rendering:crispEdges; }
+/* Pressed: do not dim the whole button (keeps white crisp); nudge module color slightly */
+.pwa-nav__btn[data-tab="scan"]:active { opacity:1 !important; }
+.pwa-nav__btn[data-tab="scan"]:active .pwa-nav__icon { color:#b12228; }
+/* For Scan, do not scale the icon on active */
+.pwa-nav__btn[data-tab="scan"].is-active .pwa-nav__icon { transform:scale(1) !important; }
+.pwa-nav__icon { font-size:18px; line-height:1; display:block; font-weight:500; color:#000; }
+.pwa-nav__label { display:block; font-size:11px; line-height:1.05; letter-spacing:.25px; color:#111; font-weight:500; }
+/* Active state: already bold text via earlier rule; make SVG strokes thicker & scale icon slightly */
+.pwa-nav__icon { transition:transform .18s ease; }
+.pwa-nav__btn.is-active svg { stroke-width:2.4; }
+.pwa-nav__btn.is-active .pwa-nav__icon { transform:scale(1.08); }
+/* High contrast mode support */
+@media (prefers-contrast: more){ .pwa-nav__btn { color:#000; } }
+body.pwa-nav-space { padding-bottom:80px; }
+@supports (padding: max(0px)) { body.pwa-nav-space { padding-bottom: calc(80px + env(safe-area-inset-bottom)); } }
+/* ===== End PWA Bottom Nav ===== */
+
+/* Rewards icon: using PNG artwork (no stroke-only rule) */
+
+/* Normalize icon box sizing for Rewards */
+/* Slightly larger icon box for better legibility */
+.pwa-nav__btn .pwa-nav__icon { width:24px; height:24px; display:block; }
+/* Rewards PNG: exact size parity at 24x24 */
+.pwa-nav__btn[data-tab="rewards"] .pwa-nav__icon { width:24px; height:24px; }
+.pwa-nav__btn[data-tab="rewards"] .pwa-nav__icon img { width:100%; height:100%; display:block; filter:grayscale(1); transition:filter .2s ease, transform .18s ease; }
+.pwa-nav__btn[data-tab="rewards"].is-active .pwa-nav__icon img { filter:none; }
+
+/* ===== Top Banner Scroll Nav (Post-login only) ===== */
+.top-banner-nav { position:sticky; top:0; left:0; right:0; z-index:1400; background:#fff; border-bottom:1px solid #e1e1e1; padding:4px 0 0; font-family:system-ui,sans-serif; -webkit-overflow-scrolling:touch; }
+.top-banner-nav__scroller { display:flex; overflow-x:auto; overscroll-behavior-x:contain; scrollbar-width:none; gap:4px; padding:0 12px 6px; }
+/* Center nav items on full web (non-PWA) view */
+body:not(.is-pwa) .top-banner-nav__scroller { justify-content:center; }
+body:not(.is-pwa) .top-banner-nav__scroller.centered { justify-content:center; overflow-x:hidden; }
+body:not(.is-pwa) .top-banner-nav__scroller.centered .top-banner-nav__item { flex:0 0 auto; }
+.top-banner-nav__scroller::-webkit-scrollbar { display:none; }
+.top-banner-nav__item { flex:0 0 auto; background:transparent; border:none; font-size:14px; font-weight:500; padding:8px 14px 10px; border-radius:20px; cursor:pointer; position:relative; color:#222; letter-spacing:.25px; -webkit-tap-highlight-color:transparent; }
+.top-banner-nav__item:focus-visible { outline:2px solid #000; outline-offset:2px; }
+@media (hover:hover){ .top-banner-nav__item:hover { background:rgba(0,0,0,0.06); } }
+.top-banner-nav__item.is-active { font-weight:700; }
+.top-banner-nav__item.is-active::after { content:""; position:absolute; left:14px; right:14px; bottom:4px; height:3px; background:#000; border-radius:2px; }
+/* (Optional) gradient edge helpers – initially disabled (explanation provided in code comments) */
+.top-banner-nav.edge-fade::before, .top-banner-nav.edge-fade::after { content:""; position:absolute; top:0; bottom:0; width:34px; pointer-events:none; z-index:2; display:none; }
+.top-banner-nav.edge-fade.fade-left::before { left:0; background:linear-gradient(to right, #fff, rgba(255,255,255,0)); display:block; }
+.top-banner-nav.edge-fade.fade-right::after { right:0; background:linear-gradient(to left, #fff, rgba(255,255,255,0)); display:block; }
+/* ===== End Top Banner Scroll Nav ===== */
+
+/* ===== Top Banner Fly-out Panels (PWA only) ===== */
+.top-flyout-panel { position:absolute; background:#fff; border:1px solid #e1e1e1; box-shadow:0 8px 26px -4px rgba(0,0,0,0.18); border-radius:16px; padding:10px 0 12px; width:250px; max-height:60vh; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; font-family:system-ui,sans-serif; opacity:0; transform:translateY(6px) scale(.98); pointer-events:none; transition:opacity .18s ease, transform .18s ease; z-index:1500; }
+.top-flyout-panel.open { opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
+.top-flyout-panel__section { padding:0 14px 6px; }
+.top-flyout-panel__label { display:block; width:100%; border:none; background:transparent; text-align:left; padding:10px 16px; font-size:14px; font-weight:500; color:#222; cursor:pointer; position:relative; line-height:1.25; }
+.top-flyout-panel__label:hover { background:rgba(0,0,0,0.06); }
+.top-flyout-panel__label[aria-disabled="true"] { opacity:.55; cursor:default; }
+.top-flyout-panel__label[aria-disabled="true"]:hover { background:rgba(0,0,0,0.06); }
+.top-flyout-panel hr { border:none; border-top:1px solid #e3e3e3; margin:6px 0 8px; }
+.top-flyout-weight { padding:6px 16px 2px; }
+.top-flyout-weight label { font-size:12px; display:block; margin:0 0 4px; color:#333; font-weight:600; }
+.top-flyout-weight input { width:100%; padding:6px 8px; font-size:14px; border:1px solid #ccc; border-radius:8px; }
+@media (max-width:520px){ .top-flyout-panel { width:220px; } }
+/* Close region (click outside) mask handled in JS using document listener */
+/* ===== End Top Banner Fly-out Panels ===== */
+
+/* ===== PWA Red Header & Profile (PWA ONLY) ===== */
+/* Show PWA header only when main app container is visible (post-auth) */
+/* Show header only after auth (body.pwa-app-active) */
+body.is-pwa.pwa-app-active .pwa-main-header,
+body.is-pwa .pwa-main-header.force-show { display:flex; }
+.pwa-main-header { display:none; position:relative; width:100%; background:#C5282F; color:#fff; padding:10px 56px 12px 16px; box-sizing:border-box; align-items:center; justify-content:center; font-family:system-ui,sans-serif; font-weight:600; letter-spacing:.5px; font-size:18px; z-index:2000; }
+.pwa-main-header__title { text-align:center; }
+.pwa-main-header__title.pwa-main-header__title--center { position:absolute; left:50%; top:50%; transform:translate(-50%, -50%); margin:0; }
+.pwa-profile-btn { position:absolute; right:14px; top:50%; transform:translateY(-50%); width:34px; height:34px; border:none; background:transparent; padding:0; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+.pwa-profile-btn:focus-visible { outline:2px solid #fff; outline-offset:2px; border-radius:50%; }
+.pwa-profile-btn:hover .pwa-profile-icon circle:first-child { filter:brightness(1.1); }
+/* Full-bleed adjustment (PWA main page only) to overcome body padding from tokens.css */
+/* Remove negative margins so white nav below touches header directly (no gray gap) */
+body.is-pwa .pwa-main-header { margin:0; width:100%; border-radius:0; }
+body.is-pwa.pwa-app-active { padding-top:0; }
+body.is-pwa.pwa-app-active .pwa-main-header { margin:0; }
+
+/* PWA red theme for horizontal scroll nav (top banner) */
+/* PWA nav: white background with red text spanning full width */
+body.is-pwa.pwa-app-active .top-banner-nav { background:#fff; color:#000; padding:0 0 0; border-bottom:1px solid #e4e4e4; }
+body.is-pwa.pwa-app-active .top-banner-nav__scroller { padding:0 12px 2px; }
+/* Reduce bottom padding on banner tabs in PWA to tighten spacing */
+body.is-pwa.pwa-app-active .top-banner-nav__item { padding:8px 14px 8px; }
+
+/* Override inline 30px padding on the content header in PWA to reduce the gap above cards */
+body.is-pwa.pwa-app-active .header { padding-top: 6px !important; }
+body.is-pwa.pwa-app-active .top-banner-nav__item { color:#111; font-weight:600; }
+body.is-pwa.pwa-app-active .top-banner-nav__item.is-active::after { background:#000; bottom:2px; }
+body.is-pwa.pwa-app-active .top-banner-nav__item:hover { background:rgba(0,0,0,0.06); }
+/* Full-bleed header + nav horizontally (use body padding value 20px) */
+body.is-pwa.pwa-app-active .pwa-main-header,
+body.is-pwa.pwa-app-active .top-banner-nav { margin-left:-20px; margin-right:-20px; width:calc(100% + 40px); }
+/* Define header height and offset scroll nav below it to prevent overlap */
+/* Make header fixed so it remains visible while drawers (which handle their own internal scroll) are open */
+body.is-pwa.pwa-app-active .pwa-main-header { --pwa-header-height:58px; min-height:var(--pwa-header-height); display:flex; align-items:center; position:fixed; top:0; left:0; right:0; z-index:400; }
+/* In PWA we render header full-bleed using -20px margins; add that gutter to spacing so the button aligns with content edge */
+body.is-pwa.pwa-app-active .pwa-main-header .pwa-profile-btn { position:absolute; top:10px; right:calc(env(safe-area-inset-right, 0px) + 36px); z-index:2050; transform:none; }
+/* Make top banner nav fixed directly beneath header */
+body.is-pwa.pwa-app-active .top-banner-nav { position:fixed; top:58px; left:0; right:0; z-index:390; }
+/* Force pure white background for main app in PWA */
+body.is-pwa.pwa-app-active { background:#fff; }
+/* Ensure main app container sits below fixed header + banner */
+body.is-pwa.pwa-app-active #app-container { margin-top: var(--chrome-top, var(--mbh-drawer-top, 0)); }
+/* Non-PWA web: also offset if banner present */
+body:not(.is-pwa) #app-container { margin-top: var(--chrome-top, 0); }
+/* Center header content in non-PWA */
+body:not(.is-pwa) .container .header { text-align:center; }
+/* Strong legacy submenu & stations hide when drawers or Fitness tab active */
+body.drawer-open #dropdown-menu { display:none !important; }
+body.drawer-fitness-open #stations-container { display:none !important; }
+/* Account Page Placeholder */
+#welcome-banner { opacity:0; margin:10px 0 4px 0; text-align:center; font-size:20px; font-weight:700; line-height:1.25; color:#C5282F; font-family:system-ui,sans-serif; transition:opacity .5s ease; pointer-events:none; }
+#welcome-banner.show { opacity:.65; }
+#welcome-banner:focus { outline:none; }
+#account-page { display:none; position:relative; max-width:860px; margin:0 auto; padding:20px 20px 60px; font-family:system-ui,sans-serif; }
+#account-page.show { display:block; }
+#account-page .account-header { background:#C5282F; color:#fff; padding:18px 16px; text-align:center; font-size:20px; font-weight:600; border-radius:18px; margin-bottom:20px; position:relative; }
+#account-page .account-close { position:absolute; left:10px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,.18); color:#fff; border:none; border-radius:18px; padding:6px 12px; cursor:pointer; font-size:13px; font-weight:600; }
+#account-page .account-close:hover { background:rgba(255,255,255,.28); }
+@media (max-width:600px){ .pwa-main-header { padding-right:50px; font-size:17px; } .pwa-profile-btn { width:32px; height:32px; } }
+/* Hide original in-container header in PWA (visual duplication) */
+body.is-pwa .container .header { display:none; }
+/* Hide legacy hamburger/menu container in PWA context */
+body.is-pwa .menu-container { display:none !important; }
+/* ===== End PWA Red Header & Profile ===== */
+
+/* ===== Profile Dropdown & Account Overlay ===== */
+.pwa-profile-btn { position:absolute; right:14px; top:50%; transform:translateY(-50%); }
+.pwa-profile-dropdown { position:fixed; top:66px; right:16px; background:#fff; border:1px solid #e2e2e2; box-shadow:0 6px 18px -4px rgba(0,0,0,.15); padding:6px 0; border-radius:14px; width:180px; display:none; font-family:system-ui,sans-serif; z-index:2100; }
+.pwa-profile-dropdown.flip-left { right:auto; left:16px; }
+.pwa-profile-dropdown.open { display:block; animation:fadeSlide .18s ease; }
+.pwa-profile-dropdown button { width:100%; background:transparent; border:none; text-align:left; padding:10px 14px; font-size:14px; font-weight:500; color:#222; cursor:pointer; letter-spacing:.25px; }
+.pwa-profile-dropdown button:hover { background:#f5f5f7; }
+.pwa-profile-dropdown button.danger { color:#C5282F; font-weight:600; }
+.pwa-profile-dropdown .sep { height:1px; background:#e5e5e5; margin:4px 0; }
+@keyframes fadeSlide { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+#account-page.overlay { position:fixed; inset:120px 0 0; background:#fff; z-index:1700; overflow:auto; box-shadow:0 -2px 12px rgba(0,0,0,.12); border-top-left-radius:20px; border-top-right-radius:20px; }
+/* ===== End Profile Dropdown & Account Overlay ===== */
+
+/* ===== Scan QR Modal ===== */
+.scan-modal { position:fixed; inset:0; background:rgba(0,0,0,.55); display:flex; align-items:center; justify-content:center; padding:40px 18px 60px; z-index:2600; }
+.scan-modal[hidden] { display:none !important; }
+.scan-modal__dialog { background:#fff; width:100%; max-width:420px; border-radius:24px; padding:28px 22px 34px; box-shadow:0 8px 28px -6px rgba(0,0,0,.3); position:relative; text-align:center; font-family:system-ui,sans-serif; }
+.scan-modal__close { position:absolute; top:10px; right:10px; background:#f2f2f4; border:none; width:34px; height:34px; border-radius:50%; font-size:20px; line-height:1; cursor:pointer; color:#333; }
+.scan-modal__close:hover { background:#e6e6e9; }
+.scan-modal__hint { font-size:14px; color:#555; margin:4px 0 18px; }
+.scan-modal__qr-wrap { background:#fff; padding:16px; border:1px solid #e5e5e7; border-radius:20px; display:inline-flex; }
+.scan-modal__qr-wrap img { width:260px; height:260px; image-rendering:pixelated; }
+.scan-modal__id { font-size:12px; color:#888; margin-top:14px; word-break:break-all; letter-spacing:.5px; }
+@media (max-width:480px){ .scan-modal__qr-wrap img { width:210px; height:210px; } }
+/* ===== End Scan QR Modal ===== */
+
+/* ===== Account Full Drawer (PWA ONLY) ===== */
+/* Drawer positioning now leaves space for persistent header + top banner nav + bottom nav using dynamic CSS vars */
+/* Drawers sit below the fixed top banner (z-index 390) but above main content */
+#account-drawer { display:none; position:fixed; left:0; right:0; top:var(--chrome-top,var(--mbh-drawer-top,0)); bottom:var(--chrome-bottom,var(--mbh-drawer-bottom,0)); background:#fff; z-index:380; font-family:system-ui,sans-serif; color:#000; overscroll-behavior:contain; border-top:1px solid #e4e4e4; }
+#account-drawer.open { display:block; animation:fitnessDrawerFade .25s ease; }
+#account-drawer .account-drawer__inner { position:relative; width:100%; height:100%; display:flex; flex-direction:column; padding-top:8px; }
+#account-drawer .account-drawer__header { padding:22px 20px 12px; text-align:left; }
+#account-drawer .account-drawer__header .member-name, #account-drawer .account-drawer__header .member-meta { text-align:left; }
+/* Ensure profile icon row alignment spacing */
+#account-drawer .profile-icon-wrapper { width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+#account-drawer .profile-small-icon { width:30px; height:30px; display:block; }
+#account-drawer .account-drawer__header .member-name { font-size:22px; font-weight:700; margin:0 0 4px; }
+#account-drawer .account-drawer__header .member-meta { font-size:13px; color:#666; font-weight:500; letter-spacing:.25px; }
+#account-drawer .account-drawer__close { position:absolute; top:14px; right:14px; background:rgba(0,0,0,.05); border:none; border-radius:50%; width:38px; height:38px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+#account-drawer .account-drawer__close:active { background:rgba(0,0,0,.12); }
+#account-drawer nav.account-drawer__nav { flex:1; overflow:auto; padding:8px 0 24px; }
+#account-drawer ul.account-drawer__list { list-style:none; margin:0; padding:0; }
+#account-drawer li.account-drawer__item { border-bottom:1px solid #e4e4e4; }
+#account-drawer button.account-drawer__link { width:100%; background:#fff; border:none; display:flex; align-items:center; gap:14px; padding:16px 20px; font-size:16px; font-weight:500; text-align:left; color:#000; cursor:pointer; position:relative; }
+#account-drawer button.account-drawer__link:active { background:#f2f2f2; }
+#account-drawer button.account-drawer__link svg.chevron { margin-left:auto; width:18px; height:18px; stroke:#555; stroke-width:2.2; fill:none; }
+@media (min-width:680px){
+	#account-drawer { max-width:540px; margin:0 auto; box-shadow:0 0 0 100vmax rgba(0,0,0,.35); border-left:1px solid #ddd; border-right:1px solid #ddd; }
+	#account-drawer.open { animation:fitnessDrawerSlide .28s cubic-bezier(.4,.1,.2,1); }
+}
+@media (prefers-reduced-motion:reduce){ #account-drawer.open { animation:none; } }
+/* Account Drawer Subpanels */
+#account-drawer .account-subpanel { position:absolute; inset:0; background:#fff; display:none; flex-direction:column; z-index:10; animation:fitnessSubPanelIn .28s cubic-bezier(.4,.1,.2,1); }
+#account-drawer .account-subpanel.open { display:flex; }
+@media (prefers-reduced-motion:reduce){ #account-drawer .account-subpanel { animation:none; } }
+#account-drawer .account-subpanel header.subpanel-header { padding:18px 18px 10px; display:flex; align-items:center; gap:12px; position:relative; }
+#account-drawer .account-subpanel header.subpanel-header h2 { font-size:18px; font-weight:600; margin:0; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); pointer-events:none; text-align:center; line-height:1.25; white-space:nowrap; }
+/* Ensure no wrapping in portrait (vertical) orientation explicitly (reinforces base rule) */
+@media (orientation: portrait) {
+	#account-drawer .account-subpanel header.subpanel-header h2 { white-space:nowrap; }
+}
+#account-drawer .account-subpanel button.subpanel-back { background:rgba(0,0,0,.06); border:none; width:40px; height:40px; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+#account-drawer .account-subpanel button.subpanel-back svg { width:20px; height:20px; stroke:#000; stroke-width:2.4; fill:none; }
+#account-drawer .account-subpanel button.subpanel-back:active { background:rgba(0,0,0,.12); }
+#account-drawer .account-subpanel nav { flex:1; overflow:auto; padding:4px 0 50px; }
+#account-drawer ul.subpanel-list { list-style:none; margin:0; padding:0; }
+#account-drawer li.subpanel-item { border-bottom:1px solid #e5e5e5; }
+#account-drawer button.subpanel-link { width:100%; background:#fff; border:none; display:flex; align-items:center; gap:14px; padding:16px 20px; font-size:16px; font-weight:500; text-align:left; color:#000; cursor:pointer; position:relative; }
+#account-drawer button.subpanel-link:active { background:#f3f3f3; }
+#account-drawer button.subpanel-link svg.chevron { margin-left:auto; width:18px; height:18px; stroke:#555; stroke-width:2.2; fill:none; }
+@media (prefers-reduced-motion:reduce){ #account-drawer .account-subpanel { animation:none; } }
+/* ===== End Account Drawer Sub-Panels ===== */
+
+/* ===== Shared Subpanel List & Link Styling (Account + Fitness) ===== */
+/* Ensure Strength (and future Fitness subpanels with lists) render identically to Account subpanels */
+#account-drawer ul.subpanel-list,
+#fitness-drawer .fitness-subpanel ul.subpanel-list { list-style:none; margin:0; padding:0; }
+#account-drawer li.subpanel-item,
+#fitness-drawer .fitness-subpanel li.subpanel-item { border-bottom:1px solid #e5e5e5; }
+#account-drawer button.subpanel-link,
+#fitness-drawer .fitness-subpanel button.subpanel-link { width:100%; background:#fff; border:none; display:flex; align-items:center; gap:14px; padding:16px 20px; font-size:16px; font-weight:500; text-align:left; color:#000; cursor:pointer; position:relative; }
+#account-drawer button.subpanel-link:active,
+#fitness-drawer .fitness-subpanel button.subpanel-link:active { background:#f3f3f3; }
+#account-drawer button.subpanel-link svg.chevron,
+#fitness-drawer .fitness-subpanel button.subpanel-link svg.chevron { margin-left:auto; width:18px; height:18px; stroke:#555; stroke-width:2.2; fill:none; }
+/* Scroll/padding consistency inside fitness subpanels with lists */
+#fitness-drawer .fitness-subpanel nav { flex:1; overflow:auto; padding:4px 0 50px; }
+/* ===== End Shared Subpanel Styling ===== */
+
+
+/* ===== Fitness Full Drawer ===== */
+#mybody-drawer { display:none; position:fixed; left:0; right:0; top:var(--chrome-top,var(--mbh-drawer-top,0)); bottom:var(--chrome-bottom,var(--mbh-drawer-bottom,0)); background:#fff; z-index:380; font-family:system-ui,sans-serif; color:#000; overscroll-behavior:contain; border-top:1px solid #e4e4e4; }
+#mybody-drawer, #fitness-drawer, #food-drawer, #mind-drawer, #sleep-drawer { scroll-padding-top:calc(var(--chrome-top, var(--mbh-drawer-top,0)) + 4px); }
+#mybody-drawer.open { display:block; animation:fitnessDrawerFade .25s ease; }
+#mybody-drawer .mybody-drawer__inner { position:relative; width:100%; height:100%; display:flex; flex-direction:column; padding-top:8px; }
+/* Mind Drawer nested subdrawers (Meditation / Breathing / Techniques) */
+#mind-drawer .fitness-subdrawer { position:absolute; inset:0; background:#fff; display:none; flex-direction:column; z-index:10; animation:fitnessSubPanelIn .28s cubic-bezier(.4,.1,.2,1); }
+#mind-drawer .fitness-subdrawer.open { display:flex; }
+@media (prefers-reduced-motion:reduce){ #mind-drawer .fitness-subdrawer { animation:none; } }
+#mind-drawer .fitness-subdrawer header.fitness-subdrawer__header { padding:18px 18px 10px; display:flex; align-items:center; gap:12px; position:relative; }
+#mind-drawer .fitness-subdrawer header.fitness-subdrawer__header h2 { font-size:18px; font-weight:600; margin:0; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); pointer-events:none; text-align:center; line-height:1.25; }
+#mind-drawer .fitness-subdrawer button.subpanel-back { background:rgba(0,0,0,.06); border:none; width:40px; height:40px; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+#mind-drawer .fitness-subdrawer button.subpanel-back:active { background:rgba(0,0,0,.12); }
+#mind-drawer .fitness-subdrawer button.subpanel-back svg { width:20px; height:20px; stroke:#000; stroke-width:2.4; fill:none; }
+#mind-drawer .fitness-subdrawer nav { flex:1; overflow:auto; padding:4px 0 50px; }
+#mind-drawer .fitness-subdrawer .subpanel-placeholder { padding:22px 20px 60px; line-height:1.5; font-size:15px; color:#222; }
+#mybody-drawer.open .mybody-drawer__inner { padding-top:8px; }
+#mybody-drawer .mybody-drawer__header { padding:20px 20px 12px; display:flex; align-items:center; justify-content:center; }
+#mybody-drawer .mybody-drawer__header .mybody-title { font-size:22px; font-weight:600; margin:0; }
+#mybody-drawer button.mybody-drawer__close { position:absolute; top:14px; right:14px; background:rgba(0,0,0,.05); border:none; border-radius:50%; width:38px; height:38px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+#mybody-drawer button.mybody-drawer__close:active { background:rgba(0,0,0,.12); }
+#mybody-drawer .mybody-drawer__content { flex:1; overflow:auto; padding:0 0 24px; display:flex; flex-direction:column; }
+#mybody-drawer .mybody-weight-block { padding:16px 20px 8px; }
+#mybody-drawer .mybody-weight-label { display:block; font-size:12px; margin:0 0 4px; color:#333; font-weight:600; letter-spacing:.25px; }
+#mybody-drawer .mybody-weight-input { width:100%; padding:8px 10px; font-size:15px; box-sizing:border-box; border:1px solid #ccc; border-radius:6px; }
+#mybody-drawer nav.mybody-nav { padding:4px 0 0; }
+#mybody-drawer ul.mybody-list { list-style:none; margin:0; padding:0; }
+#mybody-drawer li.mybody-item { border-bottom:1px solid #e4e4e4; }
+#mybody-drawer button.mybody-link { width:100%; background:#fff; border:none; display:flex; align-items:center; gap:14px; padding:16px 20px; font-size:16px; font-weight:500; text-align:left; color:#000; cursor:pointer; position:relative; }
+#mybody-drawer button.mybody-link svg.chevron { margin-left:auto; width:18px; height:18px; stroke:#555; stroke-width:2.2; fill:none; }
+#mybody-drawer button.mybody-link:active { background:#f2f2f2; }
+#mybody-drawer li.mybody-item.disabled button.mybody-link { opacity:.45; cursor:default; }
+@media (min-width:680px){
+	#mybody-drawer { max-width:540px; margin:0 auto; box-shadow:0 0 0 100vmax rgba(0,0,0,.35); border-left:1px solid #ddd; border-right:1px solid #ddd; }
+	#mybody-drawer.open { animation:fitnessDrawerSlide .28s cubic-bezier(.4,.1,.2,1); }
+}
+@media (prefers-reduced-motion:reduce){ #mybody-drawer.open { animation:none; } }
+#fitness-drawer, #food-drawer, #mind-drawer, #sleep-drawer { display:none; position:fixed; left:0; right:0; top:var(--chrome-top,var(--mbh-drawer-top,0)); bottom:var(--chrome-bottom,var(--mbh-drawer-bottom,0)); background:#fff; z-index:380; font-family:system-ui,sans-serif; color:#000; overscroll-behavior:contain; border-top:1px solid #e4e4e4; }
+#fitness-drawer .fitness-drawer__nav, #food-drawer .fitness-drawer__nav, #mind-drawer .fitness-drawer__nav, #sleep-drawer .fitness-drawer__nav, #mybody-drawer .mybody-drawer__content { scroll-padding-top:12px; }
+
+/* Future-proof: ensure any element with id ending in -drawer stays below banner/header */
+[id$='-drawer'] { z-index: 380; }
+
+/* Future-proof: in PWA, any element with id ending -drawer anchors below header/banner and above bottom nav */
+body.is-pwa [id$='-drawer'] {
+	position: fixed;
+	top: var(--chrome-top, var(--mbh-drawer-top, 0));
+	bottom: var(--chrome-bottom, var(--mbh-drawer-bottom, 0));
+	left: 0;
+	right: 0;
+}
+
+/* PWA visibility guard: hide drawers until we have computed insets to avoid first-paint misplacement.
+	 No fixed fallback offset; drawers become visible when body.insets-ready is set by JS. */
+body.is-pwa:not(.insets-ready) #account-drawer,
+body.is-pwa:not(.insets-ready) #mybody-drawer,
+body.is-pwa:not(.insets-ready) #fitness-drawer,
+body.is-pwa:not(.insets-ready) #food-drawer,
+body.is-pwa:not(.insets-ready) #mind-drawer,
+body.is-pwa:not(.insets-ready) #sleep-drawer {
+	visibility:hidden;
+}
+
+/* Fallback legacy hide if JS class application fails (ensures no legacy menu bleed when drawers open) */
+body.is-pwa.drawer-open #dropdown-menu,
+#fitness-drawer.open, #food-drawer.open, #mind-drawer.open, #sleep-drawer.open { display:block; animation:fitnessDrawerFade .25s ease; }
+@keyframes fitnessDrawerFade { from { opacity:0; transform:translateX(8px); } to { opacity:1; transform:translateX(0); } }
+/* Shared styling for fitness-like drawers (Fitness & Food) */
+#fitness-drawer .fitness-drawer__inner, #food-drawer .fitness-drawer__inner, #mind-drawer .fitness-drawer__inner, #sleep-drawer .fitness-drawer__inner { position:relative; width:100%; height:100%; display:flex; flex-direction:column; padding-top:8px; }
+#fitness-drawer.open .fitness-drawer__inner, #food-drawer.open .fitness-drawer__inner, #mind-drawer.open .fitness-drawer__inner, #sleep-drawer.open .fitness-drawer__inner { padding-top:8px; }
+#fitness-drawer .fitness-drawer__header, #food-drawer .fitness-drawer__header, #mind-drawer .fitness-drawer__header, #sleep-drawer .fitness-drawer__header { padding:20px 20px 12px; display:flex; align-items:center; justify-content:center; }
+#fitness-drawer .fitness-drawer__header .fitness-title, #food-drawer .fitness-drawer__header .fitness-title, #mind-drawer .fitness-drawer__header .fitness-title, #sleep-drawer .fitness-drawer__header .fitness-title { font-size:22px; font-weight:600; margin:0; }
+#fitness-drawer button.fitness-drawer__close, #food-drawer button.fitness-drawer__close, #mind-drawer button.fitness-drawer__close, #sleep-drawer button.fitness-drawer__close { position:absolute; top:14px; right:14px; background:rgba(0,0,0,.05); border:none; border-radius:50%; width:38px; height:38px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+#fitness-drawer button.fitness-drawer__close:active, #food-drawer button.fitness-drawer__close:active, #mind-drawer button.fitness-drawer__close:active, #sleep-drawer button.fitness-drawer__close:active { background:rgba(0,0,0,.12); }
+#fitness-drawer nav.fitness-drawer__nav, #food-drawer nav.fitness-drawer__nav, #mind-drawer nav.fitness-drawer__nav, #sleep-drawer nav.fitness-drawer__nav { flex:1; overflow:auto; padding:8px 0 24px; }
+#fitness-drawer ul.fitness-drawer__list, #food-drawer ul.fitness-drawer__list, #mind-drawer ul.fitness-drawer__list, #sleep-drawer ul.fitness-drawer__list { list-style:none; margin:0; padding:0; }
+#fitness-drawer li.fitness-drawer__item, #food-drawer li.fitness-drawer__item, #mind-drawer li.fitness-drawer__item, #sleep-drawer li.fitness-drawer__item { border-bottom:1px solid #e4e4e4; }
+#fitness-drawer button.fitness-drawer__link, #food-drawer button.fitness-drawer__link, #mind-drawer button.fitness-drawer__link, #sleep-drawer button.fitness-drawer__link { width:100%; background:#fff; border:none; display:flex; align-items:center; gap:14px; padding:16px 20px; font-size:16px; font-weight:500; text-align:left; color:#000; cursor:pointer; position:relative; }
+#fitness-drawer button.fitness-drawer__link:active, #food-drawer button.fitness-drawer__link:active, #mind-drawer button.fitness-drawer__link:active, #sleep-drawer button.fitness-drawer__link:active { background:#f2f2f2; }
+#fitness-drawer button.fitness-drawer__link svg.chevron, #food-drawer button.fitness-drawer__link svg.chevron, #mind-drawer button.fitness-drawer__link svg.chevron, #sleep-drawer button.fitness-drawer__link svg.chevron { margin-left:auto; width:18px; height:18px; stroke:#555; stroke-width:2.2; fill:none; }
+@media (min-width:680px){
+	#fitness-drawer, #food-drawer, #mind-drawer, #sleep-drawer { max-width:540px; margin:0 auto; box-shadow:0 0 0 100vmax rgba(0,0,0,.35); border-left:1px solid #ddd; border-right:1px solid #ddd; }
+	#fitness-drawer.open, #food-drawer.open, #mind-drawer.open, #sleep-drawer.open { animation:fitnessDrawerSlide .28s cubic-bezier(.4,.1,.2,1); }
+	@keyframes fitnessDrawerSlide { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+}
+@media (prefers-reduced-motion:reduce){ #fitness-drawer.open, #food-drawer.open, #sleep-drawer.open { animation:none; } }
+/* Fitness Drawer Subpanels */
+#fitness-drawer .fitness-subpanel { position:absolute; inset:0; background:#fff; display:none; flex-direction:column; z-index:10; animation:fitnessSubPanelIn .28s cubic-bezier(.4,.1,.2,1); }
+#fitness-drawer .fitness-subpanel.open { display:flex; }
+@keyframes fitnessSubPanelIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
+#fitness-drawer .fitness-subpanel header.subpanel-header { padding:18px 18px 10px; display:flex; align-items:center; gap:12px; position:relative; }
+#fitness-drawer .fitness-subpanel header.subpanel-header h2 { font-size:18px; font-weight:600; margin:0; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); pointer-events:none; text-align:center; line-height:1.25; white-space:nowrap; }
+#fitness-drawer .fitness-subpanel button.subpanel-back { background:rgba(0,0,0,.06); border:none; width:40px; height:40px; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+#fitness-drawer .fitness-subpanel button.subpanel-back:active { background:rgba(0,0,0,.12); }
+#fitness-drawer .fitness-subpanel button.subpanel-back svg { width:20px; height:20px; stroke:#000; stroke-width:2.4; fill:none; }
+#fitness-drawer .fitness-subpanel .fitness-panel-placeholder { flex:1; overflow:auto; }
+@media (prefers-reduced-motion:reduce){ #fitness-drawer .fitness-subpanel { animation:none; } }
+/* ===== End Fitness Full Drawer ===== */

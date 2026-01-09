@@ -1,0 +1,2091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mind. Body. Heart. Tracker</title>
+
+<!-- iOS PWA Enhancement -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mind. Body. Heart.">
+
+<!-- SEO and Browser Enhancement -->
+<meta name="description" content="Track your fitness progress with our comprehensive workout tracker. Monitor exercises, sets, and progress over time.">
+<meta name="theme-color" content="#C5282F">
+<meta name="msapplication-TileColor" content="#C5282F">
+<meta name="msapplication-TileImage" href="./icons/icon-192.png">
+
+<!-- Favicon System -->
+<link rel="icon" href="./favicon.ico" type="image/x-icon">
+<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./icons/favicon-16x16.png">
+<link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
+
+<!-- Apple Touch Icons -->
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
+
+<!-- PWA Manifest -->
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<link rel="manifest" href="./manifest.json">
+
+<style>
+/* === DESIGN TOKENS: Minimalist Theme === */
+:root {
+  --color-primary:#C5282F;
+  --color-bg:#F7F7F9;
+  --color-surface:#FFFFFF;
+  --color-surface-alt:#F2F2F7;
+  --color-text:#111111;
+  --color-text-muted:#666666;
+  --color-border:#E2E3E6;
+  --color-border-strong:#D0D1D4;
+  --color-focus:rgba(197,40,47,0.35);
+  --shadow-elev:0 4px 12px rgba(0,0,0,0.08);
+  --shadow-elev-hover:0 6px 16px rgba(0,0,0,0.12);
+  --radius-sm:4px;
+  --radius-md:8px;
+  --radius-lg:12px;
+  --radius-xl:20px;
+  --space-2:4px;
+  --space-3:6px;
+  --space-4:8px;
+  --space-5:10px;
+  --space-6:12px;
+  --space-8:16px;
+  --space-10:20px;
+  --space-12:24px;
+  --transition-fast:120ms ease-out;
+  --transition:160ms ease-out;
+}
+body {background:var(--color-bg);color:var(--color-text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;margin:0;padding:20px;}
+* {box-sizing:border-box;}
+/* === PROFESSIONAL LOGIN OVERLAY === */
+.login-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  z-index: 10000;
+  padding: 20px;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.login-overlay.hidden {
+  display: none !important;
+}
+
+.login-container {
+  background: var(--color-surface-alt);
+  width: 375px;
+  min-height: 667px;
+  height: fit-content;
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  overflow: visible;
+  margin: 20px auto;
+  box-shadow: var(--shadow-elev);
+  padding-bottom: 0;
+}
+
+.login-header {
+  background: var(--color-surface-alt);
+  color: var(--color-primary);
+  padding: 40px 30px 24px 30px;
+  text-align: center;
+  height: auto;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-title {font-size:28px;font-weight:600;margin:0;color:var(--color-text);line-height:1.15;letter-spacing:0.5px;}
+
+.welcome-section {padding:0;text-align:center;background:var(--color-surface-alt);margin:0 20px 20px;border-radius:var(--radius-lg);box-shadow:var(--shadow-elev);border:1px solid var(--color-border);overflow:visible;}
+
+.welcome-content {background:var(--color-surface);padding:24px 20px 28px;border-radius:var(--radius-lg);display:flex;flex-direction:column;align-items:center;transition:background var(--transition),box-shadow var(--transition);}
+
+.welcome-title {font-size:26px;color:var(--color-text);margin:0 0 6px;font-weight:600;line-height:1.2;}
+
+.welcome-subtitle {color:var(--color-text-muted);font-size:15px;margin:0 0 18px;font-weight:400;line-height:1.3;}
+
+.face-id-icon {width:64px;height:64px;background:url('icons/face_id_icon.png') no-repeat center/contain;border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;position:relative;margin:0 auto;cursor:pointer;transition:transform var(--transition-fast),filter var(--transition-fast);} 
+
+.face-id-icon:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 4px 15px rgba(139, 90, 159, 0.3));
+}
+
+.face-id-icon.scanning {
+  animation: faceIdScan 2s ease-in-out;
+}
+
+@keyframes faceIdScan {
+  0%, 100% { 
+    transform: scale(1);
+    filter: none;
+  }
+  50% { 
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 20px rgba(52, 199, 89, 0.5)) brightness(1.2);
+  }
+}
+
+/* Sign In Section - Collapsible */
+.sign-in-section {padding:0;background:var(--color-surface-alt);margin:0 20px 10px;border-radius:var(--radius-xl);box-shadow:var(--shadow-elev);border:1px solid var(--color-border);overflow:visible;}
+
+/* Form Section - Separate block */
+.form-section {padding:0;background:var(--color-surface-alt);margin:0 20px 20px;border-radius:var(--radius-xl);box-shadow:var(--shadow-elev);border:1px solid var(--color-border);overflow:visible;display:none;}
+
+.sign-in-header {background:var(--color-surface);padding:22px 26px;border-radius:var(--radius-xl);display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:background var(--transition-fast);} 
+
+.sign-in-title {color:var(--color-text);font-size:20px;font-weight:600;margin:0;line-height:1.25;}
+
+.collapse-arrow {color:var(--color-text);font-size:28.8px;font-weight:600;line-height:1;transition:transform var(--transition-fast);} 
+
+.sign-in-header.expanded .collapse-arrow {
+  transform: rotate(180deg);
+}
+
+.form-content {background:var(--color-surface);padding:0 24px 24px;border-radius:0 0 var(--radius-xl) var(--radius-xl);display:none;transition:opacity var(--transition-fast);} 
+
+.form-content.show {
+  display: block;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.form-label {display:block;color:var(--color-text);font-size:15px;font-weight:500;margin:0 0 8px;line-height:1.2;}
+
+.form-input {width:100%;height:44px;padding:12px 14px;border:1px solid var(--color-border);border-radius:var(--radius-md);font-size:15px;color:var(--color-text);background:var(--color-surface);transition:border-color var(--transition-fast),box-shadow var(--transition-fast);box-sizing:border-box;} 
+
+/* Ensure user ID input text not too close to edge */
+.user-id-input {
+  padding-left: 18px !important;
+  padding-top: 4px !important; /* visually center text vertically */
+}
+
+.form-input:focus {outline:none;border-color:var(--color-primary);box-shadow:0 0 0 2px var(--color-focus);} 
+
+.password-group {
+  position: relative;
+}
+
+.password-eye {
+  position: absolute;
+  right: 16px;
+  top: 38px;
+  font-size: 18px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.checkbox-input {
+  width: 20px;
+  height: 20px;
+  margin-right: 12px;
+  accent-color: #C5282F;
+  border-radius: 4px;
+}
+
+.checkbox-label {
+  color: #2D2D2D;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.sign-in-button {width:100%;height:48px;background:var(--color-primary);color:#fff;border:none;border-radius:24px;font-size:16px;font-weight:600;cursor:pointer;margin:0;display:flex;align-items:center;justify-content:center;transition:background var(--transition-fast),box-shadow var(--transition-fast);} 
+.sign-in-button:hover {background:#b12228;} 
+.sign-in-button:active {background:#9a1d23;} 
+.sign-in-button:focus-visible {outline:2px solid var(--color-primary);outline-offset:2px;}
+
+
+/* Forgot Link Section */
+.forgot-section {padding:0;background:var(--color-surface-alt);margin:0 20px 20px;border-radius:var(--radius-lg);box-shadow:var(--shadow-elev);border:1px solid var(--color-border);overflow:visible;display:none;transition:opacity var(--transition-fast);} 
+
+.forgot-section.show {
+  display: block;
+}
+
+.forgot-content {background:var(--color-surface);padding:20px;border-radius:var(--radius-lg);text-align:center;}
+
+.forgot-link {color:var(--color-primary);font-size:15px;text-decoration:none;font-weight:500;line-height:1.2;margin:0;} 
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+/* Bottom Navigation */
+.bottom-navigation {background:#222;height:72px;display:flex;align-items:center;margin-top:auto;border-bottom-left-radius:var(--radius-xl);border-bottom-right-radius:var(--radius-xl);flex-shrink:0;justify-content:space-around;padding:0 20px;}
+
+.nav-button {background:transparent;border:none;color:#fff;font-size:14px;font-weight:500;cursor:pointer;padding:12px 8px;border-radius:var(--radius-md);transition:background var(--transition-fast);flex:1;text-align:center;} 
+.nav-button:hover,.nav-button:focus-visible {background:rgba(255,255,255,0.12);outline:none;}
+/* Original body style replaced by token-based body earlier */
+
+.container {max-width:860px;margin:0 auto;background:var(--color-surface);padding:24px 24px 40px;border-radius:var(--radius-lg);box-shadow:var(--shadow-elev);} 
+
+.header {text-align:center;margin:0 0 24px;padding:24px 16px 8px;background:var(--color-surface);position:relative;}
+
+.header-top {
+  position: relative;
+  margin-bottom: 35px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Removed standalone .heart-icon; single rounded logo used instead */
+
+.menu-container {
+  position: fixed; /* outside header */
+  top: 12px;
+  right: 12px;
+  z-index: 1500;
+}
+
+.menu-icon {
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
+
+/* Reusable app logo styles */
+.app-logo {
+  object-fit: cover;
+  border-radius: 26px;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+  display: block;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.app-logo:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.22);
+}
+.app-logo--login { width:96px; height:96px; border-radius:24px; box-shadow:0 4px 12px rgba(0,0,0,0.15);} /* legacy size */
+.app-logo--main { width:99px; height:99px; }
+
+.dropdown-menu {position:absolute;top:40px;right:0;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-elev);z-index:1000;min-width:170px;opacity:0;transform:translateY(4px) scale(.96);transform-origin:top right;pointer-events:none;transition:opacity var(--transition-fast),transform var(--transition-fast);} 
+.dropdown-menu.show {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.dropdown-item {display:block;width:100%;padding:10px 16px;border:none;background:none;text-align:left;cursor:pointer;font-size:15px;color:var(--color-text);transition:background var(--transition-fast),color var(--transition-fast);line-height:1.25;border-radius:0;} 
+
+.dropdown-item:hover {background:var(--color-surface-alt);} 
+
+/* Provide a visible focus state for accessibility */
+.dropdown-item:focus {outline:none;background:var(--color-surface-alt);} 
+
+.dropdown-item:first-child {border-top-left-radius:var(--radius-lg);border-top-right-radius:var(--radius-lg);} 
+.dropdown-item:last-child {border-bottom-left-radius:var(--radius-lg);border-bottom-right-radius:var(--radius-lg);} 
+
+.header h1 {
+  color: black;
+  margin: 0 0 10px 0;
+}
+
+.title-main {
+  color: black;
+  margin: 20px 0 0 0;
+  font-size: 28px;
+  font-weight: bold;
+  line-height: 1.2;
+}
+
+.title-sub {
+  color: black;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.progress {
+  background: #434C5E;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  border: 2px solid #434C5E;
+  color: white;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 30px;
+  background: #F0EFEA;
+  border-radius: 15px;
+  overflow: hidden;
+  margin: 15px 0;
+  border: 2px solid #434C5E;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #FFFFFF;
+  width: 0%;
+  transition: width 0.5s ease;
+}
+
+.stations {
+  display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+
+.station {border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:20px;text-align:center;background:var(--color-surface);}
+.station.completed {border-color:var(--color-primary);background:var(--color-surface-alt);} 
+.station-name {font-weight:600;font-size:18px;margin-bottom:10px;color:var(--color-text);} 
+
+/* Clean consolidated workout + modal styles */
+.station-info {font-size:13px;color:var(--color-text-muted);margin:0 0 14px;}
+.station-controls {display:flex;justify-content:center;align-items:center;gap:20px;}
+.btn {width:50px;height:50px;border:none;border-radius:50%;font-size:24px;font-weight:600;cursor:pointer;user-select:none;background:var(--color-primary);color:#fff;display:flex;align-items:center;justify-content:center;transition:background var(--transition-fast),transform var(--transition-fast);} 
+.btn:hover:not(:disabled){background:#b12228;transform:translateY(-2px);} 
+.btn:disabled {background:#bbb;cursor:not-allowed;opacity:.7;transform:none;}
+.count {font-size:30px;font-weight:600;min-width:50px;color:var(--color-text);} 
+.actions {background:var(--color-surface);padding:24px 22px;border-radius:var(--radius-lg);border:1px solid var(--color-border);margin-top:32px;display:flex;flex-direction:column;gap:18px;align-items:center;max-width:500px;margin-left:auto;margin-right:auto;box-shadow:var(--shadow-elev);} 
+.weight-section {width:100%;display:flex;justify-content:center;}
+.weight-input {padding:12px 14px;border:1px solid var(--color-border);border-radius:var(--radius-md);font-size:16px;width:240px;text-align:center;font-weight:500;background:var(--color-surface);box-shadow:var(--shadow-elev);box-sizing:border-box;transition:border-color var(--transition-fast),box-shadow var(--transition-fast);} 
+.weight-input:focus {outline:none;border-color:var(--color-primary);box-shadow:0 0 0 2px var(--color-focus);} 
+.button-grid {display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:15px;width:100%;max-width:320px;}
+.btn-action {background:var(--color-primary);color:#fff;border:none;border-radius:var(--radius-md);padding:12px 18px;font-size:15px;font-weight:600;cursor:pointer;transition:background var(--transition-fast),transform var(--transition-fast),box-shadow var(--transition-fast);min-height:48px;display:inline-flex;align-items:center;justify-content:center;} 
+.btn-action:hover {background:#b12228;transform:translateY(-2px);box-shadow:var(--shadow-elev-hover);} 
+.btn-action:active {background:#9a1d23;transform:translateY(0);} 
+.btn-action:focus-visible {outline:2px solid var(--color-primary);outline-offset:2px;} 
+.close-btn {position:relative;z-index:1001;pointer-events:auto;background:var(--color-primary)!important;border:1px solid var(--color-primary);min-width:80px;} 
+.close-btn:hover {background:#b12228!important;box-shadow:var(--shadow-elev-hover);} 
+.save-message {margin-top:8px;color:var(--color-text-muted);font-weight:500;display:none;width:100%;text-align:center;font-size:13px;} 
+#history-modal,#summary-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);display:none;justify-content:center;align-items:center;z-index:1000;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px;} 
+#history-content,#summary-content{background:var(--color-surface);border-radius:var(--radius-lg);max-height:90vh;width:95%;max-width:1000px;margin:20px auto;overflow:hidden;box-shadow:0 10px 28px rgba(0,0,0,0.22);padding:20px 22px;border:1px solid var(--color-border);} 
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;border-bottom:1px solid var(--color-border);padding-bottom:14px;} 
+.modal-header h3{color:var(--color-text);margin:0;font-weight:600;font-size:18px;} 
+.table-container{overflow-x:auto;overflow-y:auto;max-height:60vh;} 
+.history-table,.summary-table{width:100%;border-collapse:collapse;margin-top:10px;} 
+.history-table th,.summary-table th,.history-table td,.summary-table td{padding:8px 12px;text-align:left;border:1px solid var(--color-border);} 
+.history-table th,.summary-table th{background:var(--color-surface-alt);font-weight:600;color:var(--color-text);position:sticky;top:0;z-index:10;} 
+.history-table tr:nth-child(even),.summary-table tr:nth-child(even){background:var(--color-surface-alt);} 
+
+.exercise-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 5px;
+}
+
+.exercise-name {
+  font-weight: bold;
+  min-width: 80px;
+}
+
+.sets-input, .modal-weight-input {
+  width: 60px;
+  padding: 2px 5px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+.sets-label {
+  font-size: 12px;
+  color: #666;
+}
+
+.save-btn, .delete-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  margin: 0 2px;
+}
+
+.save-btn:hover {
+  transform: scale(1.1);
+}
+
+.delete-btn:hover {
+  transform: scale(1.1);
+}
+
+.logout-container {
+  display: block !important;
+  text-align: left !important;
+  width: 100% !important;
+  margin-top: 10px !important;
+  position: relative !important;
+}
+
+.logout-container::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.logout-container #user-email {
+  text-align: left !important;
+  margin: 0 0 8px 0 !important;
+  display: block !important;
+}
+
+.logout-container #btn-logout {
+  text-align: center;
+  margin: 0;
+  display: block;
+  width: auto;
+  float: right;
+  clear: both;
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN OVERLAY -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-container" id="loginContainer">
+    <!-- Header Section -->
+    <div class="login-header">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+  <img src="icons/icon-192.png" alt="App Logo" class="app-logo app-logo--login" />
+        <div class="app-title">Mind. Body. Heart.</div>
+      </div>
+    </div>
+
+    <!-- Welcome Section with Face ID Icon -->
+    <div class="welcome-section">
+      <div class="welcome-content">
+        <div class="welcome-title">Welcome back</div>
+        <div class="welcome-subtitle">Sign in with Face ID</div>
+        <div class="face-id-icon" id="faceIdIcon"></div>
+      </div>
+    </div>
+
+    <!-- Sign In Header Section -->
+    <div class="sign-in-section">
+      <div class="sign-in-header" id="signInHeader">
+        <h3 class="sign-in-title">Sign in</h3>
+        <span class="collapse-arrow" id="collapseArrow">⌄</span>
+      </div>
+    </div>
+
+    <!-- Form Content Section -->
+    <div class="form-section">
+      <div class="form-content" id="formContent">
+        <div class="form-group">
+          <label class="form-label">User ID</label>
+          <input type="email" id="email" class="form-input user-id-input" placeholder="Enter your email">
+        </div>
+
+        <div class="form-group password-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="password" class="form-input" placeholder="Enter your password">
+          <span class="password-eye" id="passwordEye">👁</span>
+        </div>
+
+        <div class="checkbox-group">
+          <input type="checkbox" class="checkbox-input" id="save-userid">
+          <label for="save-userid" class="checkbox-label">Save user ID</label>
+        </div>
+
+        <button class="sign-in-button" id="signInButton">Sign in</button>
+      </div>
+    </div>
+
+    <!-- Forgot Link Section - Only show in manual mode -->
+    <div class="forgot-section" id="forgotSection">
+      <div class="forgot-content">
+        <a href="#" class="forgot-link">Forgot user ID or password?</a>
+        <div style="margin: 10px 0; color: #666666;">or</div>
+        <a href="#" class="forgot-link" id="registerLink">Create new account</a>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-navigation">
+      <button class="nav-button">📞 Call us</button>
+      <button class="nav-button">📍 Find us</button>
+      <button class="nav-button">⋯ More</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN FITNESS TRACKER APP -->
+<div class="container" id="app-container" style="display: none;">
+  <div class="menu-container">
+    <img src="icons/menu_icon.png" alt="Menu" class="menu-icon" id="menu-icon">
+    <div class="dropdown-menu" id="dropdown-menu">
+      <div class="dropdown-weight" style="padding:10px 16px 4px 16px;">
+        <label for="weight" style="display:block;font-size:12px;margin-bottom:4px;color:#333;">Weight</label>
+        <input id="weight" type="number" placeholder="Enter weight" class="weight-input" style="width:100%;padding:6px 8px;font-size:14px;box-sizing:border-box;border:1px solid #ccc;border-radius:6px;" />
+      </div>
+      <hr style="margin:8px 0;border:none;border-top:1px solid #ddd;">
+      <button class="dropdown-item" id="menu-save">Save</button>
+      <button class="dropdown-item" id="menu-history">History</button>
+      <button class="dropdown-item" id="menu-summary">Summary</button>
+      <button class="dropdown-item" id="menu-logout">Logout</button>
+    </div>
+  </div>
+  <div class="header" style="padding-top:30px;">
+    <div style="margin-top:0;display:flex;flex-direction:column;align-items:center;gap:14px;">
+  <img src="icons/icon-192.png" alt="Logo" class="app-logo app-logo--main" />
+      <div class="title-main">Mind. Body. Heart.</div>
+    </div>
+  </div>
+  <div class="stations" id="stations-grid"></div>
+</div>
+
+<!-- History Modal -->
+<div id="history-modal">
+  <div id="history-content">
+    <div class="modal-header">
+      <h3>Workout History</h3>
+      <button class="btn-action close-btn" id="history-close-btn">Close</button>
+    </div>
+    <div class="table-container">
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Weight</th>
+            <th>Completed</th>
+            <th>Exercise Details</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="history-table">
+          <!-- Dynamic content populated by showHistory() -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Summary Modal -->
+<div id="summary-modal">
+  <div id="summary-content">
+    <div class="modal-header">
+      <h3>Progress Summary</h3>
+      <button class="btn-action close-btn" id="summary-close-btn">Close</button>
+    </div>
+    <div class="table-container">
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>Week Of</th>
+            <th>Avg Weight</th>
+            <th>Bike</th>
+            <th>Abs</th>
+            <th>Chest Press</th>
+            <th>Leg Press</th>
+            <th>Lat</th>
+            <th>Military</th>
+            <th>Crunch</th>
+            <th>Bicep Curls</th>
+            <th>Triceps</th>
+            <th>Overhead Pull</th>
+            <th>Row</th>
+            <th>Total Sets</th>
+          </tr>
+        </thead>
+        <tbody id="summary-table">
+          <!-- Dynamic content populated by showSummary() -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// Fitness Tracker with ORIGINAL Login Interface
+class FitnessTracker {
+  constructor() {
+    this.exercises = [
+      { name: "Bike", unit: "Min", reps: 60 },
+      { name: "Abs", unit: "Reps", reps: 100 },
+      { name: "Chest Press", unit: "Reps", reps: 20 },
+      { name: "Leg Press", unit: "Reps", reps: 20 },
+      { name: "Lat", unit: "Reps", reps: 20 },
+      { name: "Military", unit: "Reps", reps: 20 },
+      { name: "Crunch", unit: "Reps", reps: 100 },
+      { name: "Bicep Curls", unit: "Reps", reps: 20 },
+      { name: "Triceps", unit: "Reps", reps: 40 },
+      { name: "Overhead Pull", unit: "Reps", reps: 40 },
+      { name: "Row", unit: "Reps", reps: 20 }
+    ];
+    this.maxSets = 4;
+    this.isAuthenticated = false;
+    this.authToken = localStorage.getItem('fitness-tracker-token');
+    this.autoSaveInterval = null;
+    this.hasUnsavedChanges = false;
+    this.lastSaveTime = null;
+    this.init();
+    
+    // Check if user is already logged in
+    if (this.authToken) {
+      this.verifyToken();
+    }
+  }
+
+  // ===== DATE HANDLING (LOCAL TIME) =====
+  // Returns today's date string in local timezone (YYYY-MM-DD)
+  getLocalDateKey(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  // Backward compatible helper for any legacy calls expecting UTC-split date
+  getTodayDateKey() {
+    return this.getLocalDateKey();
+  }
+
+  async verifyToken() {
+    try {
+      const response = await fetch('/api/auth/verify', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${this.authToken}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        this.completeAuthentication(data.user.email);
+      } else {
+        // Token invalid, remove it
+        localStorage.removeItem('fitness-tracker-token');
+        this.authToken = null;
+      }
+    } catch (error) {
+      console.error('Token verification failed:', error);
+      localStorage.removeItem('fitness-tracker-token');
+      this.authToken = null;
+    }
+  }
+
+  async init() {
+    // Setup original login interface
+    this.setupOriginalLoginInterface();
+
+    // Load current workout data to show today's progress
+    await this.loadCurrentWorkout();
+    
+    // Update progress display
+    this.updateProgress();
+
+    console.log('Fitness Tracker initialized with original login interface');
+  }
+
+  setupOriginalLoginInterface() {
+    // Face ID authentication
+    const faceIdIcon = document.getElementById('faceIdIcon');
+    if (faceIdIcon) {
+      faceIdIcon.addEventListener('click', () => this.authenticate());
+    }
+
+    // Collapsible Sign In Header
+    const signInHeader = document.getElementById('signInHeader');
+    const formContent = document.getElementById('formContent');
+    const formSection = document.querySelector('.form-section');
+    const collapseArrow = document.getElementById('collapseArrow');
+    const forgotSection = document.getElementById('forgotSection');
+    
+    if (signInHeader && formContent && formSection) {
+      signInHeader.addEventListener('click', () => {
+        const isExpanded = formContent.classList.contains('show');
+        
+        if (isExpanded) {
+          // Collapse
+          formContent.classList.remove('show');
+          formSection.style.display = 'none';
+          signInHeader.classList.remove('expanded');
+          forgotSection.classList.remove('show');
+          document.getElementById('loginContainer').classList.remove('expanded');
+        } else {
+          // Expand
+          formContent.classList.add('show');
+          formSection.style.display = 'block';
+          signInHeader.classList.add('expanded');
+          forgotSection.classList.add('show');
+          document.getElementById('loginContainer').classList.add('expanded');
+        }
+      });
+    }
+
+    // Sign In Button
+    const signInButton = document.getElementById('signInButton');
+    if (signInButton) {
+      signInButton.addEventListener('click', () => this.signInWithEmail());
+    }
+
+    // Password Eye Toggle
+    const passwordEye = document.getElementById('passwordEye');
+    const passwordInput = document.getElementById('password');
+    if (passwordEye && passwordInput) {
+      passwordEye.addEventListener('click', () => {
+        const isPassword = passwordInput.type === 'password';
+        passwordInput.type = isPassword ? 'text' : 'password';
+        passwordEye.textContent = isPassword ? '🙈' : '👁';
+      });
+    }
+
+    // Register Link
+    const registerLink = document.getElementById('registerLink');
+    if (registerLink) {
+      registerLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        alert('Registration functionality would be implemented here.');
+      });
+    }
+
+    console.log('Original login interface setup complete');
+  }
+
+  authenticate() {
+    console.log('Face ID authentication started...');
+    const faceIdIcon = document.getElementById('faceIdIcon');
+    faceIdIcon.classList.add('scanning');
+
+    setTimeout(async () => {
+      faceIdIcon.classList.remove('scanning');
+      
+      // Check if user has stored credentials or previous session
+      const storedToken = localStorage.getItem('fitness-tracker-token');
+      
+      if (storedToken) {
+        // Try to verify existing token
+        try {
+          const response = await fetch('/api/auth/verify', {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${storedToken}`
+            }
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            this.authToken = storedToken;
+            this.completeAuthentication(data.user.email);
+            return;
+          }
+        } catch (error) {
+          console.log('Stored token invalid');
+        }
+      }
+      
+      // No valid stored session - Face ID would need user-specific credentials
+      alert('Face ID requires your credentials to be stored securely. Please sign in with email and password.');
+      
+    }, 2000);
+  }
+
+  async signInWithEmail() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    if (!email || !password) {
+      alert('Please enter both email and password.');
+      return;
+    }
+    
+    console.log('Email authentication:', { email });
+    try {
+      await this.performLogin(email, password);
+    } catch (error) {
+      console.error('Login failed:', error);
+      alert('Login failed: ' + error.message);
+    }
+  }
+
+  async performLogin(email, password) {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      this.authToken = data.token;
+      
+      // Store token for persistence
+      localStorage.setItem('fitness-tracker-token', this.authToken);
+      
+      console.log('Login successful, token received');
+      this.completeAuthentication(data.user.email);
+    } catch (error) {
+      console.error('performLogin error:', error);
+      throw error;
+    }
+  }
+
+  completeAuthentication(email) {
+    this.isAuthenticated = true;
+    
+    // Try to sync any local data to database now that we're authenticated
+    setTimeout(() => {
+      this.syncLocalDataToDatabase();
+    }, 1000); // Small delay to ensure auth is fully established
+    
+    // Hide login, show app
+    document.getElementById('loginOverlay').classList.add('hidden');
+    document.getElementById('app-container').style.display = 'block';
+    
+    // Build the fitness tracker
+    this.buildStations();
+    this.setupButtonHandlers();
+    this.updateProgress();
+    this.startAutoSave();
+    
+    // Try to restore previous workout session and check for data recovery
+    setTimeout(async () => {
+      await this.checkForDataRecovery();
+    }, 500);
+    
+    console.log('Authentication successful! Database connection status: PRESERVED');
+    console.log('All original app.js functions available:', typeof showHistory, typeof showSummary);
+  }
+
+  logout() {
+    this.isAuthenticated = false;
+    this.authToken = null;
+    localStorage.removeItem('fitness-tracker-token');
+    this.clearWorkoutState();
+    this.stopAutoSave();
+    
+    // Show login, hide app
+    document.getElementById('loginOverlay').classList.remove('hidden');
+    document.getElementById('app-container').style.display = 'none';
+    
+    console.log('User logged out');
+  }
+
+  // ===== WORKOUT STATE PERSISTENCE =====
+  saveCurrentWorkout() {
+    // Save locally regardless of authentication status
+  const dateKey = this.getLocalDateKey();
+    const workoutState = {};
+    let hasData = false;
+    
+    this.exercises.forEach(exercise => {
+      const countEl = document.getElementById(`count-${exercise.name}`);
+      if (countEl) {
+        const count = parseInt(countEl.textContent) || 0;
+        workoutState[exercise.name] = count;
+        if (count > 0) hasData = true;
+      }
+    });
+    
+    const weight = document.getElementById('weight')?.value || null;
+    if (weight) hasData = true;
+    
+    if (hasData) {
+      const workoutData = {
+        date: dateKey,
+        state: workoutState,
+        weight: weight,
+        timestamp: new Date().toISOString(),
+        userId: this.authToken?.slice(0, 10) || 'anonymous' // Handle unauthenticated users
+      };
+      
+      localStorage.setItem('current-workout', JSON.stringify(workoutData));
+      console.log('Workout state saved locally:', workoutData);
+    } else {
+      console.log('No workout data to save (all counts are 0)');
+    }
+  }
+
+  async loadCurrentWorkout() {
+    try {
+      // First try localStorage
+      const stored = localStorage.getItem('current-workout');
+      if (stored) {
+        const workoutData = JSON.parse(stored);
+    const today = this.getLocalDateKey();
+        
+        // Only load if it's today's workout
+        if (workoutData.date === today) {
+          console.log('Loading today\'s workout data from localStorage:', workoutData);
+          this.restoreWorkoutState(workoutData);
+          return true;
+        } else {
+          console.log('Stored workout is not for today, clearing old data');
+          this.clearWorkoutState();
+        }
+      } else {
+        console.log('No stored workout data found in localStorage');
+      }
+      
+      // If no localStorage data, try to load from database/history
+      await this.loadTodaysDataFromHistory();
+      
+      return false;
+    } catch (error) {
+      console.error('Error loading workout:', error);
+      return false;
+    }
+  }
+  
+  async loadTodaysDataFromHistory() {
+    try {
+  const today = this.getLocalDateKey();
+      console.log('Attempting to load today\'s data from history for date:', today);
+      
+      const headers = {};
+      if (this.authToken) {
+        headers['Authorization'] = `Bearer ${this.authToken}`;
+      }
+      
+      const response = await fetch('/api/entries', {
+        headers: headers
+      });
+      
+      if (response.ok) {
+        const entries = await response.json();
+        const todaysEntry = entries.find(entry => entry.entry_date === today);
+        
+        if (todaysEntry && todaysEntry.fitness_data) {
+          console.log('Found today\'s data in history:', todaysEntry);
+          
+          // Convert database format to workout state format
+          const workoutData = {
+            date: today,
+            weight: todaysEntry.weight,
+            state: todaysEntry.fitness_data
+          };
+          
+          this.restoreWorkoutState(workoutData);
+          this.showMessage('📊 Today\'s progress loaded from history', 'success');
+          return true;
+        } else {
+          console.log('No entry found for today in history');
+        }
+      } else {
+        console.log('Could not fetch history data:', response.status);
+      }
+    } catch (error) {
+      console.log('Could not load today\'s data from history:', error);
+    }
+    return false;
+  }
+  
+  restoreWorkoutState(workoutData) {
+    // Restore workout state
+    this.exercises.forEach(exercise => {
+      const countEl = document.getElementById(`count-${exercise.name}`);
+      const setsEl = document.getElementById(`sets-${exercise.name}`);
+      if (countEl && workoutData.state[exercise.name]) {
+        const count = workoutData.state[exercise.name];
+        countEl.textContent = count;
+        if (setsEl) {
+          setsEl.textContent = Math.min(count, this.maxSets);
+        }
+        this.updateButtonStates(exercise.name, count);
+      }
+    });
+    
+    // Restore weight
+    if (workoutData.weight) {
+      const weightEl = document.getElementById('weight');
+      if (weightEl) weightEl.value = workoutData.weight;
+    }
+    
+    this.updateProgress();
+    console.log('Workout state restored successfully');
+  }
+
+  clearWorkoutState() {
+    localStorage.removeItem('current-workout');
+  }
+
+  // ===== AUTO-SAVE FUNCTIONALITY =====
+  startAutoSave() {
+    this.stopAutoSave(); // Clear any existing interval
+    
+    this.autoSaveInterval = setInterval(() => {
+      if (this.hasUnsavedChanges) {
+        this.saveCurrentWorkout(); // Always save locally
+        // Try to save to database even if authentication status is unclear
+        this.autoSaveToDatabase();
+      }
+    }, 30000); // Auto-save every 30 seconds
+    
+    // Status display hidden - auto-save runs silently in background
+    console.log('Auto-save started (30-second intervals) - running silently');
+  }
+
+  stopAutoSave() {
+    if (this.autoSaveInterval) {
+      clearInterval(this.autoSaveInterval);
+      this.autoSaveInterval = null;
+      console.log('Auto-save stopped');
+    }
+  }
+
+  async autoSaveToDatabase() {
+    try {
+      await this.saveProgress(true); // true = silent mode
+      this.hasUnsavedChanges = false;
+      this.lastSaveTime = new Date();
+      // No status updates - runs silently
+      console.log('Auto-save to database completed silently');
+    } catch (error) {
+      console.error('Auto-save to database failed:', error);
+      // No status updates - just log the error
+    }
+  }
+
+  updateAutoSaveStatus(status, message) {
+    const statusEl = document.getElementById('auto-save-text');
+    const timeEl = document.getElementById('last-save-time');
+    
+    if (statusEl) {
+      statusEl.textContent = `Auto-save: ${status}`;
+      statusEl.style.color = status === 'Error' ? '#F44336' : 
+                            status === 'Active' ? '#4CAF50' : '#666';
+    }
+    
+    if (timeEl) {
+      timeEl.textContent = message || '';
+    }
+  }
+
+  formatTime(date) {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  markAsChanged() {
+    this.hasUnsavedChanges = true;
+    this.saveCurrentWorkout(); // Always save locally immediately
+    // No status updates - auto-save runs silently in background
+  }
+
+  buildStations() {
+    console.log('Building stations...');
+    const stationsGrid = document.getElementById('stations-grid');
+    stationsGrid.innerHTML = '';
+
+    this.exercises.forEach(exercise => {
+      const station = document.createElement('div');
+      station.className = 'station';
+      station.id = `station-${exercise.name}`;
+      
+      station.innerHTML = `
+        <div class="station-name">${exercise.name}</div>
+        <div class="station-info">Sets: <span id="sets-${exercise.name}">0</span> / ${this.maxSets} | ${exercise.unit}: ${exercise.reps}</div>
+        <div class="station-controls">
+          <button class="btn" data-name="${exercise.name}" data-delta="-1" disabled>-</button>
+          <span class="count" id="count-${exercise.name}">0</span>
+          <button class="btn" data-name="${exercise.name}" data-delta="1">+</button>
+        </div>
+      `;
+      
+      stationsGrid.appendChild(station);
+    });
+
+    // Add click handlers for +/- buttons
+    stationsGrid.addEventListener('click', (e) => {
+      if (e.target.classList.contains('btn')) {
+        const name = e.target.getAttribute('data-name');
+        const delta = parseInt(e.target.getAttribute('data-delta'));
+        this.updateCount(name, delta);
+      }
+    });
+
+    console.log('Stations built successfully!');
+  }
+
+  updateCount(exerciseName, delta) {
+    const countEl = document.getElementById(`count-${exerciseName}`);
+    const setsEl = document.getElementById(`sets-${exerciseName}`);
+    
+    let currentCount = parseInt(countEl.textContent);
+    let newCount = Math.max(0, Math.min(currentCount + delta, this.maxSets));
+    
+    countEl.textContent = newCount;
+    setsEl.textContent = newCount;
+    
+    // Update button states
+    const minusBtn = document.querySelector(`[data-name="${exerciseName}"][data-delta="-1"]`);
+    const plusBtn = document.querySelector(`[data-name="${exerciseName}"][data-delta="1"]`);
+    
+    minusBtn.disabled = newCount <= 0;
+    plusBtn.disabled = newCount >= this.maxSets;
+    
+    // Update station appearance
+    const station = document.getElementById(`station-${exerciseName}`);
+    if (newCount === this.maxSets) {
+      station.classList.add('completed');
+    } else {
+      station.classList.remove('completed');
+    }
+    
+    this.updateProgress();
+    this.markAsChanged(); // Track changes for auto-save and persistence
+  }
+
+  updateProgress() {
+    let completedExercises = 0;
+    let totalProgress = 0;
+    
+    this.exercises.forEach(exercise => {
+      const countEl = document.getElementById(`count-${exercise.name}`);
+      if (countEl) {
+        const currentCount = parseInt(countEl.textContent) || 0;
+        
+        // Count as completed if reached maxSets
+        if (currentCount >= this.maxSets) {
+          completedExercises++;
+        }
+        
+        // Calculate partial progress for each exercise
+        const exerciseProgress = Math.min(currentCount / this.maxSets, 1);
+        totalProgress += exerciseProgress;
+      }
+    });
+    
+    // Calculate percentage based on total progress
+    const percentage = Math.round((totalProgress / this.exercises.length) * 100);
+    
+    console.log(`Progress update: ${percentage}% (${completedExercises}/${this.exercises.length} exercises, ${totalProgress.toFixed(1)} total progress)`);
+  }
+
+  // ===== USER FEEDBACK SYSTEM =====
+  showMessage(message, type = 'info', duration = 3000) {
+    // Remove any existing message
+    const existingMsg = document.getElementById('status-message');
+    if (existingMsg) {
+      existingMsg.remove();
+    }
+    
+    // Create new message element
+    const msgEl = document.createElement('div');
+    msgEl.id = 'status-message';
+    msgEl.textContent = message;
+    msgEl.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      z-index: 10000;
+      max-width: 300px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+      ${this.getMessageStyles(type)}
+    `;
+    
+    document.body.appendChild(msgEl);
+    
+    // Auto-remove after duration
+    setTimeout(() => {
+      if (msgEl && msgEl.parentNode) {
+        msgEl.style.opacity = '0';
+        msgEl.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+          if (msgEl && msgEl.parentNode) {
+            msgEl.remove();
+          }
+        }, 300);
+      }
+    }, duration);
+  }
+
+  getMessageStyles(type) {
+    switch (type) {
+      case 'success':
+        return 'background: #4CAF50; color: white;';
+      case 'error':
+        return 'background: #F44336; color: white;';
+      case 'warning':
+        return 'background: #FF9800; color: white;';
+      case 'info':
+      default:
+        return 'background: #2196F3; color: white;';
+    }
+  }
+
+  setupButtonHandlers() {
+    console.log('Setting up button handlers with database integration...');
+    
+    // Menu icon dropdown functionality
+    const menuIcon = document.getElementById('menu-icon');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    
+    if (menuIcon && dropdownMenu) {
+      menuIcon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle('show');
+      });
+      
+      // Improved outside click handling with small delay and containment check
+      document.addEventListener('click', (evt) => {
+        if (!dropdownMenu.classList.contains('show')) return;
+        const target = evt.target;
+        if (target === dropdownMenu || dropdownMenu.contains(target) || target === menuIcon) return;
+        dropdownMenu.classList.remove('show');
+      });
+      
+      dropdownMenu.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+
+      // Keep dropdown open while interacting with weight input
+      const weightInput = document.getElementById('weight');
+      if (weightInput) {
+        ['click','input','focus'].forEach(evt => {
+          weightInput.addEventListener(evt, ev => {
+            ev.stopPropagation();
+            dropdownMenu.classList.add('show');
+          });
+        });
+      }
+    }
+    
+    // Menu Save button
+    const menuSave = document.getElementById('menu-save');
+    if (menuSave) {
+      menuSave.addEventListener('click', () => {
+        dropdownMenu.classList.remove('show');
+        this.saveProgress();
+      });
+    }
+    
+    // Menu History button
+    const menuHistory = document.getElementById('menu-history');
+    if (menuHistory) {
+      menuHistory.addEventListener('click', async () => {
+        dropdownMenu.classList.remove('show');
+        console.log('History button clicked - syncing data and showing history');
+        document.getElementById('history-modal').style.display = 'flex';
+        await this.showHistoryWithSync();
+      });
+    }
+    
+    // Menu Summary button
+    const menuSummary = document.getElementById('menu-summary');
+    if (menuSummary) {
+      menuSummary.addEventListener('click', async () => {
+        dropdownMenu.classList.remove('show');
+        console.log('Summary button clicked - making direct API call');
+        document.getElementById('summary-modal').style.display = 'flex';
+        await this.showSummary();
+      });
+    }
+    
+    // Menu Logout button
+    const menuLogout = document.getElementById('menu-logout');
+    if (menuLogout) {
+      menuLogout.addEventListener('click', () => {
+        dropdownMenu.classList.remove('show');
+        this.logout();
+      });
+    }
+    
+    // Weight input change tracking
+    const weightInput = document.getElementById('weight');
+    if (weightInput) {
+      let weightDebounceTimer = null;
+      const handleWeightChange = () => {
+        if (weightDebounceTimer) clearTimeout(weightDebounceTimer);
+        weightDebounceTimer = setTimeout(() => {
+          this.markAsChanged();
+        }, 500); // debounce delay
+      };
+      weightInput.addEventListener('input', handleWeightChange);
+      weightInput.addEventListener('change', handleWeightChange);
+    }
+    
+    // Reset button
+    const resetBtn = document.getElementById('btn-reset');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        this.resetProgress();
+      });
+    }
+    
+    // Add close button event listeners
+    const historyCloseBtn = document.getElementById('history-close-btn');
+    const summaryCloseBtn = document.getElementById('summary-close-btn');
+    
+    if (historyCloseBtn) {
+      historyCloseBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.getElementById('history-modal').style.display = 'none';
+      });
+    }
+    
+    if (summaryCloseBtn) {
+      summaryCloseBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.getElementById('summary-modal').style.display = 'none';
+      });
+    }
+    
+    console.log('Button handlers setup complete. Database functions:', {
+      showHistory: typeof showHistory,
+      showSummary: typeof showSummary,
+      saveProgress: typeof saveProgress
+    });
+    
+    // Add page unload protection
+    this.setupUnloadProtection();
+  }
+
+  // ===== DATA RECOVERY MECHANISMS =====
+  setupUnloadProtection() {
+    // Warn user before leaving if there are unsaved changes
+    window.addEventListener('beforeunload', (e) => {
+      if (this.hasUnsavedChanges && this.isAuthenticated) {
+        e.preventDefault();
+        e.returnValue = 'You have unsaved workout progress. Are you sure you want to leave?';
+        return e.returnValue;
+      }
+    });
+    
+    // Save on page visibility change (when user switches tabs)
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && this.hasUnsavedChanges && this.isAuthenticated) {
+        this.saveCurrentWorkout();
+        // Attempt silent database save
+        this.autoSaveToDatabase().catch(err => {
+          console.log('Background save failed:', err);
+        });
+      }
+    });
+    
+    // Save periodically during active use
+    document.addEventListener('click', () => {
+      if (this.hasUnsavedChanges) {
+        this.saveCurrentWorkout();
+      }
+    });
+  }
+
+  // Data recovery check on app start
+  async checkForDataRecovery() {
+    if (!this.isAuthenticated) return;
+    
+    try {
+      // Check if there's unsaved local data
+      const localWorkout = localStorage.getItem('current-workout');
+      if (!localWorkout) return;
+      
+  const workoutData = JSON.parse(localWorkout);
+  const today = this.getLocalDateKey();
+      
+      if (workoutData.date !== today) {
+        this.clearWorkoutState();
+        return;
+      }
+      
+      // Check if the local data is newer than database
+      try {
+        const response = await fetch(`/api/entries/${today}`, {
+          headers: {
+            'Authorization': `Bearer ${this.authToken}`
+          }
+        });
+        
+        if (response.ok) {
+          const dbEntry = await response.json();
+          
+          if (dbEntry && dbEntry.updated_at) {
+            const dbTime = new Date(dbEntry.updated_at);
+            const localTime = new Date(workoutData.timestamp);
+            
+            if (localTime > dbTime) {
+              // Local data is newer - ask user
+              const recover = confirm(
+                'Found newer workout data on this device that wasn\'t saved to the server. ' +
+                'Would you like to restore this data?'
+              );
+              
+              if (recover) {
+                this.loadCurrentWorkout();
+                this.showMessage('💾 Local workout data recovered!', 'info');
+                return;
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.log('Could not check database for recovery comparison:', error);
+      }
+      
+      // Default recovery if database check failed
+      this.loadCurrentWorkout();
+      
+    } catch (error) {
+      console.error('Data recovery check failed:', error);
+    }
+  }
+
+  async saveProgress(silent = false) {
+    // Show brief "Saving..." message for manual saves
+    if (!silent) {
+      this.showMessage('💾 Saving...', 'info', 1000);
+    }
+    
+    // Always save locally first
+    this.saveCurrentWorkout();
+    
+    if (!silent) {
+      const saveMessage = document.getElementById('save-message');
+      if (saveMessage) {
+        saveMessage.style.display = 'block';
+        setTimeout(() => {
+          saveMessage.style.display = 'none';
+        }, 3000);
+      }
+    }
+    
+    // Save to database with proper feedback
+    try {
+  const dateKey = this.getLocalDateKey();
+      const weight = document.getElementById("weight").value || null;
+      const fitnessData = {};
+      
+      this.exercises.forEach(exercise => {
+        const countEl = document.getElementById(`count-${exercise.name}`);
+        fitnessData[exercise.name] = parseInt(countEl.textContent) || 0;
+      });
+
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (this.authToken) {
+        headers['Authorization'] = `Bearer ${this.authToken}`;
+      }
+
+      const response = await fetch('/api/entries', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+          date: dateKey,
+          weight: weight,
+          fitnessData: fitnessData
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        this.hasUnsavedChanges = false;
+        this.lastSaveTime = new Date();
+        
+        console.log('Database save successful:', data);
+        return data;
+      } else {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+    } catch (error) {
+      console.error('Error saving to database:', error);
+      
+      if (!silent) {
+        this.showMessage(`❌ Database save failed: ${error.message}. Data saved locally.`, 'error', 5000);
+        
+        // Offer retry option
+        setTimeout(() => {
+          if (confirm('Would you like to retry saving to the database?')) {
+            this.saveProgress();
+          }
+        }, 1000);
+      }
+      throw error;
+    }
+  }
+
+  async showHistory() {
+    try {
+      console.log('Fetching history data...');
+      
+      const headers = {};
+      if (this.authToken) {
+        headers['Authorization'] = `Bearer ${this.authToken}`;
+      }
+      
+      let entries = [];
+      let databaseAvailable = false;
+      
+      try {
+        const response = await fetch('/api/entries', {
+          headers: headers
+        });
+        
+        if (response.ok) {
+          entries = await response.json();
+          databaseAvailable = true;
+          console.log('History data received from database:', entries);
+        } else {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+      } catch (dbError) {
+        console.log('Database not available, will show local data:', dbError.message);
+        databaseAvailable = false;
+      }
+      
+      // Add today's data from localStorage if not in database
+  const today = this.getLocalDateKey();
+      const todaysEntry = entries.find(entry => entry.entry_date === today);
+      
+      if (!todaysEntry) {
+        // Try comprehensive data recovery first
+        let localData = this.recoverAllTodaysData();
+        
+        // If comprehensive recovery fails, fall back to simple method
+        if (!localData) {
+          localData = this.getTodaysLocalData();
+        }
+        
+        if (localData) {
+          entries.unshift({
+            entry_date: today,
+            weight: localData.weight,
+            fitness_data: localData.fitnessData,
+            _isLocal: true,
+            _source: localData.source || 'localStorage'
+          });
+          console.log('Added today\'s recovered data to history:', localData);
+        }
+      }
+      
+      const table = document.getElementById("history-table");
+      table.innerHTML = "";
+      
+      if (!entries || entries.length === 0) {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td colspan="5" style="text-align: center; padding: 20px; color: #666;">
+            No workout history available yet. Start tracking your workouts!
+            ${!databaseAvailable ? '<br><small style="color: #ff6b6b;">⚠️ Database not connected - showing local data only</small>' : ''}
+          </td>
+        `;
+        table.appendChild(row);
+      } else {
+        entries.forEach(({entry_date, weight, fitness_data, _isLocal}) => {
+          const completed = Object.values(fitness_data || {}).filter(v => v === this.maxSets).length;
+          
+          let detailsHtml = "";
+          this.exercises.forEach(exercise => {
+            const sets = (fitness_data || {})[exercise.name] || 0;
+            detailsHtml += `${exercise.name}: ${sets} sets<br>`;
+          });
+          
+          const row = document.createElement("tr");
+          const localBadge = _isLocal ? ' <small style="color: #ff9800;">📱 Local</small>' : '';
+          row.innerHTML = `
+            <td>${this.formatDisplayDate(entry_date)}${localBadge}</td>
+            <td>${weight || 'N/A'}</td>
+            <td>${completed}/${this.exercises.length}</td>
+            <td>${detailsHtml}</td>
+            <td>
+              <button onclick="alert('Edit functionality coming soon!')" style="background:none;border:none;font-size:16px;cursor:pointer;">📝</button>
+              <button onclick="alert('Delete functionality coming soon!')" style="background:none;border:none;font-size:16px;cursor:pointer;">🗑️</button>
+            </td>
+          `;
+          table.appendChild(row);
+        });
+        
+        if (!databaseAvailable) {
+          // Add warning message
+          const warningRow = document.createElement("tr");
+          warningRow.innerHTML = `
+            <td colspan="5" style="text-align: center; padding: 10px; background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7;">
+              ⚠️ Database connection unavailable. Showing local data only. Data will sync when connection is restored.
+            </td>
+          `;
+          table.appendChild(warningRow);
+        }
+      }
+      
+      document.getElementById("history-modal").style.display = "flex";
+    } catch (error) {
+      console.error('Error in showHistory:', error);
+      this.showMessage('❌ Error loading history: ' + error.message, 'error');
+    }
+  }
+  
+  getTodaysLocalData() {
+    try {
+  const today = this.getLocalDateKey();
+      
+      // First, try to get saved workout data
+      const stored = localStorage.getItem('current-workout');
+      let savedData = null;
+      
+      if (stored) {
+        const workoutData = JSON.parse(stored);
+        if (workoutData.date === today && workoutData.state) {
+          savedData = {
+            weight: workoutData.weight,
+            fitnessData: workoutData.state,
+            timestamp: workoutData.timestamp
+          };
+          console.log('Found today\'s saved data in localStorage:', savedData);
+        }
+      }
+      
+      // Also get current UI state (might be newer than saved data)
+      const currentFitnessData = {};
+      let hasCurrentData = false;
+      
+      this.exercises.forEach(exercise => {
+        const countEl = document.getElementById(`count-${exercise.name}`);
+        const count = parseInt(countEl?.textContent) || 0;
+        currentFitnessData[exercise.name] = count;
+        if (count > 0) hasCurrentData = true;
+      });
+      
+      const currentWeight = document.getElementById("weight")?.value;
+      const currentData = hasCurrentData || currentWeight ? {
+        weight: currentWeight ? parseFloat(currentWeight) || null : null,
+        fitnessData: currentFitnessData,
+        timestamp: new Date().toISOString()
+      } : null;
+      
+      if (currentData) {
+        console.log('Found current UI data:', currentData);
+      }
+      
+      // Combine saved and current data, using whichever has more exercise progress
+      if (savedData && currentData) {
+        const savedTotal = Object.values(savedData.fitnessData).reduce((sum, val) => sum + (val || 0), 0);
+        const currentTotal = Object.values(currentData.fitnessData).reduce((sum, val) => sum + (val || 0), 0);
+        
+        console.log(`Comparing data - Saved total: ${savedTotal}, Current total: ${currentTotal}`);
+        
+        // Use the data with more total progress, or current if they're equal
+        if (currentTotal >= savedTotal) {
+          return currentData;
+        } else {
+          return savedData;
+        }
+      }
+      
+      // Return whichever data we have
+      return currentData || savedData;
+      
+    } catch (error) {
+      console.error('Error getting local data:', error);
+      return null;
+    }
+  }
+  
+  // Comprehensive data recovery function
+  recoverAllTodaysData() {
+  const today = this.getLocalDateKey();
+    console.log('🔍 Performing comprehensive data recovery for:', today);
+    
+    // Check all possible localStorage keys for today's data
+    const possibleKeys = [
+      'current-workout',
+      'fitness-tracker-data',
+      'workout-' + today,
+      'daily-progress',
+      'session-data'
+    ];
+    
+    let recoveredData = [];
+    
+    possibleKeys.forEach(key => {
+      try {
+        const data = localStorage.getItem(key);
+        if (data) {
+          const parsed = JSON.parse(data);
+          if (parsed && (parsed.date === today || parsed.timestamp?.startsWith(today))) {
+            recoveredData.push({
+              source: key,
+              data: parsed
+            });
+            console.log(`📦 Found data in ${key}:`, parsed);
+          }
+        }
+      } catch (error) {
+        // Ignore parsing errors
+      }
+    });
+    
+    // Check if there's any current state in the UI
+    let currentUIData = null;
+    let hasUIData = false;
+    const uiState = {};
+    
+    this.exercises.forEach(exercise => {
+      const countEl = document.getElementById(`count-${exercise.name}`);
+      const count = parseInt(countEl?.textContent) || 0;
+      uiState[exercise.name] = count;
+      if (count > 0) hasUIData = true;
+    });
+    
+    if (hasUIData) {
+      const weight = document.getElementById('weight')?.value;
+      currentUIData = {
+        date: today,
+        state: uiState,
+        weight: weight ? parseFloat(weight) : null,
+        timestamp: new Date().toISOString(),
+        source: 'current-ui'
+      };
+      recoveredData.push({
+        source: 'current-ui',
+        data: currentUIData
+      });
+      console.log('📊 Found current UI data:', currentUIData);
+    }
+    
+    if (recoveredData.length > 0) {
+      console.log(`✅ Recovered ${recoveredData.length} data sources for today`);
+      return this.mergeTodaysData(recoveredData);
+    } else {
+      console.log('❌ No data found for today');
+      return null;
+    }
+  }
+  
+  // Merge multiple data sources into the best representation
+  mergeTodaysData(dataSources) {
+    if (!dataSources || dataSources.length === 0) return null;
+    
+    // Find the data source with the most progress
+    let bestData = null;
+    let maxProgress = -1;
+    
+    dataSources.forEach(({source, data}) => {
+      let progress = 0;
+      const fitnessData = data.state || data.fitnessData || {};
+      
+      Object.values(fitnessData).forEach(count => {
+        progress += (parseInt(count) || 0);
+      });
+      
+      console.log(`📈 ${source}: ${progress} total progress`);
+      
+      if (progress > maxProgress) {
+        maxProgress = progress;
+        bestData = {
+          weight: data.weight,
+          fitnessData: fitnessData,
+          timestamp: data.timestamp,
+          source: source
+        };
+      }
+    });
+    
+    if (bestData) {
+      console.log(`🏆 Best data source: ${bestData.source} with ${maxProgress} total progress`);
+    }
+    
+    return bestData;
+  }
+
+  // Force sync local data to database
+  async syncLocalDataToDatabase() {
+    console.log('🔄 Attempting to sync local data to database...');
+    
+    try {
+      const localData = this.recoverAllTodaysData();
+      
+      if (!localData || !localData.fitnessData) {
+        console.log('No local data to sync');
+        return false;
+      }
+      
+      // Always sync the latest local data to database (don't skip if entry exists)
+  const today = this.getLocalDateKey();
+      console.log('Syncing local data to database:', localData);
+      
+      const syncResponse = await fetch('/api/entries', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(this.authToken && { 'Authorization': `Bearer ${this.authToken}` })
+        },
+        body: JSON.stringify({
+          date: today,
+          weight: localData.weight,
+          fitnessData: localData.fitnessData
+        })
+      });
+      
+      if (syncResponse.ok) {
+        const result = await syncResponse.json();
+        console.log('✅ Local data successfully synced to database:', result);
+        return true;
+      } else {
+        const errorText = await syncResponse.text();
+        throw new Error(`Sync failed: HTTP ${syncResponse.status}: ${errorText}`);
+      }
+      
+    } catch (error) {
+      console.error('❌ Failed to sync local data to database:', error);
+      return false;
+    }
+  }
+
+  // Enhanced showHistory with forced sync
+  async showHistoryWithSync() {
+    // First, try to sync any local data to database
+    await this.syncLocalDataToDatabase();
+    
+    // Then show history (which will now include the synced data)
+    await this.showHistory();
+  }
+
+  async showSummary() {
+    try {
+      // First, sync any current data to database to ensure it's included in summary
+      await this.syncLocalDataToDatabase();
+      
+      console.log('Fetching summary data...');
+      
+      const headers = {};
+      if (this.authToken) {
+        headers['Authorization'] = `Bearer ${this.authToken}`;
+      }
+      
+      const response = await fetch('/api/summary', {
+        headers: headers
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const weeks = await response.json();
+      console.log('Summary data received:', weeks);
+      
+      const table = document.getElementById("summary-table");
+      table.innerHTML = "";
+      
+      if (!weeks || weeks.length === 0) {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td colspan="14" style="text-align: center; padding: 20px; color: #666;">
+            No workout data available yet. Start tracking your workouts to see weekly summaries!
+          </td>
+        `;
+        table.appendChild(row);
+      } else {
+        weeks.forEach(row => {
+          const totals = row.totals || {};
+          const totalSets = Object.values(totals).reduce((a, b) => a + parseInt(b || 0), 0);
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${this.formatDisplayDate(row.week_of_sunday)}</td>
+            <td>${row.weight_avg || 'N/A'}</td>
+            <td>${totals['Bike'] || 0}</td>
+            <td>${totals['Abs'] || 0}</td>
+            <td>${totals['Chest Press'] || 0}</td>
+            <td>${totals['Leg Press'] || 0}</td>
+            <td>${totals['Lat'] || 0}</td>
+            <td>${totals['Military'] || 0}</td>
+            <td>${totals['Crunch'] || 0}</td>
+            <td>${totals['Bicep Curls'] || 0}</td>
+            <td>${totals['Triceps'] || 0}</td>
+            <td>${totals['Overhead Pull'] || 0}</td>
+            <td>${totals['Row'] || 0}</td>
+            <td><strong>${totalSets}</strong></td>
+          `;
+          table.appendChild(tr);
+        });
+      }
+      
+      document.getElementById("summary-modal").style.display = "flex";
+    } catch (error) {
+      console.error('Summary fetch error:', error);
+      alert('Failed to load summary: ' + error.message);
+    }
+  }
+
+  formatDisplayDate(dateString) {
+    try {
+      const cleanDate = dateString.split('T')[0];
+      const [year, month, day] = cleanDate.split('-');
+      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      const formattedMonth = (date.getMonth() + 1).toString().padStart(2, '0');
+      const formattedDay = date.getDate().toString().padStart(2, '0');
+      const formattedYear = date.getFullYear().toString().slice(-2);
+      return `${formattedMonth}/${formattedDay}/${formattedYear}`;
+    } catch (error) {
+      console.error('Date formatting error:', error, 'for date:', dateString);
+      return dateString;
+    }
+  }
+
+  resetProgress() {
+    this.exercises.forEach(exercise => {
+      const countEl = document.getElementById(`count-${exercise.name}`);
+      const setsEl = document.getElementById(`sets-${exercise.name}`);
+      
+      if (countEl) countEl.textContent = '0';
+      if (setsEl) setsEl.textContent = '0';
+      
+      // Reset buttons
+      const minusBtn = document.querySelector(`[data-name="${exercise.name}"][data-delta="-1"]`);
+      const plusBtn = document.querySelector(`[data-name="${exercise.name}"][data-delta="1"]`);
+      
+      if (minusBtn) minusBtn.disabled = true;
+      if (plusBtn) plusBtn.disabled = false;
+      
+      // Remove completed class
+      const station = document.getElementById(`station-${exercise.name}`);
+      if (station) station.classList.remove('completed');
+    });
+    
+    // Clear weight
+    const weightInput = document.getElementById('weight');
+    if (weightInput) weightInput.value = '';
+    
+    this.updateProgress();
+    console.log('Progress reset!');
+  }
+
+  logout() {
+    this.isAuthenticated = false;
+    document.getElementById('loginOverlay').classList.remove('hidden');
+    document.getElementById('app-container').style.display = 'none';
+    
+    // Reset login form
+    const formContent = document.getElementById('formContent');
+    const signInHeader = document.getElementById('signInHeader');
+    const forgotSection = document.getElementById('forgotSection');
+    
+    if (formContent) formContent.classList.remove('show');
+    if (signInHeader) signInHeader.classList.remove('expanded');
+    if (forgotSection) forgotSection.classList.remove('show');
+    
+    console.log('Logged out');
+  }
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('Initializing Fitness Tracker...');
+  window.fitnessTracker = new FitnessTracker();
+
+  // Optional self-test mode: open page with ?selftest=1
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('selftest') === '1') {
+    (function runSelfTests(){
+      console.log('%c[SELFTEST] Starting frontend self-tests','color:#1976d2;font-weight:bold');
+      // Mock fetch to avoid network dependency
+      const realFetch = window.fetch;
+      window.fetch = async (url, opts={}) => {
+        if (typeof url === 'string') {
+          if (url.startsWith('/api/auth/verify')) {
+            return new Response(JSON.stringify({user:{email:'selftest@example.com'}}), {status:200});
+          }
+          if (url.startsWith('/api/entries') && (!opts.method || opts.method === 'GET')) {
+            return new Response(JSON.stringify([]), {status:200});
+          }
+          if (url.startsWith('/api/entries') && opts.method === 'POST') {
+            return new Response(JSON.stringify({status:'ok', stored: true}), {status:200});
+          }
+          if (url.startsWith('/api/summary')) {
+            return new Response(JSON.stringify([]), {status:200});
+          }
+        }
+        return realFetch(url, opts);
+      };
+
+      const tracker = window.fitnessTracker;
+      const failures = [];
+      function assert(cond, msg){ if(!cond){ failures.push(msg); console.error('[SELFTEST][FAIL]', msg);} else { console.log('[SELFTEST][PASS]', msg);} }
+
+      // Test date key = local date
+      const localKey = tracker.getLocalDateKey();
+      const now = new Date();
+      const expected = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+      assert(localKey === expected, 'Local date key matches system local date');
+
+      // Simulate some progress
+      setTimeout(() => {
+        const first = tracker.exercises[0].name;
+        const plusBtn = document.querySelector(`[data-name="${first}"][data-delta="1"]`);
+        if (plusBtn) { plusBtn.click(); plusBtn.click(); }
+        const countEl = document.getElementById(`count-${first}`);
+        assert(parseInt(countEl.textContent) === 2, 'Incrementing exercise updates count');
+
+        // Set weight
+        const weightEl = document.getElementById('weight');
+        if (weightEl) { weightEl.value = '180'; tracker.markAsChanged(); }
+        tracker.saveCurrentWorkout();
+        const stored = JSON.parse(localStorage.getItem('current-workout')||'{}');
+        assert(stored.date === localKey, 'Saved workout uses local date key');
+        assert(stored.state && typeof stored.state === 'object', 'Workout state saved');
+        assert(stored.weight === '180' || stored.weight === 180, 'Weight saved');
+
+        // Test history augmentation (will mock empty db and inject local)
+        tracker.showHistory().then(()=>{
+          console.log('[SELFTEST] History modal attempted (mocked)');
+          finish();
+        }).catch(e=>{ failures.push('showHistory threw: '+e.message); finish(); });
+      }, 300);
+
+      function finish(){
+        if (failures.length === 0) {
+          console.log('%c[SELFTEST] All self-tests passed','color:#2e7d32;font-weight:bold');
+        } else {
+          console.warn('[SELFTEST] Failures:', failures);
+        }
+      }
+    })();
+  }
+});
+
+// Close modals when clicking outside
+document.addEventListener('click', (e) => {
+  // Only close modal if clicking on the modal background itself
+  if (e.target.id === 'history-modal') {
+    document.getElementById('history-modal').style.display = 'none';
+  }
+  if (e.target.id === 'summary-modal') {
+    document.getElementById('summary-modal').style.display = 'none';
+  }
+});
+
+// Prevent modal content clicks from closing the modal
+document.addEventListener('click', (e) => {
+  if (e.target.closest('#history-content') || e.target.closest('#summary-content')) {
+    e.stopPropagation();
+  }
+});
+</script>
+
+</body>
+</html>

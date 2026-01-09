@@ -1,0 +1,5 @@
+<!DOCTYPE html>
+<!-- MODERN UI SNAPSHOT (VERBATIM). Captured 2025-08-24. Do NOT edit. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />

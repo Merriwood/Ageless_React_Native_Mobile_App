@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Logo Editor</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #f0f0f0;
+        }
+        .container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 10px;
+        }
+        h1 { 
+            color: #333; 
+            text-align: center; 
+        }
+        .button { 
+            background: #CC0000; 
+            color: white; 
+            border: none; 
+            padding: 20px 40px; 
+            font-size: 20px; 
+            margin: 15px; 
+            cursor: pointer; 
+            border-radius: 8px;
+            display: block;
+            width: 300px;
+            margin: 20px auto;
+        }
+        .button:hover { 
+            background: #990000; 
+        }
+        .button:disabled { 
+            background: #ccc; 
+        }
+        canvas { 
+            border: 2px solid #000; 
+            margin: 20px;
+            background: white;
+        }
+        .canvases {
+            text-align: center;
+        }
+        .status {
+            text-align: center;
+            padding: 15px;
+            margin: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .info { background: #cce7f0; color: #055160; }
+        input[type="file"] {
+            padding: 10px;
+            margin: 20px auto;
+            display: block;
+            border: 2px dashed #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Heart Logo Editor - Benjamin Moore Red</h1>
+        
+        <div class="status info" id="status">Ready to start</div>
+        
+        <input type="file" id="fileInput" accept="image/*">
+        
+        <button class="button" onclick="loadLogo()">LOAD EXISTING LOGO</button>
+        
+        <div class="canvases">
+            <h3>Original Logo</h3>
+            <canvas id="original" width="300" height="300"></canvas>
+            
+            <h3>Modified Logo (Benjamin Moore Red + White Outline)</h3>
+            <canvas id="modified" width="300" height="300"></canvas>
+        </div>
+        
+        <button class="button" onclick="processLogo()" id="processBtn">APPLY PROFESSIONAL CHANGES</button>
+        
+        <button class="button" onclick="downloadLogo()" id="downloadBtn">DOWNLOAD PNG LOGO</button>
+    </div>
+
+    <script>
+        const originalCanvas = document.getElementById('original');
+        const modifiedCanvas = document.getElementById('modified');
+        const originalCtx = originalCanvas.getContext('2d');
+        const modifiedCtx = modifiedCanvas.getContext('2d');
+        const status = document.getElementById('status');
+        const fileInput = document.getElementById('fileInput');
+        
+        let imageLoaded = false;
+        let originalImageData = null;
+
+        function updateStatus(msg, type = 'info') {
+            status.textContent = msg;
+            status.className = `status ${type}`;
+        }
+
+        function loadLogo() {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            
+            img.onload = function() {
+                originalCanvas.width = img.width;
+                originalCanvas.height = img.height;
+                modifiedCanvas.width = img.width;
+                modifiedCanvas.height = img.height;
+                
+                originalCtx.drawImage(img, 0, 0);
+                originalImageData = originalCtx.getImageData(0, 0, img.width, img.height);
+                imageLoaded = true;
+                
+                updateStatus('Logo loaded! Now click APPLY PROFESSIONAL CHANGES', 'success');
+                document.getElementById('processBtn').style.background = '#CC0000';
+            };
+            
+            img.onerror = function() {
+                updateStatus('Could not load. Please use file upload instead.', 'info');
+            };
+            
+            img.src = 'icons/heart_logo_icon.png';
+        }
+
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        originalCanvas.width = img.width;
+                        originalCanvas.height = img.height;
+                        modifiedCanvas.width = img.width;
+                        modifiedCanvas.height = img.height;
+                        
+                        originalCtx.drawImage(img, 0, 0);
+                        originalImageData = originalCtx.getImageData(0, 0, img.width, img.height);
+                        imageLoaded = true;
+                        
+                        updateStatus('File uploaded! Now click APPLY PROFESSIONAL CHANGES', 'success');
+                        document.getElementById('processBtn').style.background = '#CC0000';
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function processLogo() {
+            if (!imageLoaded) {
+                updateStatus('Please load a logo first!', 'info');
+                return;
+            }
+
+            updateStatus('Creating Benjamin Moore Red with white outline...', 'info');
+
+            // Clear the canvas
+            modifiedCtx.clearRect(0, 0, modifiedCanvas.width, modifiedCanvas.height);
+            
+            // Create a temporary canvas to work with the original image
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = originalCanvas.width;
+            tempCanvas.height = originalCanvas.height;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            // Draw original image to temp canvas
+            tempCtx.putImageData(originalImageData, 0, 0);
+            
+            // Step 1: Draw the heart multiple times with slight offsets to create white outline
+            modifiedCtx.globalCompositeOperation = 'source-over';
+            
+            // Draw white outline by offsetting the image in 8 directions
+            const outlineWidth = 2; // Adjust this for thicker/thinner outline
+            modifiedCtx.fillStyle = 'white';
+            
+            for (let x = -outlineWidth; x <= outlineWidth; x++) {
+                for (let y = -outlineWidth; y <= outlineWidth; y++) {
+                    if (x !== 0 || y !== 0) {
+                        // Create white "shadow" effect
+                        modifiedCtx.save();
+                        modifiedCtx.globalCompositeOperation = 'source-over';
+                        modifiedCtx.shadowColor = 'white';
+                        modifiedCtx.shadowBlur = 0;
+                        modifiedCtx.shadowOffsetX = x;
+                        modifiedCtx.shadowOffsetY = y;
+                        modifiedCtx.drawImage(tempCanvas, 0, 0);
+                        modifiedCtx.restore();
+                    }
+                }
+            }
+            
+            // Step 2: Draw the original heart shape on top, but filled with Benjamin Moore Red
+            modifiedCtx.globalCompositeOperation = 'source-atop';
+            modifiedCtx.fillStyle = '#CC0000';
+            
+            // Get the image data and replace non-transparent pixels with red
+            const imageData = modifiedCtx.getImageData(0, 0, modifiedCanvas.width, modifiedCanvas.height);
+            const data = imageData.data;
+            const original = originalImageData.data;
+            
+            for (let i = 0; i < original.length; i += 4) {
+                if (original[i + 3] > 0) { // If original pixel is not transparent
+                    // Check if this should be the outline (white) or fill (red)
+                    const x = (i / 4) % originalCanvas.width;
+                    const y = Math.floor((i / 4) / originalCanvas.width);
+                    
+                    // Simple approach: if it's near the edge, make it white
+                    let isNearEdge = false;
+                    const checkRadius = 1;
+                    
+                    for (let dx = -checkRadius; dx <= checkRadius && !isNearEdge; dx++) {
+                        for (let dy = -checkRadius; dy <= checkRadius && !isNearEdge; dy++) {
+                            const checkX = x + dx;
+                            const checkY = y + dy;
+                            
+                            if (checkX >= 0 && checkX < originalCanvas.width && 
+                                checkY >= 0 && checkY < originalCanvas.height) {
+                                const checkIndex = (checkY * originalCanvas.width + checkX) * 4;
+                                if (original[checkIndex + 3] === 0) {
+                                    isNearEdge = true;
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (isNearEdge) {
+                        // White outline
+                        data[i] = 255;     // R
+                        data[i + 1] = 255; // G
+                        data[i + 2] = 255; // B
+                        data[i + 3] = original[i + 3]; // A
+                    } else {
+                        // Benjamin Moore Red fill
+                        data[i] = 204;     // R
+                        data[i + 1] = 0;   // G
+                        data[i + 2] = 0;   // B
+                        data[i + 3] = original[i + 3]; // A
+                    }
+                } else {
+                    // Keep transparent
+                    data[i] = 0;
+                    data[i + 1] = 0;
+                    data[i + 2] = 0;
+                    data[i + 3] = 0;
+                }
+            }
+
+            modifiedCtx.putImageData(imageData, 0, 0);
+            updateStatus('SUCCESS! Professional changes applied. Click DOWNLOAD to save.', 'success');
+            document.getElementById('downloadBtn').style.background = '#CC0000';
+        }
+
+        function downloadLogo() {
+            const link = document.createElement('a');
+            link.download = 'heart_logo_benjamin_moore_red.png';
+            link.href = modifiedCanvas.toDataURL('image/png');
+            link.click();
+            updateStatus('Logo downloaded successfully!', 'success');
+        }
+
+        // Auto-load on start
+        window.onload = function() {
+            updateStatus('Click LOAD EXISTING LOGO to start', 'info');
+        };
+    </script>
+</body>
+</html>

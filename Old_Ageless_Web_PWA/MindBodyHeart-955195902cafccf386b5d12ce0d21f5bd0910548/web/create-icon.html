@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mind. Body. Heart. Icon Generator</title>
+</head>
+<body>
+    <h2>Mind. Body. Heart. Heart Icon Generator</h2>
+    <p>Clean heart icon with white fill and red border (GoDaddy style)</p>
+    <p>Right-click the icon below and "Save image as..." to download as PNG</p>
+    
+    <canvas id="icon" width="180" height="180" style="border: 1px solid #ccc; margin: 20px;"></canvas>
+    
+    <br>
+    <button onclick="generateIcon()">Generate Icon</button>
+    <button onclick="downloadIcon()">Download Icon</button>
+
+    <script>
+        function generateIcon() {
+            const canvas = document.getElementById('icon');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, 180, 180);
+            
+            // Background gradient (subtle)
+            const gradient = ctx.createLinearGradient(0, 0, 0, 180);
+            gradient.addColorStop(0, '#FFFFFF');
+            gradient.addColorStop(1, '#F8F8F8');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 180, 180);
+            
+            // Add rounded corners
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.beginPath();
+            ctx.roundRect(0, 0, 180, 180, 20);
+            ctx.fill();
+            ctx.globalCompositeOperation = 'source-over';
+            
+            // Create heart shape (larger, centered)
+            const centerX = 90;
+            const centerY = 95;
+            const size = 1.8; // Scale factor
+            
+            ctx.beginPath();
+            // Heart shape using bezier curves
+            ctx.moveTo(centerX, centerY + 15 * size);
+            
+            // Left side of heart
+            ctx.bezierCurveTo(
+                centerX - 25 * size, centerY - 10 * size,
+                centerX - 45 * size, centerY - 10 * size,
+                centerX - 45 * size, centerY + 5 * size
+            );
+            ctx.bezierCurveTo(
+                centerX - 45 * size, centerY + 20 * size,
+                centerX - 25 * size, centerY + 35 * size,
+                centerX, centerY + 50 * size
+            );
+            
+            // Right side of heart
+            ctx.bezierCurveTo(
+                centerX + 25 * size, centerY + 35 * size,
+                centerX + 45 * size, centerY + 20 * size,
+                centerX + 45 * size, centerY + 5 * size
+            );
+            ctx.bezierCurveTo(
+                centerX + 45 * size, centerY - 10 * size,
+                centerX + 25 * size, centerY - 10 * size,
+                centerX, centerY + 15 * size
+            );
+            
+            // Fill heart with white
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fill();
+            
+            // Add red border (GoDaddy style)
+            ctx.strokeStyle = '#DC2626'; // Red border
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            
+            // Add subtle inner shadow effect
+            ctx.globalCompositeOperation = 'multiply';
+            ctx.fillStyle = 'rgba(0,0,0,0.05)';
+            ctx.fill();
+            ctx.globalCompositeOperation = 'source-over';
+        }
+        
+        function downloadIcon() {
+            const canvas = document.getElementById('icon');
+            const link = document.createElement('a');
+            link.download = 'heart-icon-source.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        // Generate icon on page load
+        generateIcon();
+    </script>
+</body>
+</html>

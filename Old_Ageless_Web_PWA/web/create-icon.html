@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Icon Generator</title>
+</head>
+<body>
+    <h2>Fitness Tracker Icon Generator</h2>
+    <p>Right-click the icon below and "Save image as..." to download as PNG</p>
+    
+    <canvas id="icon" width="180" height="180" style="border: 1px solid #ccc; margin: 20px;"></canvas>
+    
+    <br>
+    <button onclick="generateIcon()">Generate Icon</button>
+    <button onclick="downloadIcon()">Download Icon</button>
+
+    <script>
+        function generateIcon() {
+            const canvas = document.getElementById('icon');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, 180, 180);
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, 180);
+            gradient.addColorStop(0, '#434C5E');
+            gradient.addColorStop(1, '#2E3440');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 180, 180);
+            
+            // Add rounded corners
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.beginPath();
+            ctx.roundRect(0, 0, 180, 180, 20);
+            ctx.fill();
+            ctx.globalCompositeOperation = 'source-over';
+            
+            // Draw dumbbell icon
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.fillStyle = '#FFFFFF';
+            ctx.lineWidth = 6;
+            
+            // Dumbbell bar
+            ctx.beginPath();
+            ctx.moveTo(60, 90);
+            ctx.lineTo(120, 90);
+            ctx.stroke();
+            
+            // Left weight
+            ctx.fillRect(45, 75, 20, 30);
+            ctx.fillRect(40, 80, 10, 20);
+            
+            // Right weight
+            ctx.fillRect(115, 75, 20, 30);
+            ctx.fillRect(130, 80, 10, 20);
+            
+            // Add "FT" text below
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('FT', 90, 125);
+            
+            // Add small activity dots
+            ctx.fillStyle = '#88C0D0';
+            ctx.beginPath();
+            ctx.arc(90, 140, 3, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(80, 140, 2, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(100, 140, 2, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+        
+        function downloadIcon() {
+            const canvas = document.getElementById('icon');
+            const link = document.createElement('a');
+            link.download = 'fitness-tracker-icon.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        // Generate icon on page load
+        generateIcon();
+    </script>
+</body>
+</html>

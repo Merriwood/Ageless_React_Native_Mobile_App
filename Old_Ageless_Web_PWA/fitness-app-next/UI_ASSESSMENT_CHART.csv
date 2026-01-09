@@ -1,0 +1,39 @@
+#,Component,Status,Discrepancy,Proposed Fix,Priority,Time
+1,PWA Red Header,Missing,No fixed header bar with brand red (#C5282F) background at top,"Create components/layout/PWAHeader.tsx - Fixed position, red background, centered title, profile button right",Critical,1-2h
+2,PWA Bottom Navigation,Missing,No bottom nav with Dashboard/History/Summary tabs,"Create components/layout/PWANav.tsx - 3 nav items, active states (red), safe-area-inset padding",Critical,2-3h
+3,Login Screen Structure,Wrong,Generic card layout vs. original collapsible sections with Face ID,"Rebuild app/(auth)/login/page.tsx - Add logo, Face ID icon, collapsible form, password toggle, Save user ID checkbox",High,3-4h
+4,Face ID Icon,Missing,No Face ID icon with scanning animation on login,"Copy face_id_icon.png from /web/icons/, create components/auth/FaceIDIcon.tsx with scan animation",High,1h
+5,Menu/Dropdown System,Missing,No menu icon or dropdown in top-right corner,"Create components/ui/MenuDropdown.tsx - Fixed position, menu icon, dropdown with History/Summary/Profile/Logout",High,2-3h
+6,Exercise Card Buttons,Incorrect,Buttons 48×48px with 24px radius instead of 44×44px with 14px radius,"Update app/dashboard/page.tsx buttons to w-11 h-11 rounded-[14px], add shadow-[0_4px_10px_rgba(0,0,0,0.12)]",Critical,1h
+7,Button Count Display,Incorrect,Count shows as 32px (text-3xl) instead of 22px,Change count to text-[22px] instead of text-3xl in dashboard cards,Medium,15min
+8,Exercise Grid Layout,Incorrect,Fixed columns (sm:grid-cols-2) vs. auto-fill responsive,Change to grid-cols-[repeat(auto-fill,minmax(240px,1fr))] and gap-5 (20px),Medium,30min
+9,History Table Styling,Incomplete,"No sticky headers, wrong hover color, missing column widths","Add position: sticky to headers, set column widths (Date: 80px, Weight: 70px, etc.), change hover to #f9f9f9",High,1-2h
+10,Summary Table Styling,Incomplete,Same issues as History table,Apply same fixes as History table - sticky headers, column widths, hover states,High,1h
+11,Modal Header Buttons,Incorrect,Close button styling doesn't match original (black background),Update close button to bg-black hover:bg-[#111] instead of primary red,Medium,15min
+12,Toast Notifications,Missing,Basic message display vs. animated toast component,"Create components/ui/Toast.tsx - Slide-up animation, fixed bottom position, auto-dismiss",Medium,1h
+13,Icons & Favicons,Incomplete,"Missing face_id_icon.png, menu_icon.png, favicon-16x16.png","Copy 5 icons from /web/icons/ to /public/icons/: face_id, menu, favicon-16x16, help, bag",Critical,30min
+14,Manifest.json,Incorrect,"Wrong background_color (#F7F7F9 vs #FFFFFF), missing fields","Update background_color: #FFFFFF, add id, lang, dir, mbh_appVersion fields",Medium,15min
+15,Login Container Dimensions,Incorrect,No fixed 375px width or 667px min-height,Add w-[375px] min-h-[667px] classes to login container,High,15min
+16,Password Toggle,Missing,No eye icon (👁) to show/hide password,Add eye toggle button to password input field,High,30min
+17,Collapsible Form Section,Missing,Form always visible vs. collapsible with arrow (⌄),Add collapsible state with arrow rotation animation,High,1h
+18,App Logo,Not Used,Logo exists but not displayed on login or dashboard,Add logo to login header (72×72px) and optionally to dashboard header,Medium,30min
+19,Welcome Card,Missing,No separate welcome section card with Face ID above form,Create welcome section card between header and form section,High,30min
+20,Station Completed State,Exists,Green border/shadow defined but ensure it's properly applied,Verify .completed class applies green border (#31a24c) and shadow - already in code,OK,0min
+21,Form Input Styling,Correct,"Perfect match on height (44px), border, focus states",No changes needed,OK,0min
+22,Color System,Perfect,All design tokens match exactly,No changes needed,OK,0min
+23,Typography,Correct,"Font stack, sizes, weights all match",No changes needed,OK,0min
+24,Shadows & Spacing,Correct,Design tokens accurate,No changes needed,OK,0min
+25,Animations Defined,Unused,Animations in CSS but components not using them,"Apply animations: Face ID scan, modal transitions, toast slide-up",Medium,1h
+
+Category,Value,Count,Percentage
+SUMMARY STATISTICS,,,,,,
+Total Components Assessed,25,,,,
+Correct (No Changes),5,20%,,,
+Needs Fixes,12,48%,,,
+Missing/Wrong,8,32%,,,
+Estimated Total Fix Time,15-20 hours,,,,
+
+PRIORITY BREAKDOWN,,,,,,
+Critical (Deploy-Blocking),4 items,5 hours,,,
+High (UX Consistency),10 items,9-12 hours,,,
+Medium (Polish),6 items,3-4 hours,,,

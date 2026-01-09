@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Logo Color Analysis & Correction</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #f0f0f0;
+        }
+        .container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 10px;
+        }
+        h1 { 
+            color: #333; 
+            text-align: center; 
+        }
+        .button { 
+            background: #CC0000; 
+            color: white; 
+            border: none; 
+            padding: 20px 40px; 
+            font-size: 20px; 
+            margin: 15px auto; 
+            cursor: pointer; 
+            border-radius: 8px;
+            display: block;
+            width: 300px;
+        }
+        .button:hover { 
+            background: #990000; 
+        }
+        canvas { 
+            border: 2px solid #000; 
+            margin: 20px;
+            background: white;
+        }
+        .canvas-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .canvas-box {
+            text-align: center;
+        }
+        .status {
+            text-align: center;
+            padding: 15px;
+            margin: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .info { background: #cce7f0; color: #055160; }
+        .warning { background: #fff3cd; color: #856404; }
+        .analysis {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #dee2e6;
+        }
+        .color-sample {
+            display: inline-block;
+            width: 30px;
+            height: 20px;
+            border: 1px solid #000;
+            margin: 0 5px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Heart Logo Color Analysis & Correction</h1>
+        
+        <div class="status info" id="status">Upload your heart_logo_icon.png for color analysis</div>
+        
+        <div style="text-align: center; margin: 20px;">
+            <input type="file" id="fileInput" accept="image/*" style="padding: 10px; border: 2px dashed #ccc; border-radius: 5px;">
+        </div>
+
+        <div id="colorAnalysis" class="analysis" style="display: none;">
+            <h3>🔍 Color Analysis of Your Logo:</h3>
+            <div id="analysisResults"></div>
+        </div>
+        
+        <div class="canvas-container">
+            <div class="canvas-box">
+                <h3>Your Original Logo</h3>
+                <canvas id="originalCanvas" width="300" height="300"></canvas>
+            </div>
+            <div class="canvas-box">
+                <h3>Corrected Logo</h3>
+                <canvas id="modifiedCanvas" width="300" height="300"></canvas>
+            </div>
+        </div>
+        
+        <div style="text-align: center;">
+            <p><strong>TARGET RESULT:</strong></p>
+            <p>Heart Outline: <span class="color-sample" style="background: white; border: 2px solid #000;"></span> WHITE</p>
+            <p>Background/Fill: <span class="color-sample" style="background: #CC0000;"></span> Benjamin Moore Red #CC0000</p>
+        </div>
+        
+        <button class="button" onclick="correctColors()" id="correctBtn" style="display: none;">CREATE FINE WHITE OUTLINE + RED BACKGROUND</button>
+        
+        <button class="button" onclick="downloadLogo()" id="downloadBtn" style="display: none;">DOWNLOAD CORRECTED PNG</button>
+    </div>
+
+    <script>
+        const originalCanvas = document.getElementById('originalCanvas');
+        const modifiedCanvas = document.getElementById('modifiedCanvas');
+        const originalCtx = originalCanvas.getContext('2d');
+        const modifiedCtx = modifiedCanvas.getContext('2d');
+        const status = document.getElementById('status');
+        const fileInput = document.getElementById('fileInput');
+        const colorAnalysis = document.getElementById('colorAnalysis');
+        const analysisResults = document.getElementById('analysisResults');
+        
+        let originalImageData = null;
+        let imageLoaded = false;
+
+        function updateStatus(msg, type = 'info') {
+            status.textContent = msg;
+            status.className = `status ${type}`;
+        }
+
+        function analyzeColors(imageData) {
+            const data = imageData.data;
+            const colorCounts = {};
+            const totalPixels = data.length / 4;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                const a = data[i + 3];
+                
+                if (a > 0) { // Only count non-transparent pixels
+                    const colorKey = `${r},${g},${b}`;
+                    colorCounts[colorKey] = (colorCounts[colorKey] || 0) + 1;
+                }
+            }
+            
+            // Sort colors by frequency
+            const sortedColors = Object.entries(colorCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10); // Top 10 colors
+            
+            let html = '<h4>Top Colors in Your Logo:</h4>';
+            sortedColors.forEach(([colorKey, count], index) => {
+                const [r, g, b] = colorKey.split(',').map(Number);
+                const percentage = ((count / totalPixels) * 100).toFixed(1);
+                const isBlack = r < 50 && g < 50 && b < 50;
+                const isWhite = r > 200 && g > 200 && b > 200;
+                
+                let description = '';
+                if (isBlack) description = ' (OUTLINE - will become WHITE)';
+                else if (isWhite) description = ' (BACKGROUND - will become RED)';
+                else description = ' (will become RED)';
+                
+                html += `<p>
+                    <span class="color-sample" style="background: rgb(${r},${g},${b});"></span>
+                    RGB(${r},${g},${b}) - ${percentage}% ${description}
+                </p>`;
+            });
+            
+            analysisResults.innerHTML = html;
+            colorAnalysis.style.display = 'block';
+        }
+
+        // Handle file upload
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        // Set canvas size to match original image
+                        originalCanvas.width = img.width;
+                        originalCanvas.height = img.height;
+                        modifiedCanvas.width = img.width;
+                        modifiedCanvas.height = img.height;
+                        
+                        // Draw original image
+                        originalCtx.drawImage(img, 0, 0);
+                        originalImageData = originalCtx.getImageData(0, 0, img.width, img.height);
+                        imageLoaded = true;
+                        
+                        // Analyze colors
+                        analyzeColors(originalImageData);
+                        
+                        updateStatus('✅ Logo loaded and analyzed! Review colors above, then correct.', 'success');
+                        document.getElementById('correctBtn').style.display = 'block';
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function correctColors() {
+            if (!imageLoaded) {
+                updateStatus('❌ Please upload a logo first!', 'warning');
+                return;
+            }
+
+            updateStatus('🔄 Creating fine white outline with Benjamin Moore Red background...', 'info');
+
+            const width = originalImageData.width;
+            const height = originalImageData.height;
+            const imageData = modifiedCtx.createImageData(width, height);
+            const data = imageData.data;
+            const original = originalImageData.data;
+
+            // First pass: Fill everything with Benjamin Moore Red
+            for (let i = 0; i < original.length; i += 4) {
+                const a = original[i + 3];
+                if (a > 0) {
+                    // Non-transparent pixels become red
+                    data[i] = 204;     // R
+                    data[i + 1] = 0;   // G
+                    data[i + 2] = 0;   // B
+                    data[i + 3] = a;   // A
+                } else {
+                    // Keep transparent
+                    data[i] = 0;
+                    data[i + 1] = 0;
+                    data[i + 2] = 0;
+                    data[i + 3] = 0;
+                }
+            }
+
+            // Second pass: Create fine white outline by detecting edges
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const index = (y * width + x) * 4;
+                    const currentAlpha = original[index + 3];
+
+                    if (currentAlpha > 0) {
+                        // Check if this pixel is on the edge (next to transparency)
+                        let isEdge = false;
+                        
+                        // Check 4 directions for edge detection (creates finer line)
+                        const directions = [
+                            [-1, 0], [1, 0], [0, -1], [0, 1]  // left, right, top, bottom
+                        ];
+                        
+                        for (let [dx, dy] of directions) {
+                            const nx = x + dx;
+                            const ny = y + dy;
+                            
+                            if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                                const neighborIndex = (ny * width + nx) * 4;
+                                const neighborAlpha = original[neighborIndex + 3];
+                                
+                                if (neighborAlpha === 0) {
+                                    isEdge = true;
+                                    break;
+                                }
+                            } else {
+                                // Outside bounds = edge
+                                isEdge = true;
+                                break;
+                            }
+                        }
+                        
+                        if (isEdge) {
+                            // Make edge pixels white for fine outline
+                            data[index] = 255;     // R
+                            data[index + 1] = 255; // G
+                            data[index + 2] = 255; // B
+                            data[index + 3] = currentAlpha; // A
+                        }
+                    }
+                }
+            }
+
+            modifiedCtx.putImageData(imageData, 0, 0);
+            updateStatus('✅ PERFECT! Fine white outline with Benjamin Moore Red background created!', 'success');
+            document.getElementById('downloadBtn').style.display = 'block';
+        }
+
+        function downloadLogo() {
+            const link = document.createElement('a');
+            link.download = 'heart_logo_fine_white_outline_red_background.png';
+            link.href = modifiedCanvas.toDataURL('image/png');
+            link.click();
+            updateStatus('✅ Corrected logo downloaded!', 'success');
+        }
+    </script>
+</body>
+</html>

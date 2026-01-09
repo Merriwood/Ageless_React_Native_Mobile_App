@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Date Format Test - Fitness Tracker</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #F0EFEA; }
+        .test-container { background: white; padding: 20px; border-radius: 10px; max-width: 600px; margin: 0 auto; }
+        .test-row { margin: 10px 0; padding: 10px; background: #f9f9f9; border-radius: 5px; }
+        .date-display { font-weight: bold; color: #585A57; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h2>📅 Date Format Test Results</h2>
+        <p>Testing the new MM/DD/YY format for iPhone compatibility:</p>
+        
+        <div class="test-row">
+            <strong>Database Format (YYYY-MM-DD):</strong> 2025-08-17<br>
+            <strong>Display Format (MM/DD/YY):</strong> <span class="date-display" id="test-date-1"></span>
+        </div>
+        
+        <div class="test-row">
+            <strong>Database Format (YYYY-MM-DD):</strong> 2025-12-25<br>
+            <strong>Display Format (MM/DD/YY):</strong> <span class="date-display" id="test-date-2"></span>
+        </div>
+        
+        <div class="test-row">
+            <strong>Database Format (YYYY-MM-DD):</strong> 2025-01-01<br>
+            <strong>Display Format (MM/DD/YY):</strong> <span class="date-display" id="test-date-3"></span>
+        </div>
+        
+        <h3>✅ Format Benefits:</h3>
+        <ul>
+            <li><strong>Shorter:</strong> Takes less space on iPhone screens</li>
+            <li><strong>Familiar:</strong> Standard US date format</li>
+            <li><strong>Consistent:</strong> Matches typical iPhone app patterns</li>
+            <li><strong>Touch-friendly:</strong> Easier to scan in mobile lists</li>
+        </ul>
+        
+        <p style="text-align: center; margin-top: 30px;">
+            <a href="./index.html" style="color: #585A57; text-decoration: none; padding: 10px 20px; background: #F0EFEA; border-radius: 5px;">
+                ← Back to Fitness Tracker
+            </a>
+        </p>
+    </div>
+    
+    <script>
+        // Format database date string (YYYY-MM-DD) to MM/DD/YY for display
+        function formatDisplayDate(dateString) {
+            const date = new Date(dateString + 'T00:00:00'); // Ensure local timezone
+            const month = (date.getMonth() + 1).toString().padStart(2,'0');
+            const day = date.getDate().toString().padStart(2,'0');
+            const year = date.getFullYear().toString().slice(-2);
+            return `${month}/${day}/${year}`;
+        }
+        
+        // Test the formatting
+        document.getElementById('test-date-1').textContent = formatDisplayDate('2025-08-17');
+        document.getElementById('test-date-2').textContent = formatDisplayDate('2025-12-25');
+        document.getElementById('test-date-3').textContent = formatDisplayDate('2025-01-01');
+        
+        console.log('Date formatting test completed');
+    </script>
+</body>
+</html>

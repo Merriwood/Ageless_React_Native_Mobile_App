@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Heart Logo - Benjamin Moore Red</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #f0f0f0;
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 10px;
+        }
+        h1 { 
+            color: #333; 
+            text-align: center; 
+        }
+        .button { 
+            background: #CC0000; 
+            color: white; 
+            border: none; 
+            padding: 20px 40px; 
+            font-size: 20px; 
+            margin: 15px auto; 
+            cursor: pointer; 
+            border-radius: 8px;
+            display: block;
+            width: 300px;
+        }
+        .button:hover { 
+            background: #990000; 
+        }
+        canvas { 
+            border: 2px solid #000; 
+            margin: 20px auto;
+            background: white;
+            display: block;
+        }
+        .status {
+            text-align: center;
+            padding: 15px;
+            margin: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .info { background: #cce7f0; color: #055160; }
+        .specs {
+            background: #e8f4fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Professional Heart Logo Creator</h1>
+        
+        <div class="specs">
+            <h3>🎨 Exact Specifications:</h3>
+            <p><strong>Background:</strong> Benjamin Moore Red #2000-10 (#CC0000)</p>
+            <p><strong>Heart Outline:</strong> White (#FFFFFF) - Fine, clean line</p>
+            <p><strong>Design:</strong> Professional graphics quality</p>
+        </div>
+        
+        <div class="status info" id="status">Ready to create professional heart logo</div>
+        
+        <canvas id="heartCanvas" width="400" height="400"></canvas>
+        
+        <button class="button" onclick="createHeartLogo()">CREATE PROFESSIONAL HEART LOGO</button>
+        
+        <button class="button" onclick="downloadLogo()">DOWNLOAD PNG LOGO</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('heartCanvas');
+        const ctx = canvas.getContext('2d');
+        const status = document.getElementById('status');
+        
+        function updateStatus(msg, type = 'info') {
+            status.textContent = msg;
+            status.className = `status ${type}`;
+        }
+
+        function createHeartLogo() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const size = 150; // Heart size
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Fill entire canvas with Benjamin Moore Red
+            ctx.fillStyle = '#CC0000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Create heart path
+            ctx.beginPath();
+            
+            // Heart shape using bezier curves
+            const x = centerX;
+            const y = centerY - 20;
+            
+            // Left side of heart
+            ctx.moveTo(x, y + size/4);
+            ctx.bezierCurveTo(x, y, x - size/2, y, x - size/2, y + size/4);
+            ctx.bezierCurveTo(x - size/2, y + size/2, x, y + size*0.75, x, y + size);
+            
+            // Right side of heart  
+            ctx.bezierCurveTo(x, y + size*0.75, x + size/2, y + size/2, x + size/2, y + size/4);
+            ctx.bezierCurveTo(x + size/2, y, x, y, x, y + size/4);
+            
+            ctx.closePath();
+            
+            // Fill heart with Benjamin Moore Red (same as background)
+            ctx.fillStyle = '#CC0000';
+            ctx.fill();
+            
+            // Add WHITE outline
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 4; // Fine white line
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            ctx.stroke();
+            
+            updateStatus('✅ Professional heart logo created with Benjamin Moore Red background and white outline!', 'success');
+        }
+
+        function downloadLogo() {
+            const link = document.createElement('a');
+            link.download = 'heart_logo_benjamin_moore_red_white_outline.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            updateStatus('✅ Logo downloaded successfully!', 'success');
+        }
+
+        // Auto-create on load
+        window.onload = function() {
+            createHeartLogo();
+        };
+    </script>
+</body>
+</html>

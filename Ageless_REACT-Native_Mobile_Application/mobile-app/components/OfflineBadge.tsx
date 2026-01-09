@@ -10,6 +10,7 @@
 
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
+import { theme } from '../theme';
 import { useUI } from '../context/UIContext';
 
 // ============================================================================
@@ -20,36 +21,35 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-    gap: 6,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.radius.md,
+    gap: theme.spacing.xs,
   },
   offline: {
-    backgroundColor: '#EF4444', // Red
+    backgroundColor: theme.colors.status.error,
   },
   syncing: {
-    backgroundColor: '#F97316', // Orange
+    backgroundColor: theme.colors.status.warning,
   },
   online: {
-    backgroundColor: '#10B981', // Green
+    backgroundColor: theme.colors.status.success,
   },
   text: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    ...theme.typography.label,
+    color: theme.colors.text.onPrimary,
   },
   dot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.text.onPrimary,
   },
   spinningDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.text.onPrimary,
   },
 });
 

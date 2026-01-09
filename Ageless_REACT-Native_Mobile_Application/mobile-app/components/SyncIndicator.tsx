@@ -20,6 +20,7 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
+import { theme } from '../theme';
 import { useUI } from '../context/UIContext';
 import { useOfflineQueue } from '../hooks/useOfflineQueue';
 import { useSyncTriggers } from '../hooks/useSyncTriggers';
@@ -34,202 +35,191 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: theme.colors.overlay,
   },
   modalView: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    margin: theme.spacing.lg,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.lg,
+    padding: theme.spacing.lg,
+    ...theme.shadows.lg,
     maxHeight: '80%',
   },
 
   // Header
   header: {
-    marginBottom: 20,
+    marginBottom: theme.spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-    paddingBottom: 12,
+    borderBottomColor: theme.colors.border.light,
+    paddingBottom: theme.spacing.md,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1F2937',
+    ...theme.typography.h3,
+    color: theme.colors.text.primary,
   },
 
   // Status rows
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 8,
+    paddingVertical: theme.spacing.base,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: theme.colors.surfaceAlt,
   },
   lastRow: {
     borderBottomWidth: 0,
   },
   label: {
-    fontSize: 14,
-    color: '#6B7280',
+    ...theme.typography.bodySmall,
+    color: theme.colors.text.secondary,
     fontWeight: '500',
   },
   value: {
-    fontSize: 14,
-    color: '#1F2937',
+    ...theme.typography.bodySmall,
+    color: theme.colors.text.primary,
     fontWeight: '600',
   },
 
   // Status badges
   statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.radius.sm,
     alignSelf: 'flex-start',
   },
   statusPending: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: theme.colors.status.warning + '20',
   },
   statusSyncing: {
-    backgroundColor: '#DBEAFE',
+    backgroundColor: theme.colors.status.warning + '20',
   },
   statusError: {
-    backgroundColor: '#FEE2E2',
+    backgroundColor: theme.colors.status.error + '20',
   },
   statusText: {
-    fontSize: 12,
-    fontWeight: '600',
+    ...theme.typography.label,
   },
   statusTextPending: {
-    color: '#B45309',
+    color: theme.colors.status.warning,
   },
   statusTextSyncing: {
-    color: '#1E40AF',
+    color: theme.colors.status.warning,
   },
   statusTextError: {
-    color: '#991B1B',
+    color: theme.colors.status.error,
   },
 
   // Sections
   section: {
-    marginTop: 16,
+    marginTop: theme.spacing.lg,
   },
   sectionTitle: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#6B7280',
+    ...theme.typography.label,
+    color: theme.colors.text.secondary,
     textTransform: 'uppercase',
-    marginBottom: 8,
+    marginBottom: theme.spacing.md,
     letterSpacing: 0.5,
   },
 
   // Items list
   itemsContainer: {
-    backgroundColor: '#F9FAFB',
-    borderRadius: 8,
-    padding: 8,
-    gap: 8,
+    backgroundColor: theme.colors.surfaceAlt,
+    borderRadius: theme.radius.md,
+    padding: theme.spacing.base,
+    gap: theme.spacing.base,
     maxHeight: 150,
   },
   itemRow: {
-    backgroundColor: 'white',
-    padding: 8,
-    borderRadius: 6,
+    backgroundColor: theme.colors.surface,
+    padding: theme.spacing.base,
+    borderRadius: theme.radius.md,
     borderLeftWidth: 3,
-    borderLeftColor: '#F97316',
+    borderLeftColor: theme.colors.status.warning,
   },
   itemDate: {
-    fontSize: 12,
-    color: '#6B7280',
-    marginBottom: 2,
+    ...theme.typography.label,
+    color: theme.colors.text.secondary,
+    marginBottom: theme.spacing.xs,
   },
   itemStatus: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#1F2937',
+    ...theme.typography.label,
+    color: theme.colors.text.primary,
   },
 
   // Conflicts section
   conflictContainer: {
-    backgroundColor: '#FEF2F2',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 8,
+    backgroundColor: theme.colors.status.error + '10',
+    borderRadius: theme.radius.md,
+    padding: theme.spacing.md,
+    marginBottom: theme.spacing.base,
   },
   conflictTitle: {
-    fontSize: 13,
+    ...theme.typography.bodySmall,
+    color: theme.colors.status.error,
+    marginBottom: theme.spacing.md,
     fontWeight: '600',
-    color: '#991B1B',
-    marginBottom: 8,
   },
   conflictButtons: {
     flexDirection: 'row',
-    gap: 8,
+    gap: theme.spacing.base,
   },
   conflictButton: {
     flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 6,
+    paddingVertical: theme.spacing.base,
+    paddingHorizontal: theme.spacing.md,
+    borderRadius: theme.radius.md,
     alignItems: 'center',
   },
   keepLocalButton: {
-    backgroundColor: '#DC2626',
+    backgroundColor: theme.colors.status.error,
   },
   useServerButton: {
-    backgroundColor: '#6B7280',
+    backgroundColor: theme.colors.text.secondary,
   },
   conflictButtonText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: '600',
+    color: theme.colors.text.onPrimary,
+    ...theme.typography.label,
   },
 
   // Buttons
   buttonRow: {
     flexDirection: 'row',
-    gap: 8,
-    marginTop: 20,
+    gap: theme.spacing.base,
+    marginTop: theme.spacing.lg,
   },
   button: {
     flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.lg,
+    borderRadius: theme.radius.md,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
   },
   primaryButton: {
-    backgroundColor: '#3B82F6',
-    borderColor: '#3B82F6',
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
   },
   secondaryButton: {
     backgroundColor: 'transparent',
-    borderColor: '#D1D5DB',
+    borderColor: theme.colors.border.light,
   },
   primaryButtonText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: '600',
+    color: theme.colors.text.onPrimary,
+    ...theme.typography.button,
   },
   secondaryButtonText: {
-    color: '#6B7280',
-    fontSize: 14,
-    fontWeight: '600',
+    color: theme.colors.text.secondary,
+    ...theme.typography.button,
   },
 
   // Empty state
   emptyText: {
-    fontSize: 14,
-    color: '#9CA3AF',
+    ...theme.typography.bodySmall,
+    color: theme.colors.text.secondary,
     fontStyle: 'italic',
     textAlign: 'center',
-    paddingVertical: 12,
+    paddingVertical: theme.spacing.md,
   },
 });
 

@@ -23,7 +23,8 @@
       "Bash(npm run:*)",
       "Bash(npm pkg set:*)",
       "Bash(NODE_ENV=test npx jest:*)",
-      "Bash(tee:*)"
+      "Bash(tee:*)",
+      "Bash(git checkout:*)"
     ]
   }
 }

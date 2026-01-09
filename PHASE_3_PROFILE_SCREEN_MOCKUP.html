@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ageless Fitness - Profile Screen Mockup</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+      background-color: #F7F7F9;
+      color: #111111;
+    }
+
+    /* Device Frame */
+    .device-frame {
+      width: 375px;
+      height: 812px;
+      margin: 40px auto;
+      background: white;
+      border-radius: 48px;
+      border: 12px solid #000;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Status Bar */
+    .status-bar {
+      height: 44px;
+      background: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      font-size: 12px;
+      border-bottom: 1px solid #E2E3E6;
+    }
+
+    /* Header Navigation */
+    .nav-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: #FFFFFF;
+      border-bottom: 1px solid #E2E3E6;
+      min-height: 60px;
+    }
+
+    .nav-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-back-button {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 24px;
+      color: #111111;
+    }
+
+    .nav-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #111111;
+    }
+
+    .nav-spacer {
+      width: 40px;
+    }
+
+    /* Scroll Container */
+    .scroll-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 16px;
+      background: #F7F7F9;
+    }
+
+    /* Section */
+    .section {
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #111111;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      padding: 0 0;
+    }
+
+    /* Card */
+    .card {
+      background: #FFFFFF;
+      border: 1px solid #E2E3E6;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Card Sections with Dividers */
+    .card-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid #E2E3E6;
+      transition: background-color 0.2s;
+    }
+
+    .card-row:last-child {
+      border-bottom: none;
+    }
+
+    .card-row:active {
+      background-color: #F2F2F7;
+    }
+
+    /* Info Row */
+    .info-row-content {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      gap: 12px;
+    }
+
+    .info-icon {
+      font-size: 20px;
+      color: #C5282F;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .info-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .info-label {
+      font-size: 12px;
+      color: #666666;
+    }
+
+    .info-value {
+      font-size: 15px;
+      font-weight: 600;
+      color: #111111;
+      word-break: break-all;
+    }
+
+    /* Setting Row */
+    .setting-row-content {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      gap: 12px;
+    }
+
+    .setting-label {
+      font-size: 15px;
+      font-weight: 500;
+      color: #111111;
+    }
+
+    .chevron-icon {
+      font-size: 20px;
+      color: #666666;
+    }
+
+    /* Link Row */
+    .link-row-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .link-text {
+      font-size: 15px;
+      font-weight: 500;
+      color: #C5282F;
+      cursor: pointer;
+    }
+
+    .link-icon {
+      font-size: 16px;
+      color: #C5282F;
+    }
+
+    /* Danger Row */
+    .danger-row-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .danger-icon {
+      font-size: 20px;
+      color: #EF4444;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .danger-text {
+      font-size: 15px;
+      font-weight: 600;
+      color: #EF4444;
+    }
+
+    /* Buttons */
+    .logout-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px;
+      background: #FFFFFF;
+      border: 1px solid #E2E3E6;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #EF4444;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      margin-bottom: 16px;
+    }
+
+    .logout-button:active {
+      background-color: #FEE2E2;
+    }
+
+    .logout-icon {
+      font-size: 18px;
+    }
+
+    /* Bottom Spacing */
+    .bottom-spacing {
+      height: 40px;
+    }
+
+    /* Scrollbar styling */
+    .scroll-container::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .scroll-container::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .scroll-container::-webkit-scrollbar-thumb {
+      background: #D0D1D4;
+      border-radius: 2px;
+    }
+
+    /* Danger Zone Title */
+    .section-title.danger {
+      color: #EF4444;
+    }
+
+    /* Mobile preview wrapper */
+    .preview-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .mockup-title {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: #111111;
+      margin-bottom: 10px;
+    }
+
+    .mockup-subtitle {
+      text-align: center;
+      font-size: 14px;
+      color: #666666;
+      margin-bottom: 20px;
+    }
+
+    /* Legend */
+    .legend {
+      width: 375px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #FFFFFF;
+      border: 1px solid #E2E3E6;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    .legend-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #111111;
+      margin-bottom: 10px;
+    }
+
+    .legend-item {
+      font-size: 13px;
+      color: #666666;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .legend-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .legend-label {
+      font-weight: 600;
+      color: #111111;
+    }
+  </style>
+</head>
+<body>
+  <div class="preview-wrapper">
+    <div class="mockup-title">Profile Screen Mockup</div>
+    <div class="mockup-subtitle">Phase 3 - Profile Screen PWA Design Reference</div>
+
+    <div class="device-frame">
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <div style="flex: 1; text-align: left;">9:41</div>
+        <div style="flex: 1; text-align: center;">📶 📡 🔋</div>
+      </div>
+
+      <!-- Navigation Header -->
+      <div class="nav-header">
+        <div class="nav-header-left">
+          <div class="nav-back-button">←</div>
+        </div>
+        <div class="nav-title">Profile</div>
+        <div class="nav-spacer"></div>
+      </div>
+
+      <!-- Scroll Container -->
+      <div class="scroll-container">
+        <!-- Account Information Section -->
+        <div class="section">
+          <div class="section-title">Account Information</div>
+          <div class="card">
+            <!-- Email Row -->
+            <div class="card-row">
+              <div class="info-row-content">
+                <div class="info-icon">✉️</div>
+                <div class="info-text">
+                  <div class="info-label">Email</div>
+                  <div class="info-value">user@example.com</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- User ID Row -->
+            <div class="card-row">
+              <div class="info-row-content">
+                <div class="info-icon">👤</div>
+                <div class="info-text">
+                  <div class="info-label">User ID</div>
+                  <div class="info-value">user-123</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div class="section">
+          <div class="section-title">Settings</div>
+          <div class="card">
+            <!-- Change Password Row -->
+            <div class="card-row" style="cursor: pointer;">
+              <div class="setting-row-content">
+                <div class="info-icon">🔒</div>
+                <div class="setting-label">Change Password</div>
+              </div>
+              <div class="chevron-icon">›</div>
+            </div>
+
+            <!-- Notifications Row -->
+            <div class="card-row" style="cursor: pointer;">
+              <div class="setting-row-content">
+                <div class="info-icon">🔔</div>
+                <div class="setting-label">Notifications</div>
+              </div>
+              <div class="chevron-icon">›</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- App Information Section -->
+        <div class="section">
+          <div class="section-title">App Information</div>
+          <div class="card">
+            <!-- App Version Row -->
+            <div class="card-row">
+              <div class="info-row-content">
+                <div class="info-icon">ℹ️</div>
+                <div class="info-text">
+                  <div class="info-label">App Version</div>
+                  <div class="info-value">1.0.0</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Terms of Service Row -->
+            <div class="card-row" style="cursor: pointer;">
+              <div class="link-row-content">
+                <span class="link-text">Terms of Service</span>
+                <span class="link-icon">⤴️</span>
+              </div>
+            </div>
+
+            <!-- Privacy Policy Row -->
+            <div class="card-row" style="cursor: pointer;">
+              <div class="link-row-content">
+                <span class="link-text">Privacy Policy</span>
+                <span class="link-icon">⤴️</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Danger Zone Section -->
+        <div class="section">
+          <div class="section-title danger">Danger Zone</div>
+          <div class="card">
+            <!-- Delete Account Row -->
+            <div class="card-row" style="cursor: pointer;">
+              <div class="danger-row-content">
+                <div class="danger-icon">🗑️</div>
+                <div class="danger-text">Delete Account</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Logout Button -->
+        <div class="section">
+          <button class="logout-button">
+            <span class="logout-icon">🚪</span>
+            <span>Logout</span>
+          </button>
+        </div>
+
+        <!-- Bottom Spacing -->
+        <div class="bottom-spacing"></div>
+      </div>
+    </div>
+
+    <!-- Legend / Notes -->
+    <div class="legend">
+      <div class="legend-title">🎨 Design Specifications</div>
+      <div class="legend-item"><span class="legend-label">Background:</span> #F7F7F9 (Light Gray)</div>
+      <div class="legend-item"><span class="legend-label">Cards:</span> #FFFFFF with #E2E3E6 border, 12px radius, subtle shadow</div>
+      <div class="legend-item"><span class="legend-label">Primary Color:</span> #C5282F (Benjamin Moore Red)</div>
+      <div class="legend-item"><span class="legend-label">Text Primary:</span> #111111 (15px for labels, 12px for sub-labels)</div>
+      <div class="legend-item"><span class="legend-label">Text Secondary:</span> #666666 (12px for meta text)</div>
+      <div class="legend-item"><span class="legend-label">Icons:</span> 20px size, colored (#C5282F for primary, #EF4444 for danger)</div>
+      <div class="legend-item"><span class="legend-label">Dividers:</span> 1px solid #E2E3E6 between card rows</div>
+      <div class="legend-item"><span class="legend-label">Spacing:</span> 16px horizontal padding, 12px section gaps</div>
+      <div class="legend-item"><span class="legend-label">Header:</span> White background with back button, centered title, spacer for balance</div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progress Summary - 52 Week Rolling Table (FINAL)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 95vh;
+        }
+
+        /* Header Section */
+        .header {
+            background-color: #ffffff;
+            padding: 24px 20px;
+            border-bottom: 1px solid #e2e3e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .header-content {
+            text-align: center;
+            flex: 1;
+        }
+
+        .header-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
+        }
+
+        .header-subtitle {
+            font-size: 15px;
+            font-weight: 400;
+            color: #666666;
+            line-height: 1.4;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 32px;
+            color: #666666;
+            cursor: pointer;
+            padding: 8px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .close-button:hover {
+            background-color: #f5f5f5;
+        }
+
+        .close-button:active {
+            background-color: #eeeeee;
+        }
+
+        /* Scroll Wrapper */
+        .scroll-wrapper {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        /* Horizontal Scroll Container */
+        .horizontal-scroll {
+            overflow-x: auto;
+            overflow-y: hidden;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .horizontal-scroll::-webkit-scrollbar {
+            height: 10px;
+        }
+
+        .horizontal-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .horizontal-scroll::-webkit-scrollbar-thumb {
+            background: #999;
+            border-radius: 5px;
+        }
+
+        .horizontal-scroll::-webkit-scrollbar-thumb:hover {
+            background: #666;
+        }
+
+        /* Vertical Scroll Container */
+        .vertical-scroll {
+            overflow-y: auto;
+            overflow-x: hidden;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .vertical-scroll::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .vertical-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .vertical-scroll::-webkit-scrollbar-thumb {
+            background: #999;
+            border-radius: 5px;
+        }
+
+        .vertical-scroll::-webkit-scrollbar-thumb:hover {
+            background: #666;
+        }
+
+        /* Table Structure - 14 Columns Total */
+        .table-header-row,
+        .table-data-row {
+            display: grid;
+            grid-template-columns:
+                130px      /* Week Of */
+                80px       /* Avg Weight */
+                60px       /* Bike */
+                60px       /* Abs */
+                100px      /* Chest Press */
+                100px      /* Leg Press */
+                60px       /* Lat */
+                80px       /* Military */
+                60px       /* Crunch */
+                100px      /* Bicep Curls */
+                75px       /* Triceps */
+                120px      /* Overhead Pull */
+                60px       /* Row */
+                90px;      /* Total Sets */
+            gap: 0;
+            width: 100%;
+            flex-shrink: 0;
+        }
+
+        .table-header-row {
+            background-color: #c5282f;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            line-height: 1.3;
+        }
+
+        .table-cell,
+        .table-header-cell {
+            padding: 12px 8px;
+            text-align: center;
+            border-right: 1px solid #e2e3e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 40px;
+            word-break: break-word;
+            overflow: visible;
+            white-space: normal;
+        }
+
+        .table-header-cell {
+            background-color: #c5282f;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 13px;
+            border-right-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Left align for Week Of column */
+        .week-of-cell,
+        .week-of-header {
+            justify-content: flex-start;
+            padding-left: 12px;
+            text-align: left;
+        }
+
+        .table-data-row {
+            border-bottom: 1px solid #e2e3e6;
+            color: #000000;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.4;
+            transition: background-color 0.15s ease;
+        }
+
+        /* Alternating row colors */
+        .table-data-row:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+        .table-data-row:nth-child(even) {
+            background-color: #f5f5f5;
+        }
+
+        .table-data-row:hover {
+            background-color: #f0f0f0 !important;
+        }
+
+        /* Data Cell */
+        .table-cell {
+            background-color: inherit;
+            color: #000000;
+        }
+
+        /* Last cell styling - no right border */
+        .table-header-cell:last-child,
+        .table-cell:last-child {
+            border-right: none;
+        }
+
+        /* Footer Info */
+        .footer {
+            background-color: #f5f5f5;
+            padding: 16px 20px;
+            border-top: 1px solid #e2e3e6;
+            font-size: 13px;
+            color: #666666;
+            text-align: center;
+            flex-shrink: 0;
+            line-height: 1.4;
+        }
+
+        /* Scroll Info */
+        .scroll-info {
+            padding: 12px 20px;
+            background-color: #f9f9f9;
+            border-top: 1px solid #e2e3e6;
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+            flex-shrink: 0;
+            line-height: 1.4;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container {
+                height: 100vh;
+            }
+
+            .header {
+                padding: 16px 12px;
+            }
+
+            .header-title {
+                font-size: 26px;
+            }
+
+            .header-subtitle {
+                font-size: 14px;
+            }
+
+            .table-header-row,
+            .table-data-row {
+                grid-template-columns:
+                    110px
+                    70px
+                    55px
+                    55px
+                    90px
+                    90px
+                    55px
+                    75px
+                    55px
+                    90px
+                    65px
+                    110px
+                    55px
+                    80px;
+            }
+
+            .table-cell,
+            .table-header-cell {
+                padding: 10px 6px;
+                font-size: 12px;
+                min-height: 36px;
+            }
+
+            .table-header-cell {
+                font-size: 11px;
+            }
+
+            .table-data-row {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="header-content">
+                <div class="header-title">Progress Summary</div>
+                <div class="header-subtitle">Weekly workout totals</div>
+            </div>
+            <button class="close-button" onclick="closeModal()" title="Close">×</button>
+        </div>
+
+        <!-- Scroll Instructions -->
+        <div class="scroll-info">
+            ↔️ Scroll horizontally to see all columns | ↕️ Scroll vertically to see all 52 weeks
+        </div>
+
+        <!-- Table with Dual Scrolling -->
+        <div class="scroll-wrapper">
+            <div class="horizontal-scroll">
+                <div class="vertical-scroll">
+                    <!-- Header Row (Sticky) - 14 Columns -->
+                    <div class="table-header-row">
+                        <div class="table-header-cell week-of-header">Week Of</div>
+                        <div class="table-header-cell">Avg Wt</div>
+                        <div class="table-header-cell">Bike</div>
+                        <div class="table-header-cell">Abs</div>
+                        <div class="table-header-cell">Chest Press</div>
+                        <div class="table-header-cell">Leg Press</div>
+                        <div class="table-header-cell">Lat</div>
+                        <div class="table-header-cell">Military</div>
+                        <div class="table-header-cell">Crunch</div>
+                        <div class="table-header-cell">Bicep Curls</div>
+                        <div class="table-header-cell">Triceps</div>
+                        <div class="table-header-cell">Overhead Pull</div>
+                        <div class="table-header-cell">Row</div>
+                        <div class="table-header-cell">Total Sets</div>
+                    </div>
+
+                    <!-- Data Rows (52 weeks, generated by JavaScript) -->
+                    <div id="table-body">
+                        <!-- Rows will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Section -->
+        <div class="footer">
+            Showing <span id="current-count">0</span> of 52 weeks | Last updated: Today
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Get the Sunday of the week for a given date
+         * Weeks run Sunday (0) to Saturday (6)
+         */
+        function getSundayOfWeek(date) {
+            const d = new Date(date);
+            const day = d.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+            const diff = d.getDate() - day; // Calculate diff to get Sunday
+            return new Date(d.setDate(diff));
+        }
+
+        /**
+         * Get the Saturday of the week for a given date
+         * Weeks run Sunday (0) to Saturday (6)
+         */
+        function getSaturdayOfWeek(date) {
+            const sunday = getSundayOfWeek(date);
+            const saturday = new Date(sunday);
+            saturday.setDate(saturday.getDate() + 6); // Sunday + 6 days = Saturday
+            return saturday;
+        }
+
+        /**
+         * Format a week date range as "MMM D - MMM D, YYYY"
+         * Week begins Sunday, ends Saturday
+         */
+        function formatWeekRange(date) {
+            const sunday = getSundayOfWeek(date);
+            const saturday = getSaturdayOfWeek(date);
+
+            const startMonth = sunday.toLocaleDateString('en-US', { month: 'short' });
+            const startDay = sunday.getDate();
+            const endMonth = saturday.toLocaleDateString('en-US', { month: 'short' });
+            const endDay = saturday.getDate();
+            const year = saturday.getFullYear();
+
+            return `${startMonth} ${startDay} - ${endMonth} ${endDay}, ${year}`;
+        }
+
+        /**
+         * Generate 52 weeks of mock workout data
+         * Each week contains data for 11 exercises plus a calculated total sets
+         * Weeks begin on Sunday and end on Saturday
+         */
+        function generateWeekData() {
+            const data = [];
+            const today = new Date();
+
+            // Generate 52 weeks of data going backwards from today
+            for (let i = 0; i < 52; i++) {
+                const weekDate = new Date(today);
+                weekDate.setDate(weekDate.getDate() - (i * 7));
+
+                // Generate random exercise data (0-19 sets per week)
+                const generateValue = () => Math.floor(Math.random() * 20);
+
+                const bike = generateValue();
+                const abs = generateValue();
+                const chestPress = generateValue();
+                const legPress = generateValue();
+                const lat = generateValue();
+                const military = generateValue();
+                const crunch = generateValue();
+                const bicepCurls = generateValue();
+                const triceps = generateValue();
+                const overheadPull = generateValue();
+                const row = generateValue();
+
+                // Calculate total sets (sum of all 11 exercises)
+                const totalSets = bike + abs + chestPress + legPress + lat + military + crunch + bicepCurls + triceps + overheadPull + row;
+
+                data.push({
+                    dateRange: formatWeekRange(weekDate),
+                    avgWeight: Math.random() > 0.5 ? (170 + Math.random() * 20).toFixed(1) : null,
+                    bike,
+                    abs,
+                    chestPress,
+                    legPress,
+                    lat,
+                    military,
+                    crunch,
+                    bicepCurls,
+                    triceps,
+                    overheadPull,
+                    row,
+                    totalSets
+                });
+            }
+            return data;
+        }
+
+        /**
+         * Render 52 weeks of data into the table
+         */
+        function renderTable() {
+            const weeks = generateWeekData();
+            const tableBody = document.getElementById('table-body');
+
+            weeks.forEach((week) => {
+                const row = document.createElement('div');
+                row.className = 'table-data-row';
+                row.innerHTML = `
+                    <div class="table-cell week-of-cell">${week.dateRange}</div>
+                    <div class="table-cell">${week.avgWeight ? week.avgWeight : '–'}</div>
+                    <div class="table-cell">${week.bike}</div>
+                    <div class="table-cell">${week.abs}</div>
+                    <div class="table-cell">${week.chestPress}</div>
+                    <div class="table-cell">${week.legPress}</div>
+                    <div class="table-cell">${week.lat}</div>
+                    <div class="table-cell">${week.military}</div>
+                    <div class="table-cell">${week.crunch}</div>
+                    <div class="table-cell">${week.bicepCurls}</div>
+                    <div class="table-cell">${week.triceps}</div>
+                    <div class="table-cell">${week.overheadPull}</div>
+                    <div class="table-cell">${week.row}</div>
+                    <div class="table-cell">${week.totalSets}</div>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // Update footer count
+            document.getElementById('current-count').textContent = weeks.length;
+        }
+
+        /**
+         * Close the modal with confirmation
+         */
+        function closeModal() {
+            if (confirm('Close Progress Summary?')) {
+                document.body.innerHTML = '<div style="padding: 40px; text-align: center;"><h1>Modal Closed</h1><p>Progress Summary closed successfully</p></div>';
+            }
+        }
+
+        // Initialize table on page load
+        document.addEventListener('DOMContentLoaded', renderTable);
+    </script>
+</body>
+</html>

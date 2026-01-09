@@ -174,18 +174,22 @@ export const summaryAPI = {
   /**
    * Get summary for current week
    * Convenience method - calculates dates automatically
+   * Week boundaries: Sunday (start) to Saturday (end)
    *
    * @param referenceDate - Center date for week calculation (defaults to today)
    */
   async getWeekSummary(referenceDate?: Date): Promise<SummaryResponse['data']> {
     const today = referenceDate || new Date();
 
-    // Find start of week (Monday)
+    // Find start of week (Sunday - day 0)
     const day = today.getDay();
-    const diff = today.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Sunday
+    const diff = today.getDate() - day;
     const startOfWeek = new Date(today.setDate(diff));
+    startOfWeek.setHours(0, 0, 0, 0);
+
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(endOfWeek.getDate() + 6); // Saturday
+    endOfWeek.setHours(23, 59, 59, 999);
 
     const startDate = startOfWeek.toISOString().split('T')[0];
     const endDate = endOfWeek.toISOString().split('T')[0];

@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.button,
   },
   baseText: {
-    fontWeight: '600',
+    ...theme.typography.button, // fontSize: 16, fontWeight: '600', lineHeight: 20
   },
   defaultText: {
     color: theme.colors.text.onPrimary,
@@ -86,7 +86,7 @@ export function Button({
       {...props}
     >
       {typeof children === 'string' ? (
-        <Text style={[styles.baseText, textVariants[variant], textClassName && { fontSize: 14 }]}>
+        <Text style={[styles.baseText, textVariants[variant], textClassName]}>
           {children}
         </Text>
       ) : (

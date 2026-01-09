@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.md,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
-    fontSize: 14,
+    ...theme.typography.bodySmall, // fontSize: 14, fontWeight: '400', lineHeight: 20
     color: theme.colors.text.primary,
   },
 });

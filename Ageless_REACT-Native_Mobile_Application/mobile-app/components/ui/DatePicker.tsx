@@ -142,7 +142,7 @@ export function DatePicker({ selectedDate = new Date(), onDateChange }: DatePick
                 key={index}
                 style={[
                   styles.dayCell,
-                  day === null && styles.emptyCellgit,
+                  day === null && styles.emptyCell,
                   day && isToday(day) && styles.todayCell,
                   day && isSelected(day) && styles.selectedCell,
                 ]}
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.sm,
     marginBottom: theme.spacing.xs,
   },
-  emptyCellgit: {
+  emptyCell: {
     backgroundColor: 'transparent',
   },
   todayCell: {

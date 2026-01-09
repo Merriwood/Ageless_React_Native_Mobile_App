@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.button,
   },
   defaultButton: {
     backgroundColor: theme.colors.primary,
@@ -33,12 +33,12 @@ const styles = StyleSheet.create({
   smSize: {
     height: 40,
     paddingHorizontal: theme.spacing.md,
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.button,
   },
   lgSize: {
     height: 48,
     paddingHorizontal: theme.spacing.xl,
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.button,
   },
   baseText: {
     fontWeight: '600',

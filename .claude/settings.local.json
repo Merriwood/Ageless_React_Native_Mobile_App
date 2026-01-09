@@ -29,7 +29,12 @@
       "Bash(xcopy:*)",
       "Bash(copy \"C:\\\\Users\\\\SDWOR\\\\Desktop\\\\Ageless_React_Native_Mobile_App\\\\Old_Ageless_PWA_Screenshots\\\\*.pdf\" \"c:\\\\Users\\\\SDWOR\\\\Ageless_React_Native_Mobile_App\\\\Ageless_React_Native_Mobile_App\\\\Old_Ageless_Web_PWA\\\\Old_Ageless_PWA_Screenshots\"\")",
       "Bash(find:*)",
-      "Bash(npm view:*)"
+      "Bash(npm view:*)",
+      "Bash(start Progress_Summary.html)",
+      "Bash(lsof:*)",
+      "Bash(utils)",
+      "Bash(constants \")",
+      "Bash(dir:*)"
     ]
   }
 }

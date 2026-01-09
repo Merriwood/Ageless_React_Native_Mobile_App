@@ -40,6 +40,11 @@ jest.mock('@react-native-community/netinfo', () => ({
   })),
 }));
 
+// Mock nativewind early (used by babel jsx transformer)
+jest.mock('nativewind', () => ({
+  useColorScheme: jest.fn(() => 'light'),
+}));
+
 // Mock react-native
 jest.mock('react-native', () => ({
   View: 'View',
@@ -60,6 +65,38 @@ jest.mock('react-native', () => ({
     OS: 'ios',
     Version: 14,
   },
+  Appearance: {
+    getColorScheme: jest.fn(() => 'light'),
+    addChangeListener: jest.fn(() => ({ remove: jest.fn() })),
+  },
+  AccessibilityInfo: {
+    isScreenReaderEnabled: jest.fn(() => Promise.resolve(false)),
+    isBoldTextEnabled: jest.fn(() => Promise.resolve(false)),
+    isGrayscaleEnabled: jest.fn(() => Promise.resolve(false)),
+    isInvertColorsEnabled: jest.fn(() => Promise.resolve(false)),
+    isReduceMotionEnabled: jest.fn(() => Promise.resolve(false)),
+    isReduceTransparencyEnabled: jest.fn(() => Promise.resolve(false)),
+    isScreenReaderEnabledSync: jest.fn(() => false),
+    isBoldTextEnabledSync: jest.fn(() => false),
+    isGrayscaleEnabledSync: jest.fn(() => false),
+    isInvertColorsEnabledSync: jest.fn(() => false),
+    isReduceMotionEnabledSync: jest.fn(() => false),
+    isReduceTransparencyEnabledSync: jest.fn(() => false),
+    addEventListener: jest.fn(() => ({ remove: jest.fn() })),
+  },
+}));
+
+// Mock react-native-css-interop - needs to happen before any module using it is imported
+jest.mock('react-native-css-interop', () => ({
+  useColorScheme: jest.fn(() => 'light'),
+  createInsertRules: jest.fn(() => jest.fn()),
+  css: jest.fn((strings, ...values) => {
+    let result = '';
+    strings.forEach((str, i) => {
+      result += str + (values[i] || '');
+    });
+    return result;
+  }),
 }));
 
 // Global mocks

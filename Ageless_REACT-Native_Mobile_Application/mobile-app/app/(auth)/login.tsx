@@ -122,7 +122,7 @@ export default function LoginScreen() {
             style={{
               borderWidth: 1,
               borderColor: error ? theme.colors.error : theme.colors.border,
-              borderRadius: theme.borderRadius.md,
+              borderRadius: theme.radius.md,
               paddingHorizontal: theme.spacing.md,
               paddingVertical: theme.spacing.md,
               ...theme.typography.body,
@@ -157,7 +157,7 @@ export default function LoginScreen() {
               alignItems: "center",
               borderWidth: 1,
               borderColor: error ? theme.colors.error : theme.colors.border,
-              borderRadius: theme.borderRadius.md,
+              borderRadius: theme.radius.md,
               backgroundColor: theme.colors.surface,
               paddingHorizontal: theme.spacing.md,
             }}
@@ -198,7 +198,7 @@ export default function LoginScreen() {
               borderLeftColor: theme.colors.error,
               padding: theme.spacing.md,
               marginBottom: theme.spacing.lg,
-              borderRadius: theme.borderRadius.sm,
+              borderRadius: theme.radius.sm,
             }}
           >
             <Text
@@ -218,8 +218,8 @@ export default function LoginScreen() {
           disabled={isLoading}
           style={{
             backgroundColor: isLoading ? theme.colors.border : theme.colors.primary,
-            paddingVertical: 12, // Use pixel value for consistent button height
-            borderRadius: theme.borderRadius.md,
+            paddingVertical: theme.spacing.base,
+            borderRadius: theme.radius.button,
             alignItems: "center",
             justifyContent: "center",
             minHeight: 44,

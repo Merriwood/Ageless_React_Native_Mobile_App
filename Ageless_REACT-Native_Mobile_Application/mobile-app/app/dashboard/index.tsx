@@ -18,6 +18,7 @@ import { MyABSDrawer } from '../../components/layout/MyABSDrawer';
 import { EXERCISES, Exercise } from '../../lib/constants/exercises';
 import { useOfflineQueue } from '../../hooks/useOfflineQueue';
 import { getTodayDate } from '../../lib/utils';
+import summaryAPI from '../../api/summary';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -32,6 +33,11 @@ export default function Dashboard() {
   const [summaryModalVisible, setSummaryModalVisible] = useState(false);
   const [scanModalVisible, setScanModalVisible] = useState(false);
   const [myAbsDrawerVisible, setMyAbsDrawerVisible] = useState(false);
+
+  // Progress Summary data states
+  const [summaryWeekData, setSummaryWeekData] = useState<any[]>([]);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
 
   const { enqueue, getQueue } = useOfflineQueue();
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -57,6 +63,28 @@ export default function Dashboard() {
   useEffect(() => {
     loadWorkoutForDate();
   }, [selectedDate]);
+
+  // Fetch 52-week progress summary when modal opens
+  useEffect(() => {
+    if (summaryModalVisible) {
+      fetchProgressSummary();
+    }
+  }, [summaryModalVisible]);
+
+  const fetchProgressSummary = async () => {
+    setSummaryLoading(true);
+    setSummaryError(null);
+    try {
+      const weekData = await summaryAPI.get52WeekSummary();
+      setSummaryWeekData(weekData);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load progress data';
+      setSummaryError(errorMessage);
+      console.error('Error fetching progress summary:', error);
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
 
   const loadWorkoutForDate = async () => {
     setLoading(true);
@@ -550,13 +578,13 @@ export default function Dashboard() {
       <ProgressSummaryScreen
         isVisible={summaryModalVisible}
         onClose={() => setSummaryModalVisible(false)}
+        weeks={summaryWeekData}
+        loading={summaryLoading}
+        error={summaryError}
       />
       <ScanModal
         isVisible={scanModalVisible}
         onClose={() => setScanModalVisible(false)}
-      />
-      <ProgressSummaryScreen
-        onClose={() => setProgressSummaryVisible(false)}
       />
       <MyABSDrawer
         isVisible={myAbsDrawerVisible}

@@ -8,6 +8,7 @@ import {
   ScrollView,
   FlatList,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import { theme } from '../../theme';
 
@@ -32,6 +33,8 @@ interface ProgressSummaryScreenProps {
   isVisible?: boolean;
   onClose?: () => void;
   weeks?: WeekData[];
+  loading?: boolean;
+  error?: string | null;
 }
 
 const COLUMN_WIDTHS = {
@@ -201,8 +204,16 @@ export function ProgressSummaryScreen({
   isVisible = false,
   onClose,
   weeks,
+  loading = false,
+  error = null,
 }: ProgressSummaryScreenProps) {
-  const weeksData = useMemo(() => weeks || generateWeekData(), [weeks]);
+  const weeksData = useMemo(
+    () => {
+      if (loading || error) return [];
+      return weeks && weeks.length > 0 ? weeks : generateWeekData();
+    },
+    [weeks, loading, error]
+  );
 
   return (
     <Modal visible={isVisible} transparent animationType="fade" onRequestClose={onClose}>
@@ -219,34 +230,51 @@ export function ProgressSummaryScreen({
             </TouchableOpacity>
           </View>
 
-          {/* Scroll Info */}
-          <View style={styles.scrollInfo}>
-            <Text style={styles.scrollInfoText}>
-              ↔️ Scroll horizontally to see all columns | ↕️ Scroll vertically to see all 52 weeks
-            </Text>
-          </View>
+          {/* Scroll Info - Only show when not loading/error */}
+          {!loading && !error && (
+            <View style={styles.scrollInfo}>
+              <Text style={styles.scrollInfoText}>
+                ↔️ Scroll horizontally to see all columns | ↕️ Scroll vertically to see all 52 weeks
+              </Text>
+            </View>
+          )}
 
-          {/* Table with Dual Scroll */}
+          {/* Table Container or Loading/Error */}
           <View style={styles.tableContainer}>
-            <ScrollView
-              horizontal
-              scrollEventThrottle={16}
-              showsHorizontalScrollIndicator={true}
-            >
-              <View>
-                {/* Fixed Header Row */}
-                <TableHeader />
-
-                {/* Data Rows */}
-                <FlatList
-                  data={weeksData}
-                  keyExtractor={(_, index) => `week-${index}`}
-                  renderItem={({ item, index }) => <TableRow item={item} index={index} />}
-                  scrollEnabled={false}
-                  nestedScrollEnabled={false}
-                />
+            {loading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={theme.colors.primary} />
+                <Text style={styles.loadingText}>Loading progress data...</Text>
               </View>
-            </ScrollView>
+            ) : error ? (
+              <View style={styles.errorContainer}>
+                <Text style={styles.errorTitle}>Unable to Load Data</Text>
+                <Text style={styles.errorMessage}>{error}</Text>
+                <TouchableOpacity onPress={onClose} style={styles.errorButton}>
+                  <Text style={styles.errorButtonText}>Dismiss</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <ScrollView
+                horizontal
+                scrollEventThrottle={16}
+                showsHorizontalScrollIndicator={true}
+              >
+                <View>
+                  {/* Fixed Header Row */}
+                  <TableHeader />
+
+                  {/* Data Rows */}
+                  <FlatList
+                    data={weeksData}
+                    keyExtractor={(_, index) => `week-${index}`}
+                    renderItem={({ item, index }) => <TableRow item={item} index={index} />}
+                    scrollEnabled={false}
+                    nestedScrollEnabled={false}
+                  />
+                </View>
+              </ScrollView>
+            )}
           </View>
 
           {/* Footer Info */}
@@ -410,5 +438,52 @@ const styles = StyleSheet.create({
   },
   footerBold: {
     fontWeight: '700',
+  },
+
+  // Loading State Styles
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: theme.spacing.lg,
+  },
+  loadingText: {
+    marginTop: theme.spacing.md,
+    fontSize: 16,
+    color: theme.colors.text.secondary,
+    fontWeight: '500',
+  },
+
+  // Error State Styles
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: theme.spacing.lg,
+  },
+  errorTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: theme.colors.error,
+    marginBottom: theme.spacing.sm,
+    textAlign: 'center',
+  },
+  errorMessage: {
+    fontSize: 14,
+    color: theme.colors.text.secondary,
+    marginBottom: theme.spacing.lg,
+    textAlign: 'center',
+    lineHeight: 1.5 * 14,
+  },
+  errorButton: {
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.radius.md,
+  },
+  errorButtonText: {
+    color: theme.colors.text.onPrimary,
+    fontWeight: '600',
+    fontSize: 14,
   },
 });

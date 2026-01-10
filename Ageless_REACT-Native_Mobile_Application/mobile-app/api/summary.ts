@@ -216,6 +216,92 @@ export const summaryAPI = {
   },
 
   /**
+   * Get summaries for all 52 weeks (52-week rolling window)
+   * Used by Progress Summary screen to show year-long progress
+   *
+   * @param referenceDate - Center date for 52-week calculation (defaults to today)
+   * @returns Array of week data matching WeekData interface structure
+   */
+  async get52WeekSummary(referenceDate?: Date) {
+    const today = referenceDate || new Date();
+    const weeks = [];
+
+    // Fetch data for each of the 52 weeks (going back in time)
+    for (let i = 0; i < 52; i++) {
+      const weekDate = new Date(today);
+      weekDate.setDate(weekDate.getDate() - i * 7);
+
+      try {
+        const summary = await this.getWeekSummary(weekDate);
+
+        // Transform API response to WeekData format
+        const weekData = {
+          dateRange: this._formatWeekRange(weekDate),
+          avgWeight: summary.stats.exercises['weight']?.avgSets || null,
+          bike: summary.stats.exercises['bike']?.sets || 0,
+          abs: summary.stats.exercises['abs']?.sets || 0,
+          chestPress: summary.stats.exercises['chest press']?.sets || 0,
+          legPress: summary.stats.exercises['leg press']?.sets || 0,
+          lat: summary.stats.exercises['lat']?.sets || 0,
+          military: summary.stats.exercises['military']?.sets || 0,
+          crunch: summary.stats.exercises['crunch']?.sets || 0,
+          bicepCurls: summary.stats.exercises['bicep curls']?.sets || 0,
+          triceps: summary.stats.exercises['triceps']?.sets || 0,
+          overheadPull: summary.stats.exercises['overhead pull']?.sets || 0,
+          row: summary.stats.exercises['row']?.sets || 0,
+          totalSets: summary.stats.totalSets || 0,
+        };
+
+        weeks.push(weekData);
+      } catch (error) {
+        // If a week fails, add empty week data to maintain 52-week structure
+        weeks.push({
+          dateRange: this._formatWeekRange(weekDate),
+          avgWeight: null,
+          bike: 0,
+          abs: 0,
+          chestPress: 0,
+          legPress: 0,
+          lat: 0,
+          military: 0,
+          crunch: 0,
+          bicepCurls: 0,
+          triceps: 0,
+          overheadPull: 0,
+          row: 0,
+          totalSets: 0,
+        });
+      }
+    }
+
+    return weeks;
+  },
+
+  /**
+   * Helper: Format week range as "MMM D - MMM D, YYYY" (Sunday to Saturday)
+   * @internal
+   */
+  _formatWeekRange(date: Date): string {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day;
+    d.setDate(diff);
+    d.setHours(0, 0, 0, 0);
+
+    const sunday = d;
+    const saturday = new Date(sunday);
+    saturday.setDate(saturday.getDate() + 6);
+
+    const startMonth = sunday.toLocaleDateString('en-US', { month: 'short' });
+    const startDay = sunday.getDate();
+    const endMonth = saturday.toLocaleDateString('en-US', { month: 'short' });
+    const endDay = saturday.getDate();
+    const year = saturday.getFullYear();
+
+    return `${startMonth} ${startDay} - ${endMonth} ${endDay}, ${year}`;
+  },
+
+  /**
    * Utility: Clear summary cache
    * Called when entries are saved/deleted to keep summary fresh
    */

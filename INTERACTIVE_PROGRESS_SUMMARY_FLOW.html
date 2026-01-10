@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progress Summary - Interactive User Flow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .flow-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .step {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+        }
+
+        .step.active {
+            border-left: 5px solid #667eea;
+            background: #f8f9ff;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .step-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .step-description {
+            font-size: 0.95em;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Mobile Device Simulator */
+        .mobile-simulator {
+            background: white;
+            border-radius: 40px;
+            padding: 12px;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border: 8px solid #222;
+            position: relative;
+        }
+
+        .mobile-simulator::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 25px;
+            background: #222;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .mobile-screen {
+            background: #f5f5f5;
+            border-radius: 35px;
+            overflow: hidden;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen-header {
+            background: #667eea;
+            color: white;
+            padding: 15px 20px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .screen-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .dashboard-view {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .abs-button {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .abs-button:hover {
+            background: #764ba2;
+            transform: scale(1.05);
+        }
+
+        /* Menu/Drawer */
+        .menu-drawer {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            display: none;
+            animation: slideUp 0.3s ease;
+        }
+
+        .menu-drawer.active {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .menu-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item:hover:not(.disabled) {
+            background: #f5f5f5;
+            padding-left: 20px;
+        }
+
+        .menu-item.disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .menu-item.active {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .coming-soon {
+            font-size: 0.8em;
+            color: #999;
+        }
+
+        /* Progress Summary Screen */
+        .progress-summary {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .progress-summary.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .summary-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .close-button:hover {
+            color: #667eea;
+            transform: scale(1.2);
+        }
+
+        .scroll-info {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        /* Table */
+        .table-container {
+            overflow: auto;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        thead {
+            background: #667eea;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+
+        th {
+            padding: 10px 8px;
+            text-align: center;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 10px 8px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        tbody tr:hover {
+            background: #f0f0ff;
+        }
+
+        .week-col {
+            text-align: left;
+            white-space: nowrap;
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .control-button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .control-button.secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .control-button.secondary:hover {
+            background: #d0d0d0;
+        }
+
+        /* Flow Diagram */
+        .flow-diagram {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .flow-diagram h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .flow-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .flow-step-number {
+            background: #667eea;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .flow-step-text {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .arrow {
+            text-align: center;
+            color: #667eea;
+            font-size: 1.3em;
+            margin: 5px 0;
+        }
+
+        @media (max-width: 768px) {
+            .flow-container {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .mobile-simulator {
+                max-width: 100%;
+            }
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            color: #333;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Progress Summary Interactive Flow</h1>
+
+        <div class="flow-container">
+            <!-- Step 1: Dashboard -->
+            <div class="step active" onclick="goToStep(1)">
+                <div class="step-number">1</div>
+                <div class="step-title">Dashboard View</div>
+                <div class="step-description">User starts on the dashboard with the My ABS button visible.</div>
+            </div>
+
+            <!-- Step 2: Tap My ABS -->
+            <div class="step" onclick="goToStep(2)">
+                <div class="step-number">2</div>
+                <div class="step-title">Tap "My ABS" Icon</div>
+                <div class="step-description">User taps the My ABS icon to open the drawer menu.</div>
+            </div>
+
+            <!-- Step 3: Menu Opens -->
+            <div class="step" onclick="goToStep(3)">
+                <div class="step-number">3</div>
+                <div class="step-title">MyABSDrawer Opens</div>
+                <div class="step-description">Drawer slides up from bottom showing menu options.</div>
+            </div>
+
+            <!-- Step 4: Tap Summary -->
+            <div class="step" onclick="goToStep(4)">
+                <div class="step-number">4</div>
+                <div class="step-title">Tap "Summary"</div>
+                <div class="step-description">User selects Summary to view 52-week progress.</div>
+            </div>
+
+            <!-- Step 5: Progress Screen Opens -->
+            <div class="step" onclick="goToStep(5)">
+                <div class="step-number">5</div>
+                <div class="step-title">Progress Summary Opens</div>
+                <div class="step-description">52-week rolling table displays with mock data.</div>
+            </div>
+
+            <!-- Step 6: Scroll & View -->
+            <div class="step" onclick="goToStep(6)">
+                <div class="step-number">6</div>
+                <div class="step-title">Scroll & Explore</div>
+                <div class="step-description">User can scroll horizontally and vertically to view all data.</div>
+            </div>
+
+            <!-- Step 7: Close -->
+            <div class="step" onclick="goToStep(7)">
+                <div class="step-number">7</div>
+                <div class="step-title">Close Modal</div>
+                <div class="step-description">User taps × to close and return to dashboard.</div>
+            </div>
+        </div>
+
+        <!-- Mobile Simulator -->
+        <div class="mobile-simulator">
+            <div class="mobile-screen">
+                <div class="screen-header" id="screenHeader">Dashboard</div>
+                <div class="screen-content" id="screenContent">
+                    <!-- Step 1: Dashboard -->
+                    <div id="step1" class="active">
+                        <div class="dashboard-view">
+                            <h3 style="margin-bottom: 20px; color: #667eea;">Ageless Dashboard</h3>
+                            <p style="color: #999; margin-bottom: 20px; font-size: 0.9em;">Tap the button below to access the menu</p>
+                            <button class="abs-button" onclick="goToStep(2)">
+                                ☰ My ABS
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2-3: Menu -->
+                    <div id="step2" style="display: none;">
+                        <div class="dashboard-view">
+                            <p style="color: #999; margin-bottom: 15px; font-size: 0.85em;">Opening drawer...</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Menu Opened -->
+                    <div id="step3" style="display: none;">
+                        <div class="menu-drawer active">
+                            <div class="menu-item active" onclick="goToStep(4)">
+                                <span>Summary</span>
+                                <span style="color: #999; font-weight: normal;">→</span>
+                            </div>
+                            <div class="menu-item" onclick="goToStep(4)">
+                                <span>History</span>
+                                <span style="color: #999; font-weight: normal;">→</span>
+                            </div>
+                            <div class="menu-item disabled">
+                                <span>Aerobic (Coming Soon)</span>
+                                <span class="coming-soon">Soon</span>
+                            </div>
+                            <div class="menu-item disabled">
+                                <span>Strength (Coming Soon)</span>
+                                <span class="coming-soon">Soon</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Summary Selected -->
+                    <div id="step4" style="display: none;">
+                        <div class="dashboard-view">
+                            <p style="color: #999; font-size: 0.85em;">Opening Progress Summary...</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 5-6: Progress Summary -->
+                    <div id="step5" style="display: none;">
+                        <div class="progress-summary active">
+                            <div class="summary-header">
+                                <div class="summary-title">Progress Summary</div>
+                                <button class="close-button" onclick="goToStep(7)">×</button>
+                            </div>
+                            <div class="scroll-info">↔️ Scroll horizontally and vertically to see all data</div>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Week Of</th>
+                                            <th>Avg Wt</th>
+                                            <th>Bike</th>
+                                            <th>Abs</th>
+                                            <th>Chest</th>
+                                            <th>Legs</th>
+                                            <th>Lat</th>
+                                            <th>Military</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="week-col">Jan 4 - Jan 10</td>
+                                            <td>175.2</td>
+                                            <td>4</td>
+                                            <td>8</td>
+                                            <td>12</td>
+                                            <td>6</td>
+                                            <td>5</td>
+                                            <td>4</td>
+                                            <td>43</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="week-col">Dec 28 - Jan 3</td>
+                                            <td>176.1</td>
+                                            <td>5</td>
+                                            <td>6</td>
+                                            <td>14</td>
+                                            <td>5</td>
+                                            <td>6</td>
+                                            <td>3</td>
+                                            <td>44</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="week-col">Dec 21 - Dec 27</td>
+                                            <td>174.8</td>
+                                            <td>3</td>
+                                            <td>9</td>
+                                            <td>11</td>
+                                            <td>7</td>
+                                            <td>4</td>
+                                            <td>5</td>
+                                            <td>42</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="week-col">Dec 14 - Dec 20</td>
+                                            <td>177.3</td>
+                                            <td>6</td>
+                                            <td>7</td>
+                                            <td>13</td>
+                                            <td>6</td>
+                                            <td>5</td>
+                                            <td>4</td>
+                                            <td>46</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="week-col">Dec 7 - Dec 13</td>
+                                            <td>176.5</td>
+                                            <td>4</td>
+                                            <td>8</td>
+                                            <td>12</td>
+                                            <td>5</td>
+                                            <td>6</td>
+                                            <td>3</td>
+                                            <td>42</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p style="text-align: center; color: #999; font-size: 0.85em;">... showing first 5 weeks of 52 ...</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 7: Closed -->
+                    <div id="step7" style="display: none;">
+                        <div class="dashboard-view">
+                            <p style="color: #999;">Modal closed. Back to dashboard.</p>
+                            <button class="abs-button" onclick="goToStep(1)">Reset</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls" style="justify-content: center;">
+            <button class="control-button secondary" onclick="goToStep(1)">◀ Start</button>
+            <button class="control-button" onclick="previousStep()">← Previous</button>
+            <button class="control-button" onclick="nextStep()">Next →</button>
+            <button class="control-button secondary" onclick="goToStep(5)">Jump to Summary</button>
+        </div>
+
+        <!-- Flow Diagram -->
+        <div class="flow-diagram">
+            <h2>Complete User Flow</h2>
+            <div class="flow-steps">
+                <div class="flow-step">
+                    <div class="flow-step-number">1</div>
+                    <div class="flow-step-text">User on Dashboard with My ABS button visible</div>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-step">
+                    <div class="flow-step-number">2</div>
+                    <div class="flow-step-text">User taps "My ABS" icon (☰)</div>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-step">
+                    <div class="flow-step-number">3</div>
+                    <div class="flow-step-text">MyABSDrawer menu slides up from bottom</div>
+                </div>
+                <div class="flow-step" style="border-left-color: #28a745;">
+                    <div class="flow-step-number" style="background: #28a745;">3a</div>
+                    <div class="flow-step-text"><strong>Menu Items Shown:</strong><br>• History<br>• Summary ← Highlighted<br>• Aerobic (Coming Soon)<br>• Strength (Coming Soon)<br>• ... other future items</div>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-step">
+                    <div class="flow-step-number">4</div>
+                    <div class="flow-step-text">User taps "Summary" menu item</div>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-step">
+                    <div class="flow-step-number">5</div>
+                    <div class="flow-step-text">ProgressSummaryScreen modal opens</div>
+                </div>
+                <div class="flow-step" style="border-left-color: #28a745;">
+                    <div class="flow-step-number" style="background: #28a745;">5a</div>
+                    <div class="flow-step-text"><strong>Content Displays:</strong><br>• Header: "Progress Summary"<br>• 52-week rolling table<br>• Mock data for demonstration<br>• Scroll instructions: ↔️ Horizontal, ↕️ Vertical</div>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-step">
+                    <div class="flow-step-number">6</div>
+                    <div class="flow-step-text">User can scroll horizontally & vertically</div>
+                </div>
+                <div class="flow-step" style="border-left-color: #28a745;">
+                    <div class="flow-step-number" style="background: #28a745;">6a</div>
+                    <div class="flow-step-text"><strong>Data Displayed:</strong><br>• Week Of (date range)<br>• Avg Weight<br>• Exercise Set Counts (11 exercises)<br>• Total Sets per week</div>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-step">
+                    <div class="flow-step-number">7</div>
+                    <div class="flow-step-text">User taps × (close button)</div>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-step" style="border-left-color: #ffc107;">
+                    <div class="flow-step-number" style="background: #ffc107;">✓</div>
+                    <div class="flow-step-text"><strong>Modal Closes</strong> - Returns to Dashboard</div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>📝 Current Implementation Status:</strong><br>
+                ✅ Menu structure correct<br>
+                ✅ ProgressSummaryScreen displays mock data<br>
+                ✅ Scrolling functionality works<br>
+                ⏳ Phase 2: Ready to connect real API data<br>
+                ⏳ Phase 2: Add loading/error states
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+
+        function goToStep(step) {
+            currentStep = step;
+            updateDisplay();
+        }
+
+        function nextStep() {
+            if (currentStep < 7) {
+                currentStep++;
+                updateDisplay();
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateDisplay();
+            }
+        }
+
+        function updateDisplay() {
+            // Hide all steps
+            for (let i = 1; i <= 7; i++) {
+                const element = document.getElementById(`step${i}`);
+                if (element) {
+                    element.style.display = 'none';
+                }
+            }
+
+            // Show current step
+            const current = document.getElementById(`step${currentStep}`);
+            if (current) {
+                current.style.display = 'block';
+            }
+
+            // Update header
+            const headers = [
+                'Dashboard',
+                'Opening Menu',
+                'My ABS Menu',
+                'Summary Selected',
+                'Progress Summary',
+                'Progress Summary',
+                'Closed'
+            ];
+            document.getElementById('screenHeader').textContent = headers[currentStep - 1];
+
+            // Update step highlighting
+            const steps = document.querySelectorAll('.step');
+            steps.forEach((step, index) => {
+                if (index + 1 === currentStep) {
+                    step.classList.add('active');
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+
+            // Scroll to mobile simulator
+            setTimeout(() => {
+                document.querySelector('.mobile-simulator').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            }, 100);
+        }
+
+        // Initialize
+        updateDisplay();
+    </script>
+</body>
+</html>

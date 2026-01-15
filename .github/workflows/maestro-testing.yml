@@ -63,17 +63,15 @@ jobs:
 
       - name: Generate native iOS code
         run: |
-          cd Ageless_REACT-Native_Mobile_Application/mobile-app
           npx expo prebuild --clean --no-install || true
 
       - name: Install CocoaPods dependencies
         run: |
-          cd Ageless_REACT-Native_Mobile_Application/mobile-app
           pod install --repo-update || pod install || true
 
       - name: Build app for iOS Simulator
         run: |
-          cd Ageless_REACT-Native_Mobile_Application/mobile-app/ios
+          cd ios
 
           # Try workspace first, fall back to project
           if [ -d "mobileapp.xcworkspace" ]; then

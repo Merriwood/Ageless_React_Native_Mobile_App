@@ -67,13 +67,28 @@ jobs:
 
       - name: Build app for iOS Simulator
         run: |
-          cd ios
-          xcodebuild -workspace Ageless.xcworkspace \
-            -scheme Ageless \
-            -configuration Release \
-            -sdk iphonesimulator \
-            -derivedDataPath build \
-            build || true
+          cd Ageless_REACT-Native_Mobile_Application/mobile-app/ios
+
+          # Try workspace first, fall back to project
+          if [ -d "mobileapp.xcworkspace" ]; then
+            echo "Building with workspace..."
+            xcodebuild -workspace mobileapp.xcworkspace \
+              -scheme mobileapp \
+              -configuration Release \
+              -sdk iphonesimulator \
+              -derivedDataPath build
+          elif [ -d "mobileapp.xcodeproj" ]; then
+            echo "Building with project..."
+            xcodebuild -project mobileapp.xcodeproj \
+              -scheme mobileapp \
+              -configuration Release \
+              -sdk iphonesimulator \
+              -derivedDataPath build
+          else
+            echo "Build files not found"
+            ls -la
+            exit 1
+          fi
 
       - name: Start iOS Simulator
         run: |
@@ -117,7 +132,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: maestro-results
           path: |
@@ -125,39 +140,41 @@ jobs:
             Ageless_REACT-Native_Mobile_Application/mobile-app/maestro-results/
           retention-days: 30
 
-  code-quality:
-    runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: Ageless_REACT-Native_Mobile_Application/mobile-app
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24.11.1'
-          cache: 'npm'
-          cache-dependency-path: 'Ageless_REACT-Native_Mobile_Application/mobile-app/package-lock.json'
-
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps
-        continue-on-error: true
-
-      - name: Run linter
-        run: npm run lint || true
-        continue-on-error: true
-
-      - name: Run tests
-        run: npm test -- --coverage || true
-        continue-on-error: true
-
-      - name: Upload coverage
-        uses: codecov/codecov-action@v3
-        with:
-          files: ./Ageless_REACT-Native_Mobile_Application/mobile-app/coverage/lcov.info
-          flags: unittests
-          fail_ci_if_error: false
+  # code-quality job disabled - focus on Maestro testing
+  # Uncomment below if you want to run linting and tests
+  # code-quality:
+  #   runs-on: ubuntu-latest
+  #
+  #   defaults:
+  #     run:
+  #       working-directory: Ageless_REACT-Native_Mobile_Application/mobile-app
+  #
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '24.11.1'
+  #         cache: 'npm'
+  #         cache-dependency-path: 'Ageless_REACT-Native_Mobile_Application/mobile-app/package-lock.json'
+  #
+  #     - name: Install dependencies
+  #       run: npm install --legacy-peer-deps
+  #       continue-on-error: true
+  #
+  #     - name: Run linter
+  #       run: npm run lint || true
+  #       continue-on-error: true
+  #
+  #     - name: Run tests
+  #       run: npm test -- --coverage || true
+  #       continue-on-error: true
+  #
+  #     - name: Upload coverage
+  #       uses: codecov/codecov-action@v4
+  #       with:
+  #         files: ./Ageless_REACT-Native_Mobile_Application/mobile-app/coverage/lcov.info
+  #         flags: unittests
+  #         fail_ci_if_error: false

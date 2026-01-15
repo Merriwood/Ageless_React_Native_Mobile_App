@@ -68,7 +68,11 @@
       "Bash(sort:*)",
       "Bash(chmod:*)",
       "Bash(./setup-maestro-testing.sh:*)",
-      "Bash(xcode-select:*)"
+      "Bash(xcode-select:*)",
+      "Bash(git push:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh workflow run:*)"
     ]
   }
 }

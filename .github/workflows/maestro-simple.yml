@@ -61,9 +61,10 @@ jobs:
 
       - name: Install CocoaPods dependencies
         run: |
-          cd Ageless_REACT-Native_Mobile_Application/mobile-app/ios
-          pod install --repo-update || true
-          ls -la
+          cd Ageless_REACT-Native_Mobile_Application/mobile-app
+          # Run pod install from mobile-app root (where Podfile is)
+          pod install --repo-update || pod install || true
+          ls -la ios/
 
       - name: Build iOS app
         run: |

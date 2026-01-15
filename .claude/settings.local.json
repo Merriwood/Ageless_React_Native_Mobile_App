@@ -63,7 +63,12 @@
       "Bash(du -sh */ \")",
       "Bash(tree:*)",
       "Bash(eas:*)",
-      "Bash(npx eas:*)"
+      "Bash(npx eas:*)",
+      "Skill(init)",
+      "Bash(sort:*)",
+      "Bash(chmod:*)",
+      "Bash(./setup-maestro-testing.sh:*)",
+      "Bash(xcode-select:*)"
     ]
   }
 }

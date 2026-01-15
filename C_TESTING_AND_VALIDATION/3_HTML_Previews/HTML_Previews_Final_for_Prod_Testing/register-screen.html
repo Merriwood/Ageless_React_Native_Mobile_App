@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ageless - Register Screen</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 12px;
+            overflow: hidden;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 35px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: white;
+        }
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .logo-container {
+            width: 72px;
+            height: 72px;
+            background: #C5282F;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .heart-icon {
+            width: 48px;
+            height: 48px;
+        }
+
+        .app-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .face-id-icon {
+            width: 48px;
+            height: 48px;
+            margin: 12px auto 16px auto;
+            display: block;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .face-id-icon:hover {
+            transform: scale(1.05);
+        }
+
+        .face-id-icon:active {
+            transform: scale(0.95);
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 16px;
+        }
+
+        .form-section {
+            background: white;
+            border-radius: 0;
+            padding: 0;
+            margin-bottom: 0;
+            box-shadow: none;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .section-header-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .section-toggle {
+            font-size: 20px;
+            color: #999;
+            transition: transform 0.2s;
+        }
+
+        .section-toggle.open {
+            transform: rotate(180deg);
+        }
+
+        .section-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s;
+        }
+
+        .section-content.open {
+            max-height: 800px;
+            padding: 16px 0;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #C5282F;
+        }
+
+        .checkbox-item label {
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .password-strength {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .strength-weak { color: #d32f2f; background: #ffebee; }
+        .strength-good { color: #f57c00; background: #fff3e0; }
+        .strength-strong { color: #388e3c; background: #e8f5e9; }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #C5282F;
+        }
+
+        .password-group {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 38px;
+            cursor: pointer;
+            font-size: 18px;
+            color: #999;
+        }
+
+        .form-input-password {
+            padding-right: 40px;
+        }
+
+        .error-message {
+            background: #fee;
+            border: 1px solid #f99;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-primary {
+            background: #C5282F;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #A01F24;
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .back-to-login {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link {
+            color: #C5282F;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .account-text {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="phone-screen">
+            <div class="screen-content">
+                <!-- Header -->
+                <div class="register-header">
+                    <div class="logo-container">
+                        <svg class="heart-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Heart icon from React Native mobile app Heart_Icon_Logo.svg - bold white outline -->
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="white" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+                        </svg>
+                    </div>
+                    <div class="app-name">Ageless.</div>
+                    <img class="face-id-icon" src="../../../Old_Ageless_Web_PWA/PWA_Source_Code/web/icons/face_id_icon.png" alt="Face ID Icon" onclick="handleFaceIDSetupPrompt()" />
+                    <div class="page-title">Join Us</div>
+                    <div class="page-subtitle">Create your account to get started</div>
+                </div>
+
+                <!-- Error Message -->
+                <div id="errorMsg" class="error-message"></div>
+
+                <!-- Registration Form -->
+                <div class="form-section">
+                    <!-- Create Account Section -->
+                    <div class="section-header" onclick="toggleSection(this)">
+                        <span class="section-header-title">Create Account</span>
+                        <span class="section-toggle">^</span>
+                    </div>
+                    <div class="section-content open">
+                        <form id="registerForm" onsubmit="handleRegister(event)">
+                        <!-- Email -->
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input
+                                type="email"
+                                id="email"
+                                class="form-input"
+                                placeholder="your.email@example.com"
+                                required
+                            />
+                        </div>
+
+                        <!-- Password -->
+                        <div class="form-group password-group">
+                            <div class="form-group-header">
+                                <label class="form-label">Password</label>
+                                <span id="strengthIndicator" class="password-strength" style="display:none;"></span>
+                            </div>
+                            <input
+                                type="password"
+                                id="password"
+                                class="form-input form-input-password"
+                                placeholder="Enter a strong password"
+                                required
+                                oninput="checkPasswordStrength()"
+                            />
+                            <span class="password-toggle" onclick="togglePassword('password')">👁</span>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="form-group password-group">
+                            <label class="form-label">Confirm Password</label>
+                            <input
+                                type="password"
+                                id="confirmPassword"
+                                class="form-input form-input-password"
+                                placeholder="Confirm your password"
+                                required
+                            />
+                            <span class="password-toggle" onclick="togglePassword('confirmPassword')">👁</span>
+                        </div>
+
+                        <!-- Create Account Button -->
+                        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 16px;">
+                            Create Account
+                        </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Goal Section -->
+                <div class="form-section" style="margin-top: 16px;">
+                    <div class="section-header" onclick="toggleSection(this)">
+                        <span class="section-header-title">Goal</span>
+                        <span class="section-toggle">^</span>
+                    </div>
+                    <div class="section-content">
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="goal-mind" name="goal" value="mind">
+                                <label for="goal-mind">Mind</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="goal-body" name="goal" value="body">
+                                <label for="goal-body">Body</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="goal-heart" name="goal" value="heart">
+                                <label for="goal-heart">Heart</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="goal-nutrition" name="goal" value="nutrition">
+                                <label for="goal-nutrition">Nutrition</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="goal-other" name="goal" value="other">
+                                <label for="goal-other">Other</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Back to Login -->
+                <div class="back-to-login">
+                    <span class="account-text">
+                        Already have an account?
+                        <a class="back-link" onclick="navigateToLogin()">Sign In</a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSection(headerElement) {
+            const content = headerElement.nextElementSibling;
+            const toggle = headerElement.querySelector('.section-toggle');
+            content.classList.toggle('open');
+            toggle.classList.toggle('open');
+        }
+
+        function checkPasswordStrength() {
+            const password = document.getElementById('password').value;
+            const indicator = document.getElementById('strengthIndicator');
+
+            if (!password) {
+                indicator.style.display = 'none';
+                return;
+            }
+
+            let strength = 'Weak';
+            let className = 'strength-weak';
+
+            if (password.length >= 12 && /[A-Z]/.test(password) && /[0-9]/.test(password) && /[!@#$%^&*]/.test(password)) {
+                strength = 'Strong';
+                className = 'strength-strong';
+            } else if (password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password)) {
+                strength = 'Good';
+                className = 'strength-good';
+            }
+
+            indicator.textContent = strength;
+            indicator.className = 'password-strength ' + className;
+            indicator.style.display = 'inline-block';
+        }
+
+        function togglePassword(fieldId) {
+            const input = document.getElementById(fieldId);
+            const toggle = event.target;
+            if (input.type === 'password') {
+                input.type = 'text';
+                toggle.textContent = '🚫';
+            } else {
+                input.type = 'password';
+                toggle.textContent = '👁';
+            }
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const goal = document.getElementById('goal').value;
+            const errorMsg = document.getElementById('errorMsg');
+
+            // Reset error
+            errorMsg.style.display = 'none';
+
+            // Validation
+            if (!email) {
+                showError('Please enter your email');
+                return;
+            }
+            if (!password) {
+                showError('Please enter a password');
+                return;
+            }
+            if (password.length < 8) {
+                showError('Password must be at least 8 characters');
+                return;
+            }
+            if (password !== confirmPassword) {
+                showError('Passwords do not match');
+                return;
+            }
+
+            // Simulate registration
+            const btn = event.target.querySelector('button');
+            btn.disabled = true;
+            btn.textContent = 'Creating account...';
+
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.textContent = 'Create Account';
+                alert('Account created successfully!\n\nEmail: ' + email + '\n\nYou can now set up Face ID for secure login.');
+                // In production: Would navigate to biometric setup screen
+                // navigateToBiometricSetup(email);
+            }, 1500);
+        }
+
+        function handleFaceIDSetupPrompt() {
+            alert('Face ID Setup\n\nDuring account creation, you can optionally set up Face ID biometric authentication for secure, passwordless login.\n\nThis is completely optional - you can always set it up later in your account settings.');
+        }
+
+        function showError(message) {
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.textContent = message;
+            errorMsg.style.display = 'block';
+        }
+
+        function navigateToLogin() {
+            alert('Would navigate to Login screen');
+        }
+
+        function navigateToBiometricSetup(email) {
+            // In production: Would navigate to biometric-setup.html
+            // window.location.href = 'biometric-setup.html?email=' + encodeURIComponent(email);
+            alert('Would navigate to Biometric Setup screen for: ' + email);
+        }
+    </script>
+</body>
+</html>

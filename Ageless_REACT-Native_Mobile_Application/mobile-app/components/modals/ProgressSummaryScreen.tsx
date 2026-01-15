@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { theme } from '../../theme';
+import { useResponsive } from '../../hooks/useResponsive';
 
 interface WeekData {
   dateRange: string;
@@ -38,7 +39,7 @@ interface ProgressSummaryScreenProps {
 }
 
 const COLUMN_WIDTHS = {
-  weekOf: 130,
+  weekOf: 170,
   avgWt: 80,
   bike: 60,
   abs: 60,
@@ -207,6 +208,8 @@ export function ProgressSummaryScreen({
   loading = false,
   error = null,
 }: ProgressSummaryScreenProps) {
+  const responsive = useResponsive();
+
   const weeksData = useMemo(
     () => {
       if (loading || error) return [];
@@ -218,26 +221,14 @@ export function ProgressSummaryScreen({
   return (
     <Modal visible={isVisible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
-          {/* Header Section */}
-          <View style={styles.header}>
+        <View style={[styles.modalContainer, responsive.isLandscape && styles.modalContainerLandscape]}>
+          {/* Header Card - White background with shadow and rounded corners */}
+          <View style={styles.headerCard}>
             <View style={styles.headerContent}>
               <Text style={styles.headerTitle}>Progress Summary</Text>
               <Text style={styles.headerSubtitle}>Weekly workout totals</Text>
             </View>
-            <TouchableOpacity style={styles.closeButton} onPress={onClose} activeOpacity={0.7}>
-              <Text style={styles.closeButtonText}>×</Text>
-            </TouchableOpacity>
           </View>
-
-          {/* Scroll Info - Only show when not loading/error */}
-          {!loading && !error && (
-            <View style={styles.scrollInfo}>
-              <Text style={styles.scrollInfoText}>
-                ↔️ Scroll horizontally to see all columns | ↕️ Scroll vertically to see all 52 weeks
-              </Text>
-            </View>
-          )}
 
           {/* Table Container or Loading/Error */}
           <View style={styles.tableContainer}>
@@ -258,7 +249,8 @@ export function ProgressSummaryScreen({
               <ScrollView
                 horizontal
                 scrollEventThrottle={16}
-                showsHorizontalScrollIndicator={true}
+                showsHorizontalScrollIndicator={false}
+                showsVerticalScrollIndicator={false}
               >
                 <View>
                   {/* Fixed Header Row */}
@@ -277,13 +269,6 @@ export function ProgressSummaryScreen({
             )}
           </View>
 
-          {/* Footer Info */}
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>
-              Showing <Text style={styles.footerBold}>{weeksData.length}</Text> of 52 weeks | Last
-              updated: Today
-            </Text>
-          </View>
         </View>
       </View>
     </Modal>
@@ -293,83 +278,68 @@ export function ProgressSummaryScreen({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: theme.colors.overlay,
+    backgroundColor: '#f5f5f5',  // Light grey background
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: theme.spacing.base,
   },
   modalContainer: {
     width: '95%',
     height: '90%',
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.lg,
+    backgroundColor: '#f5f5f5',  // Grey background for modal area
+    borderRadius: 0,
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
-    ...theme.shadows.lg,
+  },
+  modalContainerLandscape: {
+    width: '98%',
+    height: '95%',
   },
 
-  // Header Section
-  header: {
-    backgroundColor: theme.colors.surface,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border.light,
+  // Header Card - Separate white card with shadow and rounded corners
+  headerCard: {
+    marginHorizontal: 16,                          // 16px (matching HTML)
+    marginTop: 8,                                  // 8px (matching HTML)
+    marginBottom: 8,                               // 8px (matching HTML)
+    paddingHorizontal: 24,                         // 24px horizontal (matching HTML)
+    paddingVertical: 12,                           // 12px vertical (matching HTML)
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    ...theme.shadows.sm,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
-    flexShrink: 0,
   },
   headerContent: {
-    textAlign: 'center',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
     flex: 1,
   },
   headerTitle: {
-    fontSize: 32,
-    fontWeight: '700',
+    fontSize: 20,                                  // 20px (matching HTML)
+    fontWeight: '700',                             // Bold (matching HTML)
     color: theme.colors.text.primary,
-    marginBottom: 6,
+    marginBottom: 4,                               // 4px (matching HTML)
   },
   headerSubtitle: {
-    fontSize: 15,
-    fontWeight: '400',
+    fontSize: 13,                                  // 13px (matching HTML)
+    fontWeight: '400',                             // Normal (matching HTML)
     color: theme.colors.text.secondary,
-    lineHeight: 1.4 * 15,
-  },
-  closeButton: {
-    width: 44,
-    height: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 999,
-    flexShrink: 0,
-  },
-  closeButtonText: {
-    fontSize: 32,
-    color: theme.colors.text.secondary,
-    fontWeight: '400',
+    marginBottom: 0,
   },
 
-  // Scroll Info
-  scrollInfo: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
-    backgroundColor: '#f9f9f9',
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.border.light,
-    flexShrink: 0,
-  },
-  scrollInfoText: {
-    fontSize: 12,
-    color: '#999',
-    textAlign: 'center',
-    lineHeight: 1.4 * 12,
-  },
 
-  // Table Container
+  // Table Container - White card with rounded corners
   tableContainer: {
     flex: 1,
+    marginHorizontal: theme.spacing.base,
+    marginBottom: theme.spacing.base,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
     overflow: 'hidden',
+    ...theme.shadows.sm,
   },
 
   // Table Header Row
@@ -397,10 +367,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: theme.colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border.light,
+    borderBottomColor: '#f0f0f0',                  // Matching HTML
   },
   dataRowAlt: {
-    backgroundColor: theme.colors.surfaceAlt,
+    backgroundColor: '#f9f9f9',                    // Matching HTML
   },
   dataCell: {
     paddingVertical: theme.spacing.md,
@@ -411,7 +381,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     lineHeight: 1.4 * 14,
     borderRightWidth: 1,
-    borderRightColor: theme.colors.border.light,
+    borderRightColor: '#f0f0f0',                   // Matching HTML
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -420,25 +390,6 @@ const styles = StyleSheet.create({
     paddingLeft: theme.spacing.lg,
   },
 
-  // Footer Info
-  footer: {
-    backgroundColor: theme.colors.surfaceAlt,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.border.light,
-    textAlign: 'center',
-    flexShrink: 0,
-  },
-  footerText: {
-    fontSize: 13,
-    color: theme.colors.text.secondary,
-    textAlign: 'center',
-    lineHeight: 1.4 * 13,
-  },
-  footerBold: {
-    fontWeight: '700',
-  },
 
   // Loading State Styles
   loadingContainer: {

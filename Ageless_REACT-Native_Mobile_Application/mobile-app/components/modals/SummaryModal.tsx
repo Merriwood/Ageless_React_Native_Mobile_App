@@ -7,46 +7,146 @@ import {
   Modal,
   ScrollView,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../theme';
 
-interface SummaryData {
-  totalWorkouts: number;
-  thisWeek: number;
-  thisMonth: number;
-  totalExercises: number;
-  averageWeight: number;
-  currentStreak: number;
-  personalBest: number;
+interface StatCardData {
+  label: string;
+  value: number | string;
+  unit?: string;
+}
+
+interface WeekData {
+  weekOf: string;
+  workoutsCompleted: number;
+  completionPercent: number;
+  avgWeight: number;
+  totalSets: number;
+  avgPerWorkout: number;
+  topExercises: Array<{ name: string; sets: number }>;
 }
 
 interface SummaryModalProps {
   isVisible?: boolean;
   onClose?: () => void;
-  data?: SummaryData;
+  stats?: StatCardData[];
+  weeklyData?: WeekData[];
 }
 
-const MOCK_DATA: SummaryData = {
-  totalWorkouts: 47,
-  thisWeek: 4,
-  thisMonth: 16,
-  totalExercises: 235,
-  averageWeight: 178.5,
-  currentStreak: 4,
-  personalBest: 185,
-};
+const MOCK_STATS: StatCardData[] = [
+  { label: 'Total Workouts', value: 47 },
+  { label: 'Avg Weight', value: 178.5, unit: ' lbs' },
+  { label: 'Total Sets', value: 312 },
+];
+
+const MOCK_WEEKLY: WeekData[] = [
+  {
+    weekOf: 'Jan 7 - Jan 13, 2026',
+    workoutsCompleted: 4,
+    completionPercent: 80,
+    avgWeight: 178.3,
+    totalSets: 64,
+    avgPerWorkout: 16,
+    topExercises: [
+      { name: '1. Push-ups', sets: 16 },
+      { name: '2. Squats', sets: 12 },
+      { name: '3. Pull-ups', sets: 10 },
+    ],
+  },
+  {
+    weekOf: 'Dec 31, 2025 - Jan 6, 2026',
+    workoutsCompleted: 5,
+    completionPercent: 92,
+    avgWeight: 177.8,
+    totalSets: 72,
+    avgPerWorkout: 14.4,
+    topExercises: [
+      { name: '1. Deadlifts', sets: 18 },
+      { name: '2. Bench Press', sets: 14 },
+      { name: '3. Push-ups', sets: 12 },
+    ],
+  },
+  {
+    weekOf: 'Dec 24 - Dec 30, 2025',
+    workoutsCompleted: 3,
+    completionPercent: 55,
+    avgWeight: 176.9,
+    totalSets: 48,
+    avgPerWorkout: 16,
+    topExercises: [
+      { name: '1. Squats', sets: 14 },
+      { name: '2. Lat Pulldown', sets: 12 },
+      { name: '3. Dips', sets: 10 },
+    ],
+  },
+];
 
 export function SummaryModal({
   isVisible = false,
   onClose,
-  data = MOCK_DATA,
+  stats = MOCK_STATS,
+  weeklyData = MOCK_WEEKLY,
 }: SummaryModalProps) {
-  const StatCard = ({ label, value, unit = '' }: { label: string; value: number | string; unit?: string }) => (
+  const StatCard = ({ label, value, unit = '' }: StatCardData) => (
     <View style={styles.statCard}>
+      <Text style={styles.statLabel}>{label}</Text>
       <Text style={styles.statValue}>
         {value}
         {unit && <Text style={styles.statUnit}>{unit}</Text>}
       </Text>
-      <Text style={styles.statLabel}>{label}</Text>
+    </View>
+  );
+
+  const WeeklyCard = ({ week }: { week: WeekData }) => (
+    <View style={styles.weeklyCard}>
+      {/* Week Header with Completion Rate */}
+      <View style={styles.weekHeader}>
+        <View>
+          <Text style={styles.weekTitle}>{week.weekOf}</Text>
+          <Text style={styles.weekSubtitle}>{week.workoutsCompleted} workouts completed</Text>
+        </View>
+        <View style={styles.completionRate}>
+          <Text style={styles.completionPercent}>{week.completionPercent}%</Text>
+          <Text style={styles.completionLabel}>completion</Text>
+        </View>
+      </View>
+
+      {/* Week Stats Grid */}
+      <View style={styles.weekStats}>
+        <View style={styles.weekStat}>
+          <Text style={styles.weekStatLabel}>Avg Weight</Text>
+          <Text style={styles.weekStatValue}>{week.avgWeight} lbs</Text>
+        </View>
+        <View style={styles.weekStat}>
+          <Text style={styles.weekStatLabel}>Total Sets</Text>
+          <Text style={styles.weekStatValue}>{week.totalSets}</Text>
+        </View>
+        <View style={styles.weekStat}>
+          <Text style={styles.weekStatLabel}>Avg/Workout</Text>
+          <Text style={styles.weekStatValue}>{week.avgPerWorkout}</Text>
+        </View>
+      </View>
+
+      {/* Top Exercises */}
+      <View style={styles.topExercises}>
+        <Text style={styles.topExercisesLabel}>Top Exercises:</Text>
+        {week.topExercises.map((exercise, index) => (
+          <View key={index} style={styles.exerciseItem}>
+            <Text style={styles.exerciseName}>{exercise.name}</Text>
+            <Text style={styles.exerciseSets}>{exercise.sets} sets</Text>
+          </View>
+        ))}
+      </View>
+
+      {/* Progress Bar */}
+      <View style={styles.progressBar}>
+        <View
+          style={[
+            styles.progressFill,
+            { width: `${week.completionPercent}%` },
+          ]}
+        />
+      </View>
     </View>
   );
 
@@ -61,13 +161,13 @@ export function SummaryModal({
         <View style={styles.modalContainer}>
           {/* Header */}
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Summary</Text>
+            <Text style={styles.modalTitle}>Ageless.</Text>
             <TouchableOpacity
-              style={styles.closeButton}
+              style={styles.headerMenuButton}
               onPress={onClose}
               activeOpacity={0.7}
             >
-              <Text style={styles.closeButtonText}>×</Text>
+              <Ionicons name="menu" size={24} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
 
@@ -75,43 +175,50 @@ export function SummaryModal({
           <ScrollView
             style={styles.contentContainer}
             contentContainerStyle={styles.contentPadding}
-            scrollEnabled
+            showsVerticalScrollIndicator={false}
           >
-            {/* Primary Stats */}
+            {/* Header Card */}
+            <View style={styles.headerCard}>
+              <View>
+                <Text style={styles.headerCardTitle}>Fitness Summary</Text>
+                <Text style={styles.headerCardSubtitle}>Your progress at a glance</Text>
+              </View>
+            </View>
+
+            {/* Overall Stats */}
             <View style={styles.statsGrid}>
-              <StatCard label="Total Workouts" value={data.totalWorkouts} />
-              <StatCard label="This Week" value={data.thisWeek} />
-              <StatCard label="This Month" value={data.thisMonth} />
-              <StatCard label="Total Exercises" value={data.totalExercises} />
+              {stats.map((stat, index) => (
+                <StatCard key={index} {...stat} />
+              ))}
             </View>
 
-            <View style={styles.divider} />
+            {/* Weekly Breakdown Section */}
+            <Text style={styles.sectionTitle}>Weekly Breakdown</Text>
 
-            {/* Secondary Stats */}
-            <View style={styles.statsGrid}>
-              <StatCard
-                label="Average Weight"
-                value={data.averageWeight.toFixed(1)}
-                unit=" lbs"
-              />
-              <StatCard label="Current Streak" value={data.currentStreak} unit=" days" />
-            </View>
-
-            {/* Highlight Stat */}
-            <View style={styles.highlightStat}>
-              <Text style={styles.highlightLabel}>Personal Best</Text>
-              <Text style={styles.highlightValue}>{data.personalBest} lbs</Text>
-            </View>
+            {/* Weekly Cards */}
+            {weeklyData.map((week, index) => (
+              <WeeklyCard key={index} week={week} />
+            ))}
           </ScrollView>
 
-          {/* Footer Button */}
-          <TouchableOpacity
-            style={styles.closeButton2}
-            onPress={onClose}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.closeButtonText2}>Close</Text>
-          </TouchableOpacity>
+          {/* Bottom Navigation - from HTML preview */}
+          <View style={styles.navBar}>
+            <View style={[styles.navItem, styles.navItemActive]}>
+              <Text style={styles.navItemText}>🏠 Home</Text>
+            </View>
+            <View style={styles.navItem}>
+              <Text style={styles.navItemText}>⭐ My ABS</Text>
+            </View>
+            <View style={styles.navItem}>
+              <Text style={styles.navItemText}>📱 Scan</Text>
+            </View>
+            <View style={styles.navItem}>
+              <Text style={styles.navItemText}>🎧 Listen</Text>
+            </View>
+            <View style={styles.navItem}>
+              <Text style={styles.navItemText}>🎁 Rewards</Text>
+            </View>
+          </View>
         </View>
       </View>
     </Modal>
@@ -121,120 +228,223 @@ export function SummaryModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: theme.colors.overlay,
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: '#f5f5f5',  // Light grey background (matching HTML)
   },
   modalContainer: {
-    width: '90%',
-    maxHeight: '80%',
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.lg,
-    overflow: 'hidden',
-    ...theme.shadows.lg,
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+    flexDirection: 'column',
   },
   modalHeader: {
+    backgroundColor: theme.colors.primary,  // Red header (#C5282F)
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border.light,
+    justifyContent: 'center',
+    position: 'relative',
   },
   modalTitle: {
-    fontSize: theme.typography.h3.fontSize,
-    fontWeight: theme.typography.h3.fontWeight,
-    color: theme.colors.text.primary,
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    flex: 1,
   },
-  closeButton: {
+  headerMenuButton: {
+    position: 'absolute',
+    right: 16,
     width: 32,
     height: 32,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: theme.radius.full,
-  },
-  closeButtonText: {
-    fontSize: 28,
-    color: theme.colors.text.secondary,
-    fontWeight: '400',
+    borderRadius: 16,
   },
   contentContainer: {
     flex: 1,
   },
   contentPadding: {
-    paddingVertical: theme.spacing.lg,
-    paddingHorizontal: theme.spacing.lg,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
   },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: theme.spacing.base,
-    marginBottom: theme.spacing.lg,
-  },
-  statCard: {
-    flex: 1,
-    minWidth: '45%',
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
-    backgroundColor: theme.colors.surfaceAlt,
-    borderRadius: theme.radius.md,
+  headerCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    ...theme.shadows.sm,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  statValue: {
-    fontSize: 24,
+  headerCardTitle: {
+    fontSize: 20,
     fontWeight: '700',
-    color: theme.colors.primary,
-    lineHeight: 28,
+    color: theme.colors.text.primary,
+    marginBottom: 4,
+    textAlign: 'center',
   },
-  statUnit: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: theme.colors.text.secondary,
-  },
-  statLabel: {
-    marginTop: theme.spacing.xs,
-    fontSize: 12,
-    fontWeight: '500',
+  headerCardSubtitle: {
+    fontSize: 13,
+    fontWeight: '400',
     color: theme.colors.text.secondary,
     textAlign: 'center',
   },
-  divider: {
-    height: 1,
-    backgroundColor: theme.colors.border.light,
-    marginVertical: theme.spacing.lg,
+  statsGrid: {
+    flexDirection: 'column',
+    gap: 12,
+    marginBottom: 16,
   },
-  highlightStat: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.lg,
-    backgroundColor: theme.colors.primaryLight,
-    borderRadius: theme.radius.md,
-    marginTop: theme.spacing.lg,
+  statCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 10,
+    ...theme.shadows.sm,
   },
-  highlightLabel: {
+  statValue: {
+    fontSize: 22,  // Matching HTML (reduced from 28px)
+    fontWeight: '700',
+    color: theme.colors.text.primary,
+    marginBottom: 2,
+  },
+  statUnit: {
+    fontSize: 12,
+    fontWeight: '400',
+    color: theme.colors.text.secondary,
+  },
+  statLabel: {
     fontSize: 12,
     fontWeight: '600',
     color: theme.colors.text.secondary,
-    marginBottom: theme.spacing.xs,
+    textAlign: 'left',  // Left-justified (matching HTML)
   },
-  highlightValue: {
-    fontSize: 32,
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: theme.colors.text.primary,
+    marginBottom: 12,
+    marginTop: 16,
+  },
+  weeklyCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    ...theme.shadows.sm,
+  },
+  weekHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  weekTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: theme.colors.text.primary,
+  },
+  weekSubtitle: {
+    fontSize: 12,
+    fontWeight: '400',
+    color: theme.colors.text.secondary,
+    marginTop: 4,
+  },
+  completionRate: {
+    alignItems: 'flex-end',
+  },
+  completionPercent: {
+    fontSize: 24,
     fontWeight: '700',
     color: theme.colors.primary,
   },
-  closeButton2: {
-    marginHorizontal: theme.spacing.lg,
-    marginBottom: theme.spacing.lg,
-    marginTop: theme.spacing.base,
-    paddingVertical: theme.spacing.md,
-    backgroundColor: theme.colors.primary,
-    borderRadius: theme.radius.md,
+  completionLabel: {
+    fontSize: 11,
+    fontWeight: '400',
+    color: theme.colors.text.secondary,
+  },
+  weekStats: {
+    flexDirection: 'row',
+    gap: 12,
+    marginVertical: 12,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  weekStat: {
+    flex: 1,
     alignItems: 'center',
   },
-  closeButtonText2: {
-    fontSize: theme.typography.button.fontSize,
-    fontWeight: theme.typography.button.fontWeight,
-    color: theme.colors.text.onPrimary,
+  weekStatLabel: {
+    fontSize: 11,
+    fontWeight: '400',
+    color: theme.colors.text.secondary,
+    marginBottom: 4,
+  },
+  weekStatValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.colors.text.primary,
+  },
+  topExercises: {
+    backgroundColor: '#f9f9f9',
+    borderRadius: 6,
+    padding: 10,
+    marginTop: 10,
+  },
+  topExercisesLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: theme.colors.text.primary,
+    marginBottom: 6,
+  },
+  exerciseItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 4,
+    fontSize: 12,
+  },
+  exerciseName: {
+    fontSize: 12,
+    color: theme.colors.text.primary,
+  },
+  exerciseSets: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: theme.colors.primary,
+  },
+  progressBar: {
+    width: '100%',
+    height: 6,
+    backgroundColor: '#e0e0e0',
+    borderRadius: 3,
+    overflow: 'hidden',
+    marginTop: 8,
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: theme.colors.primary,
+    borderRadius: 3,
+  },
+  navBar: {
+    borderTopWidth: 1,
+    borderTopColor: '#e5e5e5',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 8,
+  },
+  navItem: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 8,
+    fontSize: 11,
+  },
+  navItemText: {
+    fontSize: 11,
+    color: theme.colors.text.secondary,
+  },
+  navItemActive: {
+    // Will be styled differently if needed
   },
 });

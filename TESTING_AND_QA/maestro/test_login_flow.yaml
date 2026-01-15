@@ -1,0 +1,98 @@
+# Test: Login Flow
+# Duration: ~3 minutes
+# Critical Path: YES
+# Purpose: Verify user authentication with valid and invalid credentials
+
+---
+appId: exp.ageless
+---
+
+# Test 1: Valid Login
+- label: "Test 1: Valid Login with Correct Credentials"
+- tapOn:
+    text: "Sign in"
+- inputText: "test@ageless.app"
+  at:
+    id: "email-input"
+- inputText: "Test@123"
+  at:
+    id: "password-input"
+- tapOn:
+    id: "signin-button"
+- waitForText:
+    text: "Login successful"
+    timeout: 5
+- assertVisible:
+    text: "Dashboard"
+
+# Test 2: Email Validation
+- label: "Test 2: Invalid Email Format"
+- tapOn:
+    id: "email-input"
+- clearTextInput:
+    at:
+      id: "email-input"
+- inputText: "invalidemail"
+- tapOn:
+    id: "signin-button"
+- waitForText:
+    text: "valid email"
+    timeout: 3
+
+# Test 3: Password Required
+- label: "Test 3: Missing Password"
+- tapOn:
+    id: "email-input"
+- clearTextInput:
+    at:
+      id: "email-input"
+- inputText: "test@ageless.app"
+- tapOn:
+    id: "password-input"
+- clearTextInput:
+    at:
+      id: "password-input"
+- tapOn:
+    id: "signin-button"
+- waitForText:
+    text: "Please enter your password"
+    timeout: 3
+
+# Test 4: Invalid Credentials
+- label: "Test 4: Wrong Password"
+- tapOn:
+    id: "password-input"
+- clearTextInput:
+    at:
+      id: "password-input"
+- inputText: "WrongPassword123"
+- tapOn:
+    id: "signin-button"
+- waitForText:
+    text: "Invalid credentials"
+    timeout: 5
+
+# Test 5: Valid Login Success
+- label: "Test 5: Successful Login and Navigation"
+- tapOn:
+    id: "email-input"
+- clearTextInput:
+    at:
+      id: "email-input"
+- inputText: "test@ageless.app"
+- tapOn:
+    id: "password-input"
+- clearTextInput:
+    at:
+      id: "password-input"
+- inputText: "Test@123"
+- tapOn:
+    id: "signin-button"
+- waitForText:
+    text: "Login successful"
+    timeout: 5
+- extract:
+    variable: authToken
+    from:
+      text: "token"
+

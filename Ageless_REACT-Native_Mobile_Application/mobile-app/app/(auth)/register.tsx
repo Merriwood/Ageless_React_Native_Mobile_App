@@ -67,12 +67,12 @@ export default function RegisterScreen() {
     setIsLoading(true);
 
     try {
-      // TODO: Connect to actual API endpoint
+      // Connect to actual API endpoint
       // const response = await api.auth.register(email, password, goal);
       // const { token, user } = response;
       // Store token and redirect to dashboard
 
-      // Simulated successful registration
+      // Simulated successful registration (temporary until API connected)
       setTimeout(() => {
         Alert.alert("Success", "Account created successfully!");
         // router.replace("/(drawer)/(tabs)/dashboard");
@@ -139,6 +139,7 @@ export default function RegisterScreen() {
             Email
           </Text>
           <TextInput
+            testID="register-email-input"
             style={{
               borderWidth: 1,
               borderColor: error ? theme.colors.error : theme.colors.border,
@@ -208,6 +209,7 @@ export default function RegisterScreen() {
             }}
           >
             <TextInput
+              testID="register-password-input"
               style={{
                 flex: 1,
                 paddingVertical: theme.spacing.md,
@@ -315,6 +317,111 @@ export default function RegisterScreen() {
           />
         </View>
 
+        {/* Fitness Goal Selection */}
+        <View style={{ marginBottom: theme.spacing.lg }}>
+          <Text
+            style={{
+              ...theme.typography.body,
+              color: theme.colors.text,
+              marginBottom: theme.spacing.md,
+              fontWeight: "600",
+            }}
+          >
+            Fitness Goal (Optional)
+          </Text>
+          <View style={{ gap: theme.spacing.md }}>
+            <TouchableOpacity
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                paddingVertical: theme.spacing.sm,
+              }}
+              onPress={() => setGoal(goal === "mind" ? "" : "mind")}
+            >
+              <Ionicons
+                name={goal === "mind" ? "checkbox" : "checkbox-outline"}
+                size={20}
+                color={theme.colors.primary}
+              />
+              <Text style={{ marginLeft: theme.spacing.md, color: theme.colors.text }}>
+                Mind
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                paddingVertical: theme.spacing.sm,
+              }}
+              onPress={() => setGoal(goal === "body" ? "" : "body")}
+            >
+              <Ionicons
+                name={goal === "body" ? "checkbox" : "checkbox-outline"}
+                size={20}
+                color={theme.colors.primary}
+              />
+              <Text style={{ marginLeft: theme.spacing.md, color: theme.colors.text }}>
+                Body
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                paddingVertical: theme.spacing.sm,
+              }}
+              onPress={() => setGoal(goal === "heart" ? "" : "heart")}
+            >
+              <Ionicons
+                name={goal === "heart" ? "checkbox" : "checkbox-outline"}
+                size={20}
+                color={theme.colors.primary}
+              />
+              <Text style={{ marginLeft: theme.spacing.md, color: theme.colors.text }}>
+                Heart
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                paddingVertical: theme.spacing.sm,
+              }}
+              onPress={() => setGoal(goal === "nutrition" ? "" : "nutrition")}
+            >
+              <Ionicons
+                name={goal === "nutrition" ? "checkbox" : "checkbox-outline"}
+                size={20}
+                color={theme.colors.primary}
+              />
+              <Text style={{ marginLeft: theme.spacing.md, color: theme.colors.text }}>
+                Nutrition
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                paddingVertical: theme.spacing.sm,
+              }}
+              onPress={() => setGoal(goal === "other" ? "" : "other")}
+            >
+              <Ionicons
+                name={goal === "other" ? "checkbox" : "checkbox-outline"}
+                size={20}
+                color={theme.colors.primary}
+              />
+              <Text style={{ marginLeft: theme.spacing.md, color: theme.colors.text }}>
+                Other
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* Error Message */}
         {error && (
           <View
@@ -340,6 +447,7 @@ export default function RegisterScreen() {
 
         {/* Register Button */}
         <TouchableOpacity
+          testID="register-button"
           onPress={handleRegister}
           disabled={isLoading}
           style={{

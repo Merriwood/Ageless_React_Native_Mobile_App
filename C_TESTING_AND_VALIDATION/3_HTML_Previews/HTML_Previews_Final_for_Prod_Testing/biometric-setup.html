@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ageless - Set Up Face ID</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.05);
+            padding: 12px;
+            position: relative;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #ffffff 0%, #f8f8f8 100%);
+            border-radius: 35px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .screen-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px 20px 20px;
+            background: linear-gradient(180deg, #ffffff 0%, #f9f9f9 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .biometric-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .app-logo {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, #C5282F 0%, #A01F24 100%);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            box-shadow: 0 8px 16px rgba(197, 40, 47, 0.25), 0 4px 8px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .heart-icon {
+            width: 48px;
+            height: 48px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 28px;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .progress-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .progress-dot.active {
+            background: #C5282F;
+            width: 28px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(197, 40, 47, 0.3);
+        }
+
+        .face-scanner {
+            width: 140px;
+            height: 140px;
+            border: 2px solid #C5282F;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 24px auto 16px;
+            background: linear-gradient(135deg, rgba(197, 40, 47, 0.05) 0%, rgba(197, 40, 47, 0.02) 100%);
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 2px 8px rgba(197, 40, 47, 0.1), 0 4px 12px rgba(197, 40, 47, 0.15);
+        }
+
+        .face-scanner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .face-scanner-icon {
+            width: 80px;
+            height: 80px;
+            opacity: 0.4;
+            position: relative;
+            z-index: 1;
+            filter: saturate(0.8);
+        }
+
+        .scanner-label {
+            position: absolute;
+            bottom: 16px;
+            font-size: 11px;
+            color: #C5282F;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            z-index: 2;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f5 100%);
+            border: 1px solid #81c784;
+            border-radius: 12px;
+            padding: 14px;
+            margin: 20px 0;
+            font-size: 12px;
+            color: #2e7d32;
+            text-align: center;
+            font-weight: 500;
+            line-height: 1.5;
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);
+        }
+
+        .benefits-section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px 0 24px;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid #f0f0f0;
+        }
+
+        .benefits-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+            letter-spacing: -0.3px;
+        }
+
+        .benefit-item {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 14px;
+            text-align: left;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+        }
+
+        .benefit-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .benefit-item:hover {
+            background: #f9f9f9;
+        }
+
+        .benefit-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+            width: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .benefit-text {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .benefit-text strong {
+            color: #1a1a1a;
+            font-weight: 700;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            margin-top: 24px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            letter-spacing: -0.3px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #C5282F 0%, #A01F24 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(197, 40, 47, 0.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 16px rgba(197, 40, 47, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.96);
+            box-shadow: 0 2px 8px rgba(197, 40, 47, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #333;
+            border: 2px solid #e0e0e0;
+            font-weight: 700;
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: #f9f9f9;
+            border-color: #c0c0c0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .btn-secondary:active {
+            background: #f0f0f0;
+            transform: scale(0.96);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 40px;
+            height: 40px;
+            background: rgba(0,0,0,0.05);
+            border: none;
+            border-radius: 12px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        .close-btn:hover {
+            background: rgba(0,0,0,0.1);
+            color: #333;
+            transform: scale(1.05);
+        }
+
+        .close-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Scrollbar styling */
+        .screen-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .screen-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .screen-content::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 2px;
+        }
+
+        .screen-content::-webkit-scrollbar-thumb:hover {
+            background: #bbb;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="phone-screen">
+            <button class="close-btn" onclick="handleSkipSetup()">✕</button>
+
+            <div class="screen-content">
+                <!-- Header -->
+                <div class="biometric-header">
+                    <div class="app-logo">
+                        <svg class="heart-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Heart icon from React Native mobile app Heart_Icon_Logo.svg - bold white outline -->
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="white" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Progress Indicator -->
+                <div class="progress-indicator">
+                    <div class="progress-dot active"></div>
+                    <div class="progress-dot"></div>
+                    <div class="progress-dot"></div>
+                </div>
+
+                <!-- Title -->
+                <div class="page-title">Set Up Face ID</div>
+                <div class="page-subtitle">Secure, passwordless login with biometric authentication</div>
+
+                <!-- Face Scanner Preview -->
+                <div class="face-scanner">
+                    <img class="face-scanner-icon" src="../../../Old_Ageless_Web_PWA/PWA_Source_Code/web/icons/face_id_icon.png" alt="Face Scanner" />
+                    <div class="scanner-label">Position your face</div>
+                </div>
+
+                <!-- Info Box -->
+                <div class="info-box">
+                    ℹ️ Face ID uses your device's camera to securely capture your facial features. No photos are stored on our servers.
+                </div>
+
+                <!-- Benefits Section -->
+                <div class="benefits-section">
+                    <div class="benefits-title">Why use Face ID?</div>
+                    <div class="benefit-item">
+                        <div class="benefit-text"><strong>Secure:</strong> More secure than passwords</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-text"><strong>Fast:</strong> Login in seconds</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-text"><strong>Convenient:</strong> No need to remember passwords</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-text"><strong>Private:</strong> Biometric data never leaves your device</div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="button-group">
+                    <button type="button" class="btn btn-primary" onclick="handleStartFaceCapture()">
+                        Start Scan
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="handleSkipSetup()">
+                        Skip
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get email from URL parameter (if provided)
+        const urlParams = new URLSearchParams(window.location.search);
+        const userEmail = urlParams.get('email') || 'user@example.com';
+
+        function handleStartFaceCapture() {
+            alert('Face Capture Process\n\nIn production, this would:\n\n1. Request camera permission\n2. Activate device camera\n3. Capture facial data\n4. Process with liveness detection\n5. Store encrypted biometric template\n6. Confirm setup complete\n\nFor user: ' + userEmail);
+        }
+
+        function handleSkipSetup() {
+            alert('You can set up Face ID anytime in:\n\nSettings > Security > Biometric Authentication\n\nNavigating to login screen...');
+            // In production: window.location.href = 'login-screen.html';
+        }
+
+        // Optional: Auto-show setup on page load
+        window.addEventListener('load', function() {
+            console.log('Biometric setup screen loaded for:', userEmail);
+        });
+    </script>
+</body>
+</html>

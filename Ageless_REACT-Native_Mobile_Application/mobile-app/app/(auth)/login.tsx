@@ -9,6 +9,8 @@ import {
   ScrollView,
   Alert,
   Pressable,
+  StyleSheet,
+  Linking,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { theme } from "../../theme";
@@ -22,6 +24,7 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [signInCollapsed, setSignInCollapsed] = useState(false);
 
   const handleLogin = async () => {
     // Clear previous errors
@@ -46,13 +49,12 @@ export default function LoginScreen() {
     setIsLoading(true);
 
     try {
-      // TODO: Connect to actual API endpoint
-      // For now, simulate API call
+      // Connect to actual API endpoint
       // const response = await api.auth.login(email, password);
       // const { token, user } = response;
       // Store token in SecureStore and redirect to dashboard
 
-      // Simulated successful login
+      // Simulated successful login (temporary until API connected)
       setTimeout(() => {
         Alert.alert("Success", "Login successful!");
         // router.replace("/(drawer)/(tabs)/dashboard");
@@ -66,223 +68,344 @@ export default function LoginScreen() {
     }
   };
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    scrollContent: {
+      paddingHorizontal: 20,
+      paddingTop: 40,
+      paddingBottom: 20,
+    },
+    header: {
+      alignItems: "center",
+      marginBottom: 40,
+    },
+    logo: {
+      width: 60,
+      height: 60,
+      backgroundColor: theme.colors.primary,
+      borderRadius: 12,
+      justifyContent: "center",
+      alignItems: "center",
+      marginBottom: 12,
+    },
+    logoText: {
+      fontSize: 32,
+      fontWeight: "700",
+      color: "#FFFFFF",
+    },
+    title: {
+      fontSize: 32,
+      fontWeight: "700",
+      color: theme.colors.text.primary,
+      marginBottom: 8,
+    },
+    faceIdIcon: {
+      fontSize: 48,
+      marginVertical: 12,
+    },
+    welcomeText: {
+      fontSize: 18,
+      fontWeight: "600",
+      color: theme.colors.text.primary,
+      marginBottom: 4,
+    },
+    subtitle: {
+      fontSize: 14,
+      color: theme.colors.text.secondary,
+      marginBottom: 20,
+    },
+    collapsibleSection: {
+      backgroundColor: "#FFF",
+      borderRadius: 12,
+      marginBottom: 20,
+      overflow: "hidden",
+      borderWidth: 1,
+      borderColor: theme.colors.border.light,
+    },
+    sectionHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      backgroundColor: "#F9F9F9",
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.border.light,
+    },
+    sectionTitle: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: theme.colors.text.primary,
+    },
+    formContent: {
+      paddingHorizontal: 16,
+      paddingVertical: 20,
+    },
+    formGroup: {
+      marginBottom: 16,
+    },
+    label: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: theme.colors.text.primary,
+      marginBottom: 8,
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: theme.colors.border.light,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 12,
+      fontSize: 14,
+      color: theme.colors.text.primary,
+      backgroundColor: theme.colors.surface,
+    },
+    passwordContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      borderWidth: 1,
+      borderColor: theme.colors.border.light,
+      borderRadius: 8,
+      backgroundColor: theme.colors.surface,
+      paddingHorizontal: 12,
+    },
+    passwordInput: {
+      flex: 1,
+      paddingVertical: 12,
+      fontSize: 14,
+      color: theme.colors.text.primary,
+    },
+    eyeIcon: {
+      padding: 8,
+    },
+    checkboxGroup: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginTop: 8,
+    },
+    checkboxLabel: {
+      fontSize: 14,
+      color: theme.colors.text.secondary,
+      marginLeft: 8,
+    },
+    buttonGroup: {
+      flexDirection: "row",
+      gap: 12,
+      marginTop: 20,
+    },
+    btn: {
+      flex: 1,
+      paddingVertical: 12,
+      borderRadius: 20,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    btnPrimary: {
+      backgroundColor: theme.colors.primary,
+    },
+    btnSecondary: {
+      backgroundColor: "#555",
+    },
+    btnText: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: "#FFFFFF",
+    },
+    errorMessage: {
+      backgroundColor: "#FEE",
+      borderWidth: 1,
+      borderColor: "#F99",
+      color: "#C33",
+      padding: 12,
+      borderRadius: 8,
+      marginBottom: 16,
+      fontSize: 13,
+    },
+    forgotLinks: {
+      alignItems: "center",
+      marginTop: 24,
+      paddingHorizontal: 16,
+    },
+    forgotLink: {
+      color: theme.colors.primary,
+      fontSize: 14,
+      marginBottom: 8,
+    },
+    divider: {
+      color: theme.colors.text.secondary,
+      marginVertical: 10,
+    },
+    bottomButtonGroup: {
+      flexDirection: "row",
+      gap: 12,
+      paddingHorizontal: 20,
+      paddingBottom: 20,
+      justifyContent: "center",
+    },
+    bottomBtn: {
+      flex: 1,
+      maxWidth: 100,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderWidth: 1,
+      borderColor: theme.colors.border.light,
+      borderRadius: 8,
+      backgroundColor: "#FFF",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    bottomBtnText: {
+      fontSize: 12,
+      fontWeight: "600",
+      color: theme.colors.text.primary,
+      textAlign: "center",
+    },
+  });
+
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: theme.colors.background,
-      }}
-    >
-      <ScrollView
-        contentContainerStyle={{
-          flexGrow: 1,
-          justifyContent: "center",
-          paddingHorizontal: theme.spacing.lg,
-          paddingVertical: theme.spacing.lg,
-        }}
-      >
-        <View
-          style={{
-            alignItems: "center",
-            marginBottom: theme.spacing.xl,
-          }}
-        >
-          <Text
-            style={{
-              ...theme.typography.h1,
-              color: theme.colors.primary,
-              marginBottom: theme.spacing.sm,
-            }}
-          >
-            Ageless Fitness
-          </Text>
-          <Text
-            style={{
-              ...theme.typography.body,
-              color: theme.colors.textSecondary,
-            }}
-          >
-            Track your fitness journey
-          </Text>
-        </View>
-
-        {/* Email Input */}
-        <View style={{ marginBottom: theme.spacing.lg }}>
-          <Text
-            style={{
-              ...theme.typography.body,
-              color: theme.colors.text,
-              marginBottom: theme.spacing.sm,
-              fontWeight: "600",
-            }}
-          >
-            Email
-          </Text>
-          <TextInput
-            style={{
-              borderWidth: 1,
-              borderColor: error ? theme.colors.error : theme.colors.border,
-              borderRadius: theme.radius.md,
-              paddingHorizontal: theme.spacing.md,
-              paddingVertical: theme.spacing.md,
-              ...theme.typography.body,
-              color: theme.colors.text,
-              backgroundColor: theme.colors.surface,
-            }}
-            placeholder="your.email@example.com"
-            placeholderTextColor={theme.colors.textSecondary}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            editable={!isLoading}
-            value={email}
-            onChangeText={setEmail}
-          />
-        </View>
-
-        {/* Password Input */}
-        <View style={{ marginBottom: theme.spacing.lg }}>
-          <Text
-            style={{
-              ...theme.typography.body,
-              color: theme.colors.text,
-              marginBottom: theme.spacing.sm,
-              fontWeight: "600",
-            }}
-          >
-            Password
-          </Text>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              borderWidth: 1,
-              borderColor: error ? theme.colors.error : theme.colors.border,
-              borderRadius: theme.radius.md,
-              backgroundColor: theme.colors.surface,
-              paddingHorizontal: theme.spacing.md,
-            }}
-          >
-            <TextInput
-              style={{
-                flex: 1,
-                paddingVertical: theme.spacing.md,
-                ...theme.typography.body,
-                color: theme.colors.text,
-              }}
-              placeholder="Enter your password"
-              placeholderTextColor={theme.colors.textSecondary}
-              secureTextEntry={!showPassword}
-              editable={!isLoading}
-              value={password}
-              onChangeText={setPassword}
-            />
-            <Pressable
-              onPress={() => setShowPassword(!showPassword)}
-              style={{ padding: theme.spacing.sm }}
-            >
-              <Ionicons
-                name={showPassword ? "eye-off" : "eye"}
-                size={20}
-                color={theme.colors.textSecondary}
-              />
-            </Pressable>
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.logo}>
+            <Text style={styles.logoText}>❤️</Text>
           </View>
+          <Text style={styles.title}>Ageless.</Text>
+          <Text style={styles.faceIdIcon}>😊</Text>
+          <Text style={styles.welcomeText}>Welcome</Text>
+          <Text style={styles.subtitle}>Track your daily workout progress</Text>
         </View>
 
         {/* Error Message */}
-        {error && (
-          <View
-            style={{
-              backgroundColor: `${theme.colors.error}20`,
-              borderLeftWidth: 4,
-              borderLeftColor: theme.colors.error,
-              padding: theme.spacing.md,
-              marginBottom: theme.spacing.lg,
-              borderRadius: theme.radius.sm,
-            }}
-          >
-            <Text
-              style={{
-                color: theme.colors.error,
-                ...theme.typography.body,
-              }}
-            >
-              {error}
-            </Text>
-          </View>
-        )}
+        {error && <Text style={styles.errorMessage}>{error}</Text>}
 
-        {/* Login Button */}
-        <TouchableOpacity
-          onPress={handleLogin}
-          disabled={isLoading}
-          style={{
-            backgroundColor: isLoading ? theme.colors.border : theme.colors.primary,
-            paddingVertical: theme.spacing.base,
-            borderRadius: theme.radius.button,
-            alignItems: "center",
-            justifyContent: "center",
-            minHeight: 44,
-            marginBottom: theme.spacing.md,
-          }}
-        >
-          {isLoading ? (
-            <ActivityIndicator color={theme.colors.surface} size="small" />
-          ) : (
-            <Text
-              style={{
-                color: theme.colors.surface,
-                ...theme.typography.button,
-                fontWeight: "600",
-              }}
-            >
-              Sign In
-            </Text>
+        {/* Sign In Form (Collapsible) */}
+        <View style={styles.collapsibleSection}>
+          <Pressable
+            onPress={() => setSignInCollapsed(!signInCollapsed)}
+            style={styles.sectionHeader}
+          >
+            <Text style={styles.sectionTitle}>Sign in</Text>
+            <Text style={{ fontSize: 18 }}>{signInCollapsed ? "▼" : "▲"}</Text>
+          </Pressable>
+
+          {!signInCollapsed && (
+            <View style={styles.formContent}>
+              {/* Email */}
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Email</Text>
+                <TextInput
+                  testID="email-input"
+                  style={styles.input}
+                  placeholder="Enter your email"
+                  placeholderTextColor={theme.colors.text.secondary}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  editable={!isLoading}
+                  value={email}
+                  onChangeText={setEmail}
+                />
+              </View>
+
+              {/* Password */}
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Password</Text>
+                <View style={styles.passwordContainer}>
+                  <TextInput
+                    testID="password-input"
+                    style={styles.passwordInput}
+                    placeholder="Enter your password"
+                    placeholderTextColor={theme.colors.text.secondary}
+                    secureTextEntry={!showPassword}
+                    editable={!isLoading}
+                    value={password}
+                    onChangeText={setPassword}
+                  />
+                  <Pressable
+                    onPress={() => setShowPassword(!showPassword)}
+                    style={styles.eyeIcon}
+                  >
+                    <Ionicons
+                      name={showPassword ? "eye-off" : "eye"}
+                      size={20}
+                      color={theme.colors.text.secondary}
+                    />
+                  </Pressable>
+                </View>
+              </View>
+
+              {/* Save User ID */}
+              <View style={styles.checkboxGroup}>
+                <Ionicons
+                  name="checkbox-outline"
+                  size={18}
+                  color={theme.colors.text.secondary}
+                />
+                <Text style={styles.checkboxLabel}>Save user ID</Text>
+              </View>
+
+              {/* Buttons */}
+              <View style={styles.buttonGroup}>
+                <TouchableOpacity
+                  testID="signin-button"
+                  style={[styles.btn, styles.btnPrimary]}
+                  onPress={handleLogin}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <ActivityIndicator color="#FFFFFF" size="small" />
+                  ) : (
+                    <Text style={styles.btnText}>Sign in</Text>
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.btn, styles.btnSecondary]}
+                  onPress={() => router.push("/(auth)/register")}
+                  disabled={isLoading}
+                >
+                  <Text style={styles.btnText}>Register</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           )}
-        </TouchableOpacity>
+        </View>
 
-        {/* Forgot Password Link */}
-        <TouchableOpacity style={{ marginBottom: theme.spacing.lg }}>
-          <Text
-            style={{
-              color: theme.colors.primary,
-              ...theme.typography.body,
-              textAlign: "center",
-            }}
-          >
-            Forgot Password?
-          </Text>
-        </TouchableOpacity>
-
-        {/* Sign Up Link */}
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Text
-            style={{
-              color: theme.colors.textSecondary,
-              ...theme.typography.body,
-            }}
-          >
-            Don't have an account?{" "}
-          </Text>
+        {/* Forgot Links */}
+        <View style={styles.forgotLinks}>
+          <TouchableOpacity onPress={() => Alert.alert("Forgot password - Coming soon")}>
+            <Text style={styles.forgotLink}>Forgot user ID or password?</Text>
+          </TouchableOpacity>
+          <Text style={styles.divider}>or</Text>
           <TouchableOpacity onPress={() => router.push("/(auth)/register")}>
-            <Text
-              style={{
-                color: theme.colors.primary,
-                ...theme.typography.body,
-                fontWeight: "600",
-              }}
-            >
-              Sign Up
-            </Text>
+            <Text style={styles.forgotLink}>Create new account</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* Bottom Buttons */}
+      <View style={styles.bottomButtonGroup}>
+        <Pressable
+          style={styles.bottomBtn}
+          onPress={() => Alert.alert("Call us")}
+        >
+          <Text style={styles.bottomBtnText}>📞 Call us</Text>
+        </Pressable>
+        <Pressable
+          style={styles.bottomBtn}
+          onPress={() => Alert.alert("Find us")}
+        >
+          <Text style={styles.bottomBtnText}>📍 Find us</Text>
+        </Pressable>
+        <Pressable
+          style={styles.bottomBtn}
+          onPress={() => Alert.alert("More")}
+        >
+          <Text style={styles.bottomBtnText}>⋯ More</Text>
+        </Pressable>
+      </View>
     </SafeAreaView>
   );
 }

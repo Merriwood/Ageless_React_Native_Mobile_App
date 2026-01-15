@@ -1,0 +1,116 @@
+# Test: History/Modal Flow
+# Duration: ~4 minutes
+# Critical Path: YES
+# Purpose: Verify workout history access and management
+
+---
+appId: exp.ageless
+---
+
+# Setup: Login to Dashboard
+- label: "Setup: Login and Navigate to Dashboard"
+- tapOn:
+    id: "signin-button"
+- inputText: "test@ageless.app"
+  at:
+    id: "email-input"
+- inputText: "Test@123"
+  at:
+    id: "password-input"
+- tapOn:
+    id: "signin-button"
+- waitForText:
+    text: "Login successful"
+    timeout: 5
+
+# Test 1: Hamburger Menu Opens
+- label: "Test 1: Open Hamburger Menu"
+- tapOn:
+    id: "hamburger-menu"
+- waitForText:
+    text: "Menu"
+    timeout: 2
+
+# Test 2: History Modal Opens from Menu
+- label: "Test 2: Open History Modal from Menu"
+- tapOn:
+    text: "History"
+- waitForText:
+    text: "Workout History"
+    timeout: 3
+- assertVisible:
+    id: "history-modal"
+
+# Test 3: History Cards Display
+- label: "Test 3: Workout History Cards Load"
+- waitForText:
+    regex: "\\d{4}-\\d{2}-\\d{2}"
+    timeout: 3
+- assertVisible:
+    id: "history-card-0"
+
+# Test 4: Multiple History Cards Visible
+- label: "Test 4: Multiple Workouts Display"
+- scroll:
+    direction: DOWN
+    iterations: 3
+- waitForText:
+    regex: "\\d{4}-\\d{2}-\\d{2}"
+    timeout: 2
+
+# Test 5: Edit Workout Button
+- label: "Test 5: Edit Workout Modal Opens"
+- tapOn:
+    id: "edit-button-0"
+- waitForText:
+    text: "Edit"
+    timeout: 3
+- assertVisible:
+    text: "Save Changes"
+
+# Test 6: Close Edit Modal
+- label: "Test 6: Close Edit Modal"
+- tapOn:
+    text: "Cancel"
+- waitForText:
+    text: "Workout History"
+    timeout: 2
+
+# Test 7: Delete Workout Confirmation
+- label: "Test 7: Delete Confirmation Dialog"
+- tapOn:
+    id: "delete-button-0"
+- waitForText:
+    text: "Are you sure"
+    timeout: 2
+- tapOn:
+    text: "Cancel"
+- waitForText:
+    text: "Workout History"
+    timeout: 2
+
+# Test 8: Scroll Through History
+- label: "Test 8: Scroll History List"
+- scroll:
+    direction: DOWN
+    iterations: 5
+- scroll:
+    direction: UP
+    iterations: 5
+
+# Test 9: Close History Modal
+- label: "Test 9: Close History Modal"
+- tapOn:
+    id: "close-button"
+- waitForText:
+    text: "Dashboard"
+    timeout: 2
+
+# Test 10: Bottom Nav History Tab
+- label: "Test 10: Navigate via Bottom Nav"
+- tapOn:
+    text: "📱"
+- waitForText:
+    text: "History"
+    timeout: 2
+

@@ -1,0 +1,120 @@
+# Test: Registration Flow
+# Duration: ~4 minutes
+# Critical Path: YES
+# Purpose: Verify new user registration with validation
+
+---
+appId: exp.ageless
+---
+
+# Setup: Navigate to Register
+- label: "Setup: Open Registration Screen"
+- assertVisible:
+    text: "Sign in"
+- tapOn:
+    text: "Create new account"
+- waitForText:
+    text: "Register"
+    timeout: 3
+
+# Test 1: Email Validation (Invalid Format)
+- label: "Test 1: Invalid Email Format Validation"
+- tapOn:
+    id: "register-email-input"
+- inputText: "invalidemail"
+- tapOn:
+    id: "register-password-input"
+- inputText: "Password@123"
+- tapOn:
+    id: "register-button"
+- waitForText:
+    text: "valid email"
+    timeout: 3
+
+# Test 2: Password Too Short
+- label: "Test 2: Password Minimum Length Validation"
+- tapOn:
+    id: "register-email-input"
+- clearTextInput:
+    at:
+      id: "register-email-input"
+- inputText: "newuser@ageless.app"
+- tapOn:
+    id: "register-password-input"
+- clearTextInput:
+    at:
+      id: "register-password-input"
+- inputText: "Short1"
+- tapOn:
+    id: "register-button"
+- waitForText:
+    text: "at least 8 characters"
+    timeout: 3
+
+# Test 3: Valid Registration
+- label: "Test 3: Successful Registration"
+- tapOn:
+    id: "register-password-input"
+- clearTextInput:
+    at:
+      id: "register-password-input"
+- inputText: "NewUser@123"
+- assertVisible:
+    id: "register-confirm-password-input"
+- tapOn:
+    id: "register-confirm-password-input"
+- inputText: "NewUser@123"
+- tapOn:
+    id: "register-button"
+- waitForText:
+    text: "successful"
+    timeout: 5
+
+# Test 4: Duplicate Email Validation
+- label: "Test 4: Duplicate Email Error"
+- tapOn:
+    text: "Create new account"
+- waitForText:
+    text: "Register"
+    timeout: 2
+- tapOn:
+    id: "register-email-input"
+- inputText: "test@ageless.app"
+- tapOn:
+    id: "register-password-input"
+- inputText: "Password@123"
+- tapOn:
+    id: "register-confirm-password-input"
+- inputText: "Password@123"
+- tapOn:
+    id: "register-button"
+- waitForText:
+    text: "Email already registered"
+    timeout: 5
+
+# Test 5: Required Fields Validation
+- label: "Test 5: Missing Required Fields"
+- tapOn:
+    id: "register-email-input"
+- clearTextInput:
+    at:
+      id: "register-email-input"
+- tapOn:
+    id: "register-password-input"
+- clearTextInput:
+    at:
+      id: "register-password-input"
+- tapOn:
+    id: "register-button"
+- waitForText:
+    text: "required"
+    timeout: 3
+
+# Test 6: Back to Login
+- label: "Test 6: Navigate Back to Login"
+- tapOn:
+    text: "Back"
+- waitForText:
+    text: "Sign in"
+    timeout: 2
+

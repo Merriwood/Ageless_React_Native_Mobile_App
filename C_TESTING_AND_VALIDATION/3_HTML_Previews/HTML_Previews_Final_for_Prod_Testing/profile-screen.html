@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ageless - My Body Screen</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 12px;
+            overflow: hidden;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 35px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: #C5282F;
+            color: white;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-align: center;
+            flex: 1;
+        }
+
+        .header-menu {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: background 0.2s;
+            position: absolute;
+            right: 16px;
+        }
+
+        .header-menu:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .header-menu svg {
+            width: 24px;
+            height: 24px;
+            stroke: white;
+            stroke-width: 2;
+        }
+
+        .screen-content {
+            flex: 1;
+            background: white;
+            display: flex;
+            align-items: flex-end;
+            overflow-y: auto;
+            padding: 0;
+        }
+
+        .modal-overlay {
+            background: white;
+            border-radius: 0px 0px 0 0;
+            width: 100%;
+            max-height: 90%;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header-section {
+            padding: 4px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            position: relative;
+            min-height: auto;
+            margin-top: -30px;
+        }
+
+        .modal-header-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #333;
+            text-align: center;
+            flex: 1;
+            margin: 0;
+            padding: 0;
+            line-height: 1;
+            transform: translateY(-20px);
+        }
+
+        .modal-close-btn {
+            background: rgba(0,0,0,0.05);
+            border: none;
+            border-radius: 50%;
+            font-size: 16px;
+            color: #666;
+            cursor: pointer;
+            padding: 0;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+            position: absolute;
+            right: 20px;
+        }
+
+        .modal-close-btn:hover {
+            background: rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: scale(1.05);
+        }
+
+        .modal-close-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+
+        .modal-body {
+            padding: 8px 16px 16px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .weight-input-section {
+            margin-bottom: 16px;
+        }
+
+        .weight-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .weight-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #C5282F;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .weight-input::placeholder {
+            color: #ccc;
+        }
+
+        .section-item {
+            padding: 16px 0;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .section-item:last-child {
+            border-bottom: none;
+        }
+
+        .section-item-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .section-item-subtitle {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .section-item-arrow {
+            font-size: 16px;
+            color: #999;
+        }
+
+        .profile-section {
+            background: transparent;
+            border-radius: 0;
+            padding: 0;
+            margin-bottom: 0;
+            box-shadow: none;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .profile-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .profile-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-label {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .item-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .item-action {
+            font-size: 16px;
+            color: #C5282F;
+            cursor: pointer;
+        }
+
+
+        .button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-bottom: 8px;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-danger {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-danger:hover {
+            background: #e0e0e0;
+        }
+
+        .nav-bar {
+            border-top: 1px solid #e5e5e5;
+            display: flex;
+            justify-content: space-around;
+            background: white;
+            padding: 8px 0;
+            position: sticky;
+            bottom: 0;
+        }
+
+        .nav-item {
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            font-size: 11px;
+            color: #999;
+        }
+
+        .nav-item.active {
+            color: #C5282F;
+            font-weight: 600;
+        }
+
+        .app-info {
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .info-link {
+            color: #667eea;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .info-link:hover {
+            text-decoration: underline;
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            margin: 0 auto 12px;
+        }
+
+        .user-name {
+            text-align: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .user-id {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="phone-screen">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-title">Ageless.</div>
+                <div class="header-menu">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="screen-content">
+                <!-- Modal Overlay -->
+                <div class="modal-overlay">
+                    <!-- Modal Header -->
+                    <div class="modal-header-section">
+                        <div class="modal-header-title">My Body</div>
+                        <button class="modal-close-btn" onclick="closeModal()">✕</button>
+                    </div>
+
+                    <!-- Modal Body -->
+                    <div class="modal-body">
+                        <!-- Weight Input -->
+                        <div class="weight-input-section">
+                            <label class="weight-label">Weight</label>
+                            <input type="text" class="weight-input" placeholder="Enter weight">
+                        </div>
+
+                        <!-- Expandable Sections -->
+                        <div class="section-item">
+                            <span class="section-item-title">History</span>
+                            <span class="section-item-arrow">›</span>
+                        </div>
+
+                        <div class="section-item">
+                            <span class="section-item-title">Summary</span>
+                            <span class="section-item-arrow">›</span>
+                        </div>
+
+                        <div class="section-item">
+                            <span class="section-item-title">Aerobic (Coming Soon)</span>
+                        </div>
+
+                        <div class="section-item">
+                            <span class="section-item-title">Strength (Coming Soon)</span>
+                        </div>
+
+                        <div class="section-item">
+                            <span class="section-item-title">Balance & Flex (Coming Soon)</span>
+                        </div>
+
+                        <div class="section-item">
+                            <span class="section-item-title">Stretch (Coming Soon)</span>
+                        </div>
+
+                        <div class="section-item">
+                            <span class="section-item-title">Custom (Coming Soon)</span>
+                        </div>
+
+                        <div class="section-item">
+                            <span class="section-item-title">Assessments (Coming Soon)</span>
+                        </div>
+
+                        <div class="section-item">
+                            <span class="section-item-title">Goals (Coming Soon)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="nav-bar">
+                <div class="nav-item active">🏠 Home</div>
+                <div class="nav-item">⭐ My ABS</div>
+                <div class="nav-item">📱 Scan</div>
+                <div class="nav-item">🎧 Listen</div>
+                <div class="nav-item">🎁 Rewards</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function closeModal() {
+            alert('Would close My Body modal');
+        }
+    </script>
+</body>
+</html>

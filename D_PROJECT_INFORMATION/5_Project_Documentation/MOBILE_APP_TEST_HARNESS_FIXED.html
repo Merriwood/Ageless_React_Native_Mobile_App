@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ageless - Phase 2 QA Test Harness</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; padding: 20px; }
+
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px; }
+        .header h1 { font-size: 28px; margin-bottom: 10px; }
+
+        .container { display: grid; grid-template-columns: 400px 1fr; gap: 30px; max-width: 1400px; margin: 0 auto; }
+
+        /* Phone Simulator */
+        .phone { background: black; border-radius: 40px; padding: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: sticky; top: 20px; width: 375px; }
+        .phone-screen { width: 100%; height: 812px; background: white; border-radius: 35px; overflow: hidden; display: flex; flex-direction: column; }
+        .screen-content { flex: 1; overflow-y: auto; padding: 20px; }
+        .nav-bar { display: flex; justify-content: space-around; border-top: 1px solid #e5e5e5; padding: 8px 0; background: white; font-size: 11px; }
+        .nav-item { cursor: pointer; flex: 1; text-align: center; padding: 8px; color: #999; }
+        .nav-item.active { color: #667eea; font-weight: 600; }
+
+        /* Screen Content */
+        .screen-header { font-size: 20px; font-weight: 700; color: #333; margin-bottom: 20px; }
+        .card { background: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 12px; font-size: 13px; }
+        .card-label { font-size: 11px; color: #999; display: block; margin-bottom: 5px; }
+        .card-value { color: #333; font-weight: 500; }
+        .input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; margin-bottom: 10px; }
+        .button { width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
+        .button:hover { background: #5568d3; }
+
+        /* Test Panel */
+        .tests-panel { display: flex; flex-direction: column; gap: 20px; }
+        .test-section { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .test-section h2 { font-size: 16px; color: #333; border-bottom: 2px solid #667eea; padding-bottom: 10px; margin-bottom: 15px; }
+
+        .test-item { background: #f9f9f9; border-left: 4px solid #ddd; padding: 12px; margin-bottom: 8px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; }
+        .test-item:hover { background: #f0f0f0; }
+        .test-item.passed { border-left-color: #4caf50; background: #f1f8f4; }
+        .test-item.failed { border-left-color: #f44336; background: #fef5f5; }
+
+        .test-info { flex: 1; }
+        .test-name { font-weight: 500; color: #333; margin-bottom: 4px; }
+        .test-action { font-size: 12px; color: #666; }
+        .test-checkbox { width: 20px; height: 20px; cursor: pointer; }
+
+        .progress-bar { width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
+        .progress-fill { height: 100%; background: #4caf50; transition: width 0.3s; }
+
+        .summary { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
+
+        .status-label { font-weight: 500; color: #666; }
+        .status-value { font-weight: 600; color: #333; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📱 Ageless Mobile App - Phase 2 QA Tests</h1>
+        <p>19 Manual Tests | 4 Screens | Real App Interface</p>
+    </div>
+
+    <div class="container">
+        <!-- PHONE SIMULATOR -->
+        <div>
+            <div class="phone">
+                <div class="phone-screen">
+                    <div class="screen-content" id="screenContent"></div>
+                    <div class="nav-bar" id="navBar"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TEST PANEL -->
+        <div class="tests-panel">
+            <!-- Progress -->
+            <div class="summary">
+                <h3 style="margin-bottom: 15px;">Test Progress</h3>
+                <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+                <div class="summary-row"><span class="status-label">Passed:</span><span class="status-value"><span id="passCount">0</span>/19</span></div>
+                <div class="summary-row"><span class="status-label">Failed:</span><span class="status-value"><span id="failCount">0</span>/19</span></div>
+                <div class="summary-row"><span class="status-label">Pending:</span><span class="status-value"><span id="pendingCount">19</span>/19</span></div>
+            </div>
+
+            <!-- Phase 1 -->
+            <div class="test-section">
+                <h2>Phase 1: Basic Functionality (6 tests)</h2>
+                <div id="phase1"></div>
+            </div>
+
+            <!-- Phase 2 -->
+            <div class="test-section">
+                <h2>Phase 2: Advanced Features (4 tests)</h2>
+                <div id="phase2"></div>
+            </div>
+
+            <!-- Phase 3 -->
+            <div class="test-section">
+                <h2>Phase 3: Data Validation (3 tests)</h2>
+                <div id="phase3"></div>
+            </div>
+
+            <!-- Phase 4 -->
+            <div class="test-section">
+                <h2>Phase 4: Integration & Performance (3 tests)</h2>
+                <div id="phase4"></div>
+            </div>
+
+            <!-- Phase 5 -->
+            <div class="test-section">
+                <h2>Phase 5: Edge Cases & Accessibility (3 tests)</h2>
+                <div id="phase5"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Test definitions
+        const TESTS = {
+            phase1: [
+                { id: 1, name: 'Dashboard Loads', action: 'Navigate to Dashboard screen' },
+                { id: 2, name: 'Input Fields Work', action: 'Enter date and weight values' },
+                { id: 3, name: 'Summary Button Clickable', action: 'Click "View 52-Week Summary"' },
+                { id: 4, name: 'Navigation Works', action: 'Click all 4 bottom nav items' },
+                { id: 5, name: 'Profile Screen Shows', action: 'Navigate to Profile' },
+                { id: 6, name: 'History Screen Loads', action: 'Click History screen' },
+            ],
+            phase2: [
+                { id: 7, name: 'Data Persists', action: 'Enter data, switch screens, return' },
+                { id: 8, name: 'API Ready', action: 'Check browser console for API status' },
+                { id: 9, name: 'Multiple Clicks OK', action: 'Click summary button 3 times rapidly' },
+                { id: 10, name: 'Load History Works', action: 'Click "Load History" button' },
+            ],
+            phase3: [
+                { id: 11, name: '52-Week Data Present', action: 'Verify weeks in summary display' },
+                { id: 12, name: 'Exercise Data Shows', action: 'Check exercise names appear' },
+                { id: 13, name: 'Empty States Handled', action: 'Test error scenarios' },
+            ],
+            phase4: [
+                { id: 14, name: 'Complete Journey Works', action: 'Full workflow: login → input → summary → profile' },
+                { id: 15, name: 'Response Time OK', action: 'Summary loads within 10 seconds' },
+                { id: 16, name: 'No Visual Glitches', action: 'Check for layout issues' },
+            ],
+            phase5: [
+                { id: 17, name: 'Rapid Clicks Handled', action: 'Rapid button clicks work' },
+                { id: 18, name: 'Mobile Friendly', action: 'Check responsive layout' },
+                { id: 19, name: 'Accessible Colors', action: 'Verify text readability' },
+            ]
+        };
+
+        let currentScreen = 'dashboard';
+        let testResults = {};
+
+        // Initialize
+        function init() {
+            Object.keys(TESTS).forEach(phase => {
+                TESTS[phase].forEach(test => {
+                    testResults[test.id] = 'pending';
+                });
+            });
+            renderTests();
+            renderScreen('dashboard');
+            updateProgress();
+        }
+
+        // Render tests
+        function renderTests() {
+            ['phase1', 'phase2', 'phase3', 'phase4', 'phase5'].forEach((phase, idx) => {
+                const html = TESTS[phase].map(test => `
+                    <div class="test-item ${testResults[test.id]}" onclick="toggleTest(${test.id})">
+                        <div class="test-info">
+                            <div class="test-name">Test ${test.id}: ${test.name}</div>
+                            <div class="test-action">→ ${test.action}</div>
+                        </div>
+                        <input type="checkbox" class="test-checkbox" ${testResults[test.id] === 'passed' ? 'checked' : ''} onchange="toggleTest(${test.id})">
+                    </div>
+                `).join('');
+                document.getElementById(phase).innerHTML = html;
+            });
+        }
+
+        // Toggle test status
+        function toggleTest(id) {
+            if (testResults[id] === 'pending') testResults[id] = 'passed';
+            else if (testResults[id] === 'passed') testResults[id] = 'failed';
+            else testResults[id] = 'pending';
+            renderTests();
+            updateProgress();
+        }
+
+        // Update progress
+        function updateProgress() {
+            const passed = Object.values(testResults).filter(r => r === 'passed').length;
+            const failed = Object.values(testResults).filter(r => r === 'failed').length;
+            const pending = 19 - passed - failed;
+            document.getElementById('passCount').textContent = passed;
+            document.getElementById('failCount').textContent = failed;
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('progressFill').style.width = `${(passed / 19) * 100}%`;
+        }
+
+        // Render screen
+        function renderScreen(screen) {
+            currentScreen = screen;
+            const content = document.getElementById('screenContent');
+
+            let html = '';
+            switch(screen) {
+                case 'home':
+                    html = `
+                        <div style="text-align: center; padding: 50px 20px;">
+                            <div style="font-size: 32px; margin-bottom: 10px;">💪</div>
+                            <div style="font-size: 24px; font-weight: 700; color: #333; margin-bottom: 10px;">MindBodyHeart</div>
+                            <div style="color: #666; margin-bottom: 30px;">Your fitness journey</div>
+                            <button class="button" onclick="switchScreen('dashboard')">Get Started</button>
+                        </div>
+                    `;
+                    break;
+                case 'dashboard':
+                    html = `
+                        <div class="screen-header">📊 Dashboard</div>
+                        <div class="card">
+                            <label class="card-label">Date</label>
+                            <input type="date" class="input" id="dateInput" value="${new Date().toISOString().split('T')[0]}">
+                        </div>
+                        <div class="card">
+                            <label class="card-label">Weight (lbs)</label>
+                            <input type="number" class="input" id="weightInput" placeholder="Enter weight">
+                        </div>
+                        <button class="button" onclick="fetchSummary()">View 52-Week Summary</button>
+                        <div id="summaryResult"></div>
+                    `;
+                    break;
+                case 'history':
+                    html = `
+                        <div class="screen-header">📜 History</div>
+                        <button class="button" onclick="fetchHistory()">Load History</button>
+                        <div id="historyResult"></div>
+                    `;
+                    break;
+                case 'profile':
+                    html = `
+                        <div class="screen-header">👤 Profile</div>
+                        <div class="card">
+                            <label class="card-label">Email</label>
+                            <div class="card-value">user@example.com</div>
+                        </div>
+                        <div class="card">
+                            <label class="card-label">User ID</label>
+                            <div class="card-value">AGE-12345</div>
+                        </div>
+                        <div class="card">
+                            <label class="card-label">App Version</label>
+                            <div class="card-value">1.0.0</div>
+                        </div>
+                    `;
+                    break;
+            }
+            content.innerHTML = html;
+            renderNav();
+        }
+
+        // Render nav
+        function renderNav() {
+            const nav = document.getElementById('navBar');
+            const screens = ['home', 'dashboard', 'history', 'profile'];
+            const labels = ['🏠 Home', '📊 Dashboard', '📜 History', '👤 Profile'];
+            nav.innerHTML = screens.map((s, i) => `
+                <div class="nav-item ${currentScreen === s ? 'active' : ''}" onclick="switchScreen('${s}')">${labels[i]}</div>
+            `).join('');
+        }
+
+        // Switch screen
+        function switchScreen(screen) {
+            renderScreen(screen);
+        }
+
+        // Fetch summary (mock data)
+        function fetchSummary() {
+            const result = document.getElementById('summaryResult');
+            result.innerHTML = '<div style="color: #667eea; font-size: 13px; margin-top: 10px;">📊 Loading 52-week summary...</div>';
+
+            setTimeout(() => {
+                const mockData = Array.from({length: 52}, (_, i) => ({
+                    week: i + 1,
+                    pushups: Math.floor(Math.random() * 50),
+                    pullups: Math.floor(Math.random() * 30)
+                }));
+
+                result.innerHTML = `
+                    <div class="card" style="margin-top: 10px;">
+                        <div class="card-label">52-Week Summary</div>
+                        <div class="card-value">✓ ${mockData.length} weeks loaded</div>
+                        <div style="font-size: 12px; color: #666; margin-top: 8px;">
+                            Push-ups avg: ${Math.round(mockData.reduce((a, w) => a + w.pushups, 0) / 52)}<br>
+                            Pull-ups avg: ${Math.round(mockData.reduce((a, w) => a + w.pullups, 0) / 52)}
+                        </div>
+                    </div>
+                `;
+            }, 1000);
+        }
+
+        // Fetch history (mock data)
+        function fetchHistory() {
+            const result = document.getElementById('historyResult');
+            result.innerHTML = '<div style="color: #667eea; font-size: 13px; margin-top: 10px;">📜 Loading history...</div>';
+
+            setTimeout(() => {
+                result.innerHTML = `
+                    <div class="card" style="margin-top: 10px;">
+                        <div class="card-label">Recent Workouts</div>
+                        <div class="card-value">✓ 24 workouts</div>
+                        <div style="font-size: 12px; color: #666; margin-top: 8px;">
+                            Last workout: Today<br>
+                            This week: 5 sessions<br>
+                            Total data: 2.3 MB
+                        </div>
+                    </div>
+                `;
+            }, 1000);
+        }
+
+        // Start
+        init();
+    </script>
+</body>
+</html>

@@ -19,11 +19,13 @@ import { EXERCISES } from '../../lib/constants/exercises';
 import { WorkoutEntry } from '../../lib/types';
 import { historyAPI } from '../../api/history';
 import { useUI } from '../../context/UIContext';
+import { useResponsive } from '../../hooks/useResponsive';
 
 const PAGE_SIZE = 20;
 const TOTAL_EXERCISES = EXERCISES.length; // 11 exercises
 
 export default function HistoryScreen() {
+  const responsive = useResponsive();
   const [entries, setEntries] = useState<WorkoutEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -341,7 +343,10 @@ export default function HistoryScreen() {
           data={entries}
           renderItem={renderItem}
           keyExtractor={item => item.id.toString()}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[
+            styles.listContent,
+            responsive.isLandscape && styles.listContentLandscape
+          ]}
           scrollEnabled={true}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -407,6 +412,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.base,
     paddingVertical: theme.spacing.base,
     gap: 16, // space-y-4 = 16px
+  },
+  listContentLandscape: {
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
   },
   card: {
     marginBottom: 0,

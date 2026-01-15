@@ -6,6 +6,7 @@ import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../theme';
 import { useAuth } from '../../hooks/useAuth';
+import { useResponsive } from '../../hooks/useResponsive';
 
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
@@ -22,6 +23,7 @@ import summaryAPI from '../../api/summary';
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const responsive = useResponsive();
   const [selectedDate, setSelectedDate] = useState(getTodayDate());
   const [weight, setWeight] = useState('');
   const [exercises, setExercises] = useState<Record<string, number>>({});
@@ -283,9 +285,11 @@ export default function Dashboard() {
       zIndex: 400, // CRITICAL FIX: Web PWA uses z-[400], not 10
     },
     headerTitle: {
-      fontSize: 18, // text-lg in Web PWA
-      fontWeight: '600', // font-semibold
+      fontSize: 24, // Matches PWA "Ageless." header size
+      fontWeight: '700', // Bold
       color: '#FFFFFF', // White text
+      textAlign: 'center',
+      flex: 1,
     },
     headerMenuButton: {
       position: 'absolute',
@@ -311,26 +315,27 @@ export default function Dashboard() {
     // Progress Section
     progressSection: {
       backgroundColor: theme.colors.surface,
-      borderRadius: 20,                       // 20px (rounded-xl in Web PWA)
-      padding: theme.spacing.sectionPadding,  // 24px (p-6) ✓
+      borderRadius: 12,                       // 12px (matching HTML)
+      padding: 16,                             // 16px (matching HTML)
       ...theme.shadows.sm,                    // 0.08 opacity ✓
       textAlign: 'center',                    // ✓ text-center
     },
     progressLabel: {
-      fontSize: 28,        // CHANGE from 16 (matches Web PWA text-2xl)
-      fontWeight: '700',   // CHANGE from 600 to 700 (bold, not semibold)
-      color: theme.colors.text.primary,
-      marginBottom: theme.spacing.base,
+      fontSize: 14,        // 14px (matching HTML)
+      fontWeight: '400',   // 400 normal (matching HTML)
+      color: theme.colors.text.secondary,
+      marginBottom: 8,
     },
     progressText: {
-      fontSize: 18,        // CHANGE from 14 (matches Web PWA text-lg)
-      color: theme.colors.text.secondary,
-      marginBottom: theme.spacing.md,
+      fontSize: 20,        // 20px (matching HTML)
+      fontWeight: '700',   // 700 bold (matching HTML)
+      color: theme.colors.text.primary,
+      marginBottom: 12,
     },
     progressBar: {
-      height: theme.sizes.progressBar,        // Will be 12px after token update ✓
+      height: 8,                              // 8px (matching HTML)
       backgroundColor: theme.colors.border.light,
-      borderRadius: theme.radius.full,
+      borderRadius: 4,                        // 4px (matching HTML)
       overflow: 'hidden',
     },
     progressFill: {
@@ -343,15 +348,15 @@ export default function Dashboard() {
       backgroundColor: theme.colors.surface,
       borderWidth: 1,                              // Full border all sides
       borderColor: theme.colors.border.light,      // Light gray border
-      borderRadius: theme.radius.card,             // 24px (rounded-2xl)
-      padding: 24, // CRITICAL FIX: Web PWA uses 24px (pt-6), not 20px
+      borderRadius: 12,                            // 12px (matching HTML)
+      padding: 16,                                 // 16px (matching HTML)
       ...theme.shadows.sm,                         // 0.08 opacity shadow
     },
     weightLabel: {
-      fontSize: 14,        // KEEP (Web PWA text-sm)
-      fontWeight: '500',   // CHANGE from 600 (normal weight for label)
+      fontSize: 11,                                // 11px (matching HTML)
+      fontWeight: '600',                           // 600 bold (matching HTML)
       color: theme.colors.text.primary,
-      marginBottom: theme.spacing.sm,  // CHANGE from md (12px to 8px)
+      marginBottom: 8,
     },
     weightInputContainer: {
       flexDirection: 'row',
@@ -381,44 +386,46 @@ export default function Dashboard() {
       marginBottom: theme.spacing.lg,
     },
     exerciseGridWrapper: {
-      // CRITICAL FIX: Match Web PWA responsive grid behavior
-      // Web PWA: <600px = ~2 cols (48%), >=600px = 3+ cols (240px min)
+      // Match Web PWA responsive grid behavior
       flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: theme.spacing.xl, // 20px gap matching Web PWA gap-5
+      gap: 12,                                     // 12px gap (matching HTML)
       // NOTE: React Native doesn't have perfect CSS Grid, so we use hardcoded widths
-      // This matches the <600px view (2-column). For 2-column desktop view on mobile
+      // This matches the 2-column layout
     },
 
     // Exercise Cards (2-column grid layout) - Web PWA parity
     exerciseCard: {
       backgroundColor: theme.colors.surface,
-      borderWidth: 1,                              // ✓ Full border all sides
-      borderColor: theme.colors.border.light,      // ✓ Light gray border (#E2E3E6)
-      borderRadius: theme.radius.card,             // ✓ 24px (rounded-2xl)
-      padding: theme.spacing.cardPadding,          // ✓ 20px (p-5)
-      ...theme.shadows.sm,                         // ✓ 0.08 opacity shadow
+      borderWidth: 1,                              // Full border all sides
+      borderColor: theme.colors.border.light,      // Light gray border
+      borderRadius: 12,                            // 12px (matching HTML)
+      padding: 14,                                 // 14px (matching HTML)
+      ...theme.shadows.sm,                         // 0.08 opacity shadow
       flex: 1,
-      minWidth: '45%', // Forces 2-column layout matching Web PWA responsive grid
-      flexDirection: 'column',                      // ✓ flex flex-col
-      gap: theme.spacing.internalCardGap,          // ✓ gap-3 (12px) internal spacing
+      minWidth: '45%',                             // Forces 2-column layout
+      flexDirection: 'column',                      // flex flex-col
+      gap: 12,                                     // 12px internal spacing
+    },
+    exerciseCardLandscape: {
+      minWidth: responsive.isLandscape ? '30%' : '45%', // 3-column in landscape, 2-column in portrait
     },
     exerciseCardCompleted: {
-      borderColor: theme.colors.status.success,    // ✓ Green border all sides
-      ...theme.shadows.completedCard,              // ✓ Green shadow
+      borderColor: '#4caf50',                       // Green border (matching HTML)
+      backgroundColor: '#f1f8f4',                  // Light green background (matching HTML)
     },
     exerciseHeader: {
       marginBottom: theme.spacing.md,
     },
     exerciseName: {
-      fontSize: 18,        // Matches Web PWA text-lg
+      fontSize: 13,        // 13px (matching HTML)
       fontWeight: '600',   // Semibold
       color: theme.colors.text.primary,
-      marginBottom: 8, // CRITICAL FIX: Web PWA uses ~8px (mb-2), not 4px (theme.spacing.xs)
+      marginBottom: 4,
     },
     exerciseTarget: {
-      fontSize: 14,        // CHANGE from 13 (matches Web PWA text-sm)
-      fontWeight: '400',   // CHANGE from 500 (normal weight, not semibold)
+      fontSize: 11,        // 11px (matching HTML)
+      fontWeight: '400',   // Normal weight
       color: theme.colors.text.secondary,
     },
 
@@ -426,29 +433,26 @@ export default function Dashboard() {
     exerciseControls: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: theme.spacing.md,
+      gap: 8,                                      // 8px gap (matching HTML)
       marginBottom: theme.spacing.md,
     },
     controlBtn: {
-      width: theme.sizes.controlButton,
-      height: theme.sizes.controlButton,
-      borderRadius: theme.radius.button, // 14px matching Web PWA rounded-[14px]
+      width: 32,                                   // 32px (matching HTML)
+      height: 32,                                  // 32px (matching HTML)
+      borderRadius: 8,                             // 8px (matching HTML)
       backgroundColor: theme.colors.primary,
       justifyContent: 'center',
       alignItems: 'center',
-      ...theme.shadows.button,           // 0.12 opacity button shadow
+      ...theme.shadows.button,
     },
     controlBtnSecondary: {
-      width: theme.sizes.controlButton,
-      height: theme.sizes.controlButton,
-      borderRadius: theme.radius.button, // 14px
-      backgroundColor: theme.colors.surfaceAlt, // ✓ Gray background (bg-surface-alt)
+      width: 32,                                   // 32px (matching HTML)
+      height: 32,                                  // 32px (matching HTML)
+      borderRadius: 8,                             // 8px (matching HTML)
+      backgroundColor: theme.colors.surfaceAlt,   // Gray background
       justifyContent: 'center',
       alignItems: 'center',
-      ...theme.shadows.button,           // Same shadow
-      // CRITICAL FIX: Web PWA does NOT have a border on secondary buttons
-      // borderWidth: 1,                     // REMOVED - Web PWA doesn't have this
-      // borderColor: theme.colors.border.light,  // REMOVED
+      ...theme.shadows.button,
     },
     controlBtnText: {
       fontSize: 18,
@@ -466,10 +470,10 @@ export default function Dashboard() {
       alignItems: 'center',
     },
     countText: {
-      fontSize: 22,
+      fontSize: 18,                                // 18px (matching HTML)
       fontWeight: '700',
       color: theme.colors.text.primary,
-      lineHeight: 28,
+      lineHeight: 24,
     },
     countMax: {
       fontSize: 12,
@@ -556,7 +560,13 @@ export default function Dashboard() {
             <View style={styles.exerciseGridContainer}>
               <View style={styles.exerciseGridWrapper}>
                 {EXERCISES.map((exercise) => (
-                  <View key={exercise.id} style={{ width: '48%' }}>
+                  <View
+                    key={exercise.id}
+                    testID={`exercise-card-${exercise.id}`}
+                    style={{
+                      width: responsive.isLandscape ? '31%' : '48%'
+                    }}
+                  >
                     {renderExerciseCard({ item: exercise })}
                   </View>
                 ))}

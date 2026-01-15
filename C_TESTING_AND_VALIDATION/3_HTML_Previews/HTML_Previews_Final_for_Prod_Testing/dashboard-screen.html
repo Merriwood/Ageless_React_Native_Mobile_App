@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ageless - Dashboard Screen</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 12px;
+            overflow: hidden;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 35px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: #C5282F;
+            color: white;
+            padding: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            position: relative;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            flex: 1;
+        }
+
+        .header-menu {
+            cursor: pointer;
+            font-size: 24px;
+            position: absolute;
+            right: 16px;
+            color: white;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+
+        .header-menu:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .date-selector {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 13px;
+            color: #333;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 16px;
+            display: inline-block;
+        }
+
+        .date-selector::before {
+            content: "📅 ";
+            color: #C5282F;
+        }
+
+        .screen-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .progress-section {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .progress-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .progress-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #667eea;
+            width: 45%;
+            transition: width 0.3s;
+        }
+
+        .progress-percentage {
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .card-label {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .card-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .exercise-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+            margin-bottom: 20px;
+        }
+
+        .exercise-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .exercise-card.completed {
+            background: #f1f8f4;
+            border-color: #4caf50;
+        }
+
+        .exercise-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .exercise-target {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .exercise-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .control-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 8px;
+            background: #C5282F;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .control-btn:hover {
+            background: #A01F24;
+        }
+
+        .exercise-count {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .exercise-sets {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .nav-bar {
+            border-top: 1px solid #e5e5e5;
+            display: flex;
+            justify-content: space-around;
+            background: white;
+            padding: 8px 0;
+            position: sticky;
+            bottom: 0;
+        }
+
+        .nav-item {
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            font-size: 11px;
+            color: #999;
+        }
+
+        .nav-item.active {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            z-index: 100;
+            display: none;
+        }
+
+        .toast.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="phone-screen">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-top">
+                    <div class="header-title">Ageless.</div>
+                    <div class="header-menu" onclick="openMenu()">☰</div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="screen-content">
+                <!-- Date Selector -->
+                <div style="text-align: center; margin-bottom: 16px;">
+                    <div class="date-selector" onclick="changeDate()">
+                        Jan 9, 2026 ▼
+                    </div>
+                </div>
+
+                <!-- Progress Section -->
+                <div class="progress-section">
+                    <div class="progress-text">Today's Workout</div>
+                    <div class="progress-label">Progress: 0/11 exercises (0%)</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <!-- Weight Input -->
+                <div class="card">
+                    <label class="card-label">Weight (lbs)</label>
+                    <input
+                        type="number"
+                        class="card-input"
+                        placeholder="Enter your weight"
+                        onchange="saveData()"
+                    />
+                </div>
+
+                <!-- Exercise Grid -->
+                <div class="exercise-grid">
+                    <!-- Exercise 1 -->
+                    <div class="exercise-card">
+                        <div class="exercise-name">Bike</div>
+                        <div class="exercise-target">Target: 60 minutes</div>
+                        <div class="exercise-controls">
+                            <button class="control-btn" onclick="decrementExercise(1)">−</button>
+                            <div style="width: 30px; text-align: center;">
+                                <div class="exercise-count">0</div>
+                            </div>
+                            <button class="control-btn" onclick="incrementExercise(1)">+</button>
+                        </div>
+                        <div class="exercise-sets">0 / 4 sets</div>
+                    </div>
+
+                    <!-- Exercise 2 -->
+                    <div class="exercise-card">
+                        <div class="exercise-name">Abs</div>
+                        <div class="exercise-target">Target: 100 reps</div>
+                        <div class="exercise-controls">
+                            <button class="control-btn" onclick="decrementExercise(2)">−</button>
+                            <div style="width: 30px; text-align: center;">
+                                <div class="exercise-count">0</div>
+                            </div>
+                            <button class="control-btn" onclick="incrementExercise(2)">+</button>
+                        </div>
+                        <div class="exercise-sets">0 / 4 sets</div>
+                    </div>
+
+                    <!-- Exercise 3 -->
+                    <div class="exercise-card">
+                        <div class="exercise-name">Chest Press</div>
+                        <div class="exercise-target">Target: 20 reps</div>
+                        <div class="exercise-controls">
+                            <button class="control-btn" onclick="decrementExercise(3)">−</button>
+                            <div style="width: 30px; text-align: center;">
+                                <div class="exercise-count">0</div>
+                            </div>
+                            <button class="control-btn" onclick="incrementExercise(3)">+</button>
+                        </div>
+                        <div class="exercise-sets">0 / 4 sets</div>
+                    </div>
+
+                    <!-- Exercise 4 -->
+                    <div class="exercise-card">
+                        <div class="exercise-name">Leg Press</div>
+                        <div class="exercise-target">Target: 20 reps</div>
+                        <div class="exercise-controls">
+                            <button class="control-btn" onclick="decrementExercise(4)">−</button>
+                            <div style="width: 30px; text-align: center;">
+                                <div class="exercise-count">0</div>
+                            </div>
+                            <button class="control-btn" onclick="incrementExercise(4)">+</button>
+                        </div>
+                        <div class="exercise-sets">0 / 4 sets</div>
+                    </div>
+
+                    <!-- Exercise 5 -->
+                    <div class="exercise-card">
+                        <div class="exercise-name">Lat</div>
+                        <div class="exercise-target">Target: 20 reps</div>
+                        <div class="exercise-controls">
+                            <button class="control-btn" onclick="decrementExercise(5)">−</button>
+                            <div style="width: 30px; text-align: center;">
+                                <div class="exercise-count">0</div>
+                            </div>
+                            <button class="control-btn" onclick="incrementExercise(5)">+</button>
+                        </div>
+                        <div class="exercise-sets">0 / 4 sets</div>
+                    </div>
+
+                    <!-- Exercise 6 -->
+                    <div class="exercise-card">
+                        <div class="exercise-name">Military</div>
+                        <div class="exercise-target">Target: 20 reps</div>
+                        <div class="exercise-controls">
+                            <button class="control-btn" onclick="decrementExercise(6)">−</button>
+                            <div style="width: 30px; text-align: center;">
+                                <div class="exercise-count">0</div>
+                            </div>
+                            <button class="control-btn" onclick="incrementExercise(6)">+</button>
+                        </div>
+                        <div class="exercise-sets">0 / 4 sets</div>
+                    </div>
+
+                    <!-- Exercise 7 -->
+                    <div class="exercise-card">
+                        <div class="exercise-name">Crunch</div>
+                        <div class="exercise-target">Target: 100 reps</div>
+                        <div class="exercise-controls">
+                            <button class="control-btn" onclick="decrementExercise(7)">−</button>
+                            <div style="width: 30px; text-align: center;">
+                                <div class="exercise-count">0</div>
+                            </div>
+                            <button class="control-btn" onclick="incrementExercise(7)">+</button>
+                        </div>
+                        <div class="exercise-sets">0 / 4 sets</div>
+                    </div>
+
+                    <!-- Exercise 8 -->
+                    <div class="exercise-card">
+                        <div class="exercise-name">Bicep Curls</div>
+                        <div class="exercise-target">Target: 20 reps</div>
+                        <div class="exercise-controls">
+                            <button class="control-btn" onclick="decrementExercise(8)">−</button>
+                            <div style="width: 30px; text-align: center;">
+                                <div class="exercise-count">0</div>
+                            </div>
+                            <button class="control-btn" onclick="incrementExercise(8)">+</button>
+                        </div>
+                        <div class="exercise-sets">0 / 4 sets</div>
+                    </div>
+
+                    <!-- Exercise 9 -->
+                    <div class="exercise-card">
+                        <div class="exercise-name">Triceps</div>
+                        <div class="exercise-target">Target: 40 reps</div>
+                        <div class="exercise-controls">
+                            <button class="control-btn" onclick="decrementExercise(9)">−</button>
+                            <div style="width: 30px; text-align: center;">
+                                <div class="exercise-count">0</div>
+                            </div>
+                            <button class="control-btn" onclick="incrementExercise(9)">+</button>
+                        </div>
+                        <div class="exercise-sets">0 / 4 sets</div>
+                    </div>
+
+                    <!-- Exercise 10 -->
+                    <div class="exercise-card">
+                        <div class="exercise-name">Overhead Pull</div>
+                        <div class="exercise-target">Target: 40 reps</div>
+                        <div class="exercise-controls">
+                            <button class="control-btn" onclick="decrementExercise(10)">−</button>
+                            <div style="width: 30px; text-align: center;">
+                                <div class="exercise-count">0</div>
+                            </div>
+                            <button class="control-btn" onclick="incrementExercise(10)">+</button>
+                        </div>
+                        <div class="exercise-sets">0 / 4 sets</div>
+                    </div>
+
+                    <!-- Exercise 11 -->
+                    <div class="exercise-card">
+                        <div class="exercise-name">Row</div>
+                        <div class="exercise-target">Target: 20 reps</div>
+                        <div class="exercise-controls">
+                            <button class="control-btn" onclick="decrementExercise(11)">−</button>
+                            <div style="width: 30px; text-align: center;">
+                                <div class="exercise-count">0</div>
+                            </div>
+                            <button class="control-btn" onclick="incrementExercise(11)">+</button>
+                        </div>
+                        <div class="exercise-sets">0 / 4 sets</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="nav-bar">
+                <div class="nav-item active">🏠 Home</div>
+                <div class="nav-item">⭐ My ABS</div>
+                <div class="nav-item">📱 Scan</div>
+                <div class="nav-item">🎧 Listen</div>
+                <div class="nav-item">🎁 Rewards</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        function openMenu() {
+            alert('Would open MyABS drawer menu');
+        }
+
+        function changeDate() {
+            alert('Would open date picker');
+        }
+
+        function incrementExercise(id) {
+            alert(`Would increment exercise ${id}`);
+        }
+
+        function decrementExercise(id) {
+            alert(`Would decrement exercise ${id}`);
+        }
+
+        function saveData() {
+            const toast = document.getElementById('toast');
+            toast.textContent = '✓ Entry saved';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+    </script>
+</body>
+</html>

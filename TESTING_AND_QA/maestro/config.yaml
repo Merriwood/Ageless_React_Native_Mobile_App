@@ -1,0 +1,44 @@
+# Maestro Configuration for Ageless React Native iOS Testing
+# Date: 2026-01-14
+# Purpose: Main configuration file for all test flows
+
+---
+
+## Application Configuration
+appId: exp.ageless
+device:
+  os: iOS
+  minVersion: "14"
+
+## API Configuration
+api:
+  baseUrl: https://ageless-api.render.com
+  timeout: 30
+  retryCount: 2
+
+## Test Configuration
+test:
+  timeout: 60
+  retryCount: 1
+  screenshotOnError: true
+  reportPath: ./reports/
+
+## Performance Configuration
+performance:
+  waitTimeout: 10
+  elementTimeout: 5
+  animationWaitTimeout: 2
+  scrollWaitTimeout: 3
+
+## Logging Configuration
+logging:
+  level: info
+  verbose: false
+  reportFormat: html
+
+## Test Report
+reporting:
+  generateHtmlReport: true
+  saveLogs: true
+  captureScreenshots: true
+

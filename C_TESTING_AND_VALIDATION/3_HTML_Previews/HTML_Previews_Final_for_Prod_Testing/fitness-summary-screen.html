@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ageless - Fitness Summary Screen</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 12px;
+            overflow: hidden;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: #f5f5f5;
+            border-radius: 35px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: #C5282F;
+            color: white;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 0;
+            letter-spacing: 0.5px;
+            flex: 1;
+            text-align: center;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0;
+            display: none;
+        }
+
+        .header-menu {
+            cursor: pointer;
+            font-size: 24px;
+            position: absolute;
+            right: 16px;
+            color: white;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+
+        .header-menu:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .content {
+            background: transparent;
+            padding: 0;
+        }
+
+        .header-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .header-card > div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .header-card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+
+        .header-card-subtitle {
+            font-size: 13px;
+            font-weight: 400;
+            color: #999;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 10px;
+            text-align: left;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #999;
+            text-transform: none;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            margin: 16px 0 12px;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .weekly-card {
+            background: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .week-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .week-title {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .week-subtitle {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .completion-rate {
+            text-align: right;
+        }
+
+        .completion-percent {
+            font-size: 24px;
+            font-weight: 700;
+            color: #C5282F;
+        }
+
+        .completion-label {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .week-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 12px 0;
+            padding: 12px 0;
+            border-top: 1px solid #f0f0f0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .week-stat {
+            text-align: center;
+        }
+
+        .week-stat-label {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+
+        .week-stat-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #C5282F;
+            width: 75%;
+            border-radius: 3px;
+        }
+
+        .top-exercises {
+            background: #f9f9f9;
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .exercise-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 12px;
+        }
+
+        .exercise-name {
+            color: #333;
+        }
+
+        .exercise-sets {
+            font-weight: 600;
+            color: #C5282F;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .empty-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .empty-text {
+            color: #999;
+        }
+
+        .nav-bar {
+            border-top: 1px solid #e5e5e5;
+            display: flex;
+            justify-content: space-around;
+            background: white;
+            padding: 8px 0;
+        }
+
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            font-size: 11px;
+            color: #999;
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            color: #C5282F;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="phone-screen">
+            <!-- Header -->
+            <div class="header">
+                <h1>Ageless.</h1>
+                <div class="header-menu" onclick="openMenu()">☰</div>
+            </div>
+
+            <!-- Container -->
+            <div class="container">
+                <!-- Content -->
+                <div class="content">
+            <!-- Header Card -->
+            <div class="header-card">
+                <div>
+                    <div class="header-card-title">Fitness Summary</div>
+                    <div class="header-card-subtitle">Your progress at a glance</div>
+                </div>
+            </div>
+
+            <!-- Overall Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Workouts</div>
+                    <div class="stat-value">47</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Avg Weight</div>
+                    <div class="stat-value">178.5</div>
+                    <div style="font-size: 12px; color: #999; margin-top: 4px;">lbs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Sets</div>
+                    <div class="stat-value">312</div>
+                </div>
+            </div>
+
+            <!-- Weekly Breakdown -->
+            <div class="section-title">Weekly Breakdown</div>
+
+            <!-- Week 1 -->
+            <div class="weekly-card">
+                <div class="week-header">
+                    <div>
+                        <div class="week-title">Jan 7 - Jan 13, 2026</div>
+                        <div class="week-subtitle">4 workouts completed</div>
+                    </div>
+                    <div class="completion-rate">
+                        <div class="completion-percent">80%</div>
+                        <div class="completion-label">completion</div>
+                    </div>
+                </div>
+
+                <div class="week-stats">
+                    <div class="week-stat">
+                        <div class="week-stat-label">Avg Weight</div>
+                        <div class="week-stat-value">178.3 lbs</div>
+                    </div>
+                    <div class="week-stat">
+                        <div class="week-stat-label">Total Sets</div>
+                        <div class="week-stat-value">64</div>
+                    </div>
+                    <div class="week-stat">
+                        <div class="week-stat-label">Avg/Workout</div>
+                        <div class="week-stat-value">16</div>
+                    </div>
+                </div>
+
+                <div class="top-exercises">
+                    <div style="font-size: 11px; font-weight: 600; margin-bottom: 6px;">Top Exercises:</div>
+                    <div class="exercise-item">
+                        <span class="exercise-name">1. Push-ups</span>
+                        <span class="exercise-sets">16 sets</span>
+                    </div>
+                    <div class="exercise-item">
+                        <span class="exercise-name">2. Squats</span>
+                        <span class="exercise-sets">12 sets</span>
+                    </div>
+                    <div class="exercise-item">
+                        <span class="exercise-name">3. Pull-ups</span>
+                        <span class="exercise-sets">10 sets</span>
+                    </div>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 80%;"></div>
+                </div>
+            </div>
+
+            <!-- Week 2 -->
+            <div class="weekly-card">
+                <div class="week-header">
+                    <div>
+                        <div class="week-title">Dec 31, 2025 - Jan 6, 2026</div>
+                        <div class="week-subtitle">5 workouts completed</div>
+                    </div>
+                    <div class="completion-rate">
+                        <div class="completion-percent">92%</div>
+                        <div class="completion-label">completion</div>
+                    </div>
+                </div>
+
+                <div class="week-stats">
+                    <div class="week-stat">
+                        <div class="week-stat-label">Avg Weight</div>
+                        <div class="week-stat-value">177.8 lbs</div>
+                    </div>
+                    <div class="week-stat">
+                        <div class="week-stat-label">Total Sets</div>
+                        <div class="week-stat-value">72</div>
+                    </div>
+                    <div class="week-stat">
+                        <div class="week-stat-label">Avg/Workout</div>
+                        <div class="week-stat-value">14.4</div>
+                    </div>
+                </div>
+
+                <div class="top-exercises">
+                    <div style="font-size: 11px; font-weight: 600; margin-bottom: 6px;">Top Exercises:</div>
+                    <div class="exercise-item">
+                        <span class="exercise-name">1. Deadlifts</span>
+                        <span class="exercise-sets">18 sets</span>
+                    </div>
+                    <div class="exercise-item">
+                        <span class="exercise-name">2. Bench Press</span>
+                        <span class="exercise-sets">14 sets</span>
+                    </div>
+                    <div class="exercise-item">
+                        <span class="exercise-name">3. Push-ups</span>
+                        <span class="exercise-sets">12 sets</span>
+                    </div>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 92%;"></div>
+                </div>
+            </div>
+
+            <!-- Week 3 -->
+            <div class="weekly-card">
+                <div class="week-header">
+                    <div>
+                        <div class="week-title">Dec 24 - Dec 30, 2025</div>
+                        <div class="week-subtitle">3 workouts completed</div>
+                    </div>
+                    <div class="completion-rate">
+                        <div class="completion-percent">55%</div>
+                        <div class="completion-label">completion</div>
+                    </div>
+                </div>
+
+                <div class="week-stats">
+                    <div class="week-stat">
+                        <div class="week-stat-label">Avg Weight</div>
+                        <div class="week-stat-value">176.9 lbs</div>
+                    </div>
+                    <div class="week-stat">
+                        <div class="week-stat-label">Total Sets</div>
+                        <div class="week-stat-value">48</div>
+                    </div>
+                    <div class="week-stat">
+                        <div class="week-stat-label">Avg/Workout</div>
+                        <div class="week-stat-value">16</div>
+                    </div>
+                </div>
+
+                <div class="top-exercises">
+                    <div style="font-size: 11px; font-weight: 600; margin-bottom: 6px;">Top Exercises:</div>
+                    <div class="exercise-item">
+                        <span class="exercise-name">1. Squats</span>
+                        <span class="exercise-sets">14 sets</span>
+                    </div>
+                    <div class="exercise-item">
+                        <span class="exercise-name">2. Lat Pulldown</span>
+                        <span class="exercise-sets">12 sets</span>
+                    </div>
+                    <div class="exercise-item">
+                        <span class="exercise-name">3. Dips</span>
+                        <span class="exercise-sets">10 sets</span>
+                    </div>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 55%;"></div>
+                </div>
+            </div>
+                </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="nav-bar">
+                <div class="nav-item active">🏠 Home</div>
+                <div class="nav-item">⭐ My ABS</div>
+                <div class="nav-item">📱 Scan</div>
+                <div class="nav-item">🎧 Listen</div>
+                <div class="nav-item">🎁 Rewards</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openMenu() {
+            alert('Would open MyABS drawer menu');
+        }
+    </script>
+</body>
+</html>

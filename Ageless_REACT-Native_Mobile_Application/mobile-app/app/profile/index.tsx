@@ -17,10 +17,12 @@ import { theme } from '../../theme';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { useUI } from '../../context/UIContext';
+import { useResponsive } from '../../hooks/useResponsive';
 
 export default function ProfileScreen() {
   const [loading, setLoading] = useState(false);
   const { showToast } = useUI();
+  const responsive = useResponsive();
 
   // Placeholder user data - would come from context/API
   const userEmail = 'user@example.com';
@@ -86,13 +88,12 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* Header */}
-      <View style={styles.header_bar}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color={theme.colors.text.primary} />
+      {/* Red Header - matches PWA design - Centered */}
+      <View style={styles.header}>
+        <Text style={styles.headerText}>Ageless.</Text>
+        <TouchableOpacity onPress={() => router.back()} style={styles.headerMenuButton}>
+          <Ionicons name="menu" size={24} color="#FFFFFF" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Profile</Text>
-        <View style={styles.headerSpacer} />
       </View>
 
       {/* Content */}
@@ -101,7 +102,14 @@ export default function ProfileScreen() {
           <ActivityIndicator size="large" color={theme.colors.primary} />
         </View>
       ) : (
-        <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContainer}>
+        <ScrollView
+          style={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContainer,
+            responsive.isLandscape && styles.scrollContainerLandscape
+          ]}
+          scrollEnabled={responsive.isPortrait || responsive.screenHeight < 600}
+        >
           {/* User Info Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Account Information</Text>
@@ -153,6 +161,16 @@ export default function ProfileScreen() {
                 </View>
                 <Ionicons name="chevron-forward" size={20} color={theme.colors.text.secondary} />
               </TouchableOpacity>
+
+              <View style={styles.divider} />
+
+              <TouchableOpacity style={styles.settingRow} onPress={handleDeleteAccount}>
+                <View style={styles.settingLeft}>
+                  <Ionicons name="trash-outline" size={20} color={theme.colors.text.primary} />
+                  <Text style={styles.settingLabel}>Delete Account</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color={theme.colors.text.secondary} />
+              </TouchableOpacity>
             </Card>
           </View>
 
@@ -193,23 +211,6 @@ export default function ProfileScreen() {
             </Card>
           </View>
 
-          {/* Danger Zone Section */}
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.status.error }]}>
-              Danger Zone
-            </Text>
-
-            <Card style={styles.card}>
-              <TouchableOpacity
-                style={styles.dangerRow}
-                onPress={handleDeleteAccount}
-              >
-                <Ionicons name="trash-outline" size={20} color={theme.colors.status.error} />
-                <Text style={styles.dangerText}>Delete Account</Text>
-              </TouchableOpacity>
-            </Card>
-          </View>
-
           {/* Logout Button */}
           <View style={styles.section}>
             <Button
@@ -238,27 +239,26 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background,
   },
-  header_bar: {
+  header: {
+    backgroundColor: '#C5282F',
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.lg,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: theme.spacing.base,
-    paddingVertical: theme.spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border.light,
-    backgroundColor: theme.colors.surface,
+    justifyContent: 'center',
+    position: 'relative',
   },
-  backButton: {
-    padding: theme.spacing.sm,
-    marginLeft: -theme.spacing.sm,
-  },
-  headerTitle: {
-    fontSize: 20,
+  headerText: {
+    fontSize: 24,
     fontWeight: '700',
-    color: theme.colors.text.primary,
+    color: '#FFFFFF',
+    textAlign: 'center',
+    flex: 1,
   },
-  headerSpacer: {
-    width: 40,
+  headerMenuButton: {
+    padding: theme.spacing.sm,
+    position: 'absolute',
+    right: theme.spacing.lg,
   },
   centerContainer: {
     flex: 1,
@@ -369,5 +369,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: theme.colors.status.error,
+  },
+  scrollContainerLandscape: {
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.sm,
+    maxWidth: '100%',
   },
 });

@@ -1,0 +1,152 @@
+# Test: Dashboard Flow
+# Duration: ~5 minutes
+# Critical Path: YES
+# Purpose: Verify main dashboard functionality and workout tracking
+
+---
+appId: exp.ageless
+---
+
+# Setup: Login first
+- label: "Setup: Login to Dashboard"
+- tapOn:
+    id: "signin-button"
+- inputText: "test@ageless.app"
+  at:
+    id: "email-input"
+- inputText: "Test@123"
+  at:
+    id: "password-input"
+- tapOn:
+    id: "signin-button"
+- waitForText:
+    text: "Login successful"
+    timeout: 5
+
+# Test 1: Dashboard Loads with Current Date
+- label: "Test 1: Dashboard Displays Current Date"
+- assertVisible:
+    id: "date-picker"
+- waitForText:
+    regex: "\\d{4}-\\d{2}-\\d{2}"
+    timeout: 3
+
+# Test 2: Progress Bar Visible
+- label: "Test 2: Progress Bar Displayed"
+- assertVisible:
+    id: "progress-bar"
+- assertVisible:
+    text: "exercises"
+
+# Test 3: 11 Exercise Cards Display
+- label: "Test 3: All Exercise Cards Display"
+- assertVisible:
+    id: "exercise-card-bike"
+- assertVisible:
+    id: "exercise-card-abs"
+- assertVisible:
+    id: "exercise-card-chest_press"
+- assertVisible:
+    id: "exercise-card-leg_press"
+- assertVisible:
+    id: "exercise-card-lat"
+- assertVisible:
+    id: "exercise-card-military"
+- assertVisible:
+    id: "exercise-card-crunch"
+- assertVisible:
+    id: "exercise-card-bicep_curls"
+- assertVisible:
+    id: "exercise-card-triceps"
+- assertVisible:
+    id: "exercise-card-overhead_pull"
+- assertVisible:
+    id: "exercise-card-row"
+
+# Test 4: Increment Exercise Count
+- label: "Test 4: Increment Exercise Count"
+- tapOn:
+    id: "exercise-increment-bike"
+- waitForText:
+    text: "1"
+    timeout: 2
+- assertVisible:
+    id: "exercise-value-bike"
+
+# Test 5: Decrement Exercise Count
+- label: "Test 5: Decrement Exercise Count"
+- tapOn:
+    id: "exercise-increment-bike"
+- tapOn:
+    id: "exercise-increment-bike"
+- tapOn:
+    id: "exercise-decrement-bike"
+- waitForText:
+    text: "1"
+    timeout: 2
+
+# Test 6: Weight Input
+- label: "Test 6: Weight Input Saves"
+- tapOn:
+    id: "weight-input"
+- inputText: "178.5"
+- tapOn:
+    id: "save-weight-button"
+- waitForText:
+    text: "saved"
+    timeout: 3
+
+# Test 7: Progress Bar Updates
+- label: "Test 7: Progress Bar Updates on Exercise Change"
+- tapOn:
+    id: "exercise-increment-bike"
+- tapOn:
+    id: "exercise-increment-abs"
+- waitForText:
+    regex: "\\d+/11"
+    timeout: 2
+
+# Test 8: Date Picker Opens
+- label: "Test 8: Date Picker Navigation"
+- tapOn:
+    id: "date-picker"
+- waitForText:
+    text: "Select date"
+    timeout: 3
+- tapOn:
+    text: "Done"
+- waitForText:
+    regex: "\\d{4}-\\d{2}-\\d{2}"
+    timeout: 2
+
+# Test 9: Bottom Navigation Accessible
+- label: "Test 9: Bottom Navigation Tabs"
+- assertVisible:
+    id: "bottom-nav"
+- assertVisible:
+    text: "🏠"
+- assertVisible:
+    text: "⭐"
+- assertVisible:
+    text: "📱"
+- assertVisible:
+    text: "🎧"
+- assertVisible:
+    text: "🎁"
+
+# Test 10: Navigation to History
+- label: "Test 10: Navigate to History via Bottom Nav"
+- tapOn:
+    text: "📱"
+- waitForText:
+    text: "History"
+    timeout: 3
+
+# Test 11: Back to Dashboard
+- label: "Test 11: Back to Dashboard"
+- tapOn:
+    text: "🏠"
+- assertVisible:
+    id: "exercise-card-bike"
+    timeout: 2
+

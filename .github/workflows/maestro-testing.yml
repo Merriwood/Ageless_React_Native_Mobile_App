@@ -42,8 +42,10 @@ jobs:
       - name: Install Maestro CLI
         run: |
           curl -Ls "https://get.maestro.mobile/install.sh" | bash
-          export PATH="$PATH:$HOME/.maestro/bin"
-          maestro --version
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
+      - name: Verify Maestro Installation
+        run: maestro --version
 
       - name: Generate native iOS code
         run: |
@@ -90,8 +92,6 @@ jobs:
 
       - name: Run Maestro Tests
         run: |
-          export PATH="$PATH:$HOME/.maestro/bin"
-
           # Run test flows
           maestro test . --udid=com.ageless.fitnessapp || true
         continue-on-error: true

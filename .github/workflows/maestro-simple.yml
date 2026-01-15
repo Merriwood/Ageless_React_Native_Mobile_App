@@ -34,6 +34,10 @@ jobs:
       - name: Install Maestro
         run: |
           curl -Ls "https://get.maestro.mobile/install.sh" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
+      - name: Verify Maestro Installation
+        run: |
           export PATH="$PATH:$HOME/.maestro/bin"
           maestro --version
 
@@ -71,14 +75,13 @@ jobs:
 
       - name: Run Maestro Tests
         run: |
-          export PATH="$PATH:$HOME/.maestro/bin"
           cd Ageless_REACT-Native_Mobile_Application/mobile-app
 
           # Run tests with longer timeout for old Mac
           if [ -d "maestro" ]; then
             maestro test maestro --timeout 120 --verbose || echo "Tests completed with status: $?"
           else
-            echo "⚠️ No maestro folder found"
+            echo "⚠️ No maestro folder found, skipping tests"
             ls -la
           fi
 

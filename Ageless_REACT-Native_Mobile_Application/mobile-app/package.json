@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "scripts": {
-    "start": "node server/combined-server.js",
+    "start": "node combined-server.js",
     "start:web": "npx serve -s dist -p 8081 --single",
     "dev": "expo start",
     "android": "expo start --android",

@@ -50,21 +50,32 @@ export default function LoginScreen() {
     }
 
     setIsLoading(true);
+    setError(""); // Clear any previous errors
 
     try {
       // Call actual API endpoint
       const response = await loginApi(email, password);
+
+      if (!response || !response.token) {
+        throw new Error("Invalid response from server");
+      }
+
       const { token, user } = response;
-      
+
       // Store token in SecureStore and user in AsyncStorage
-      await setToken(token, user);
-      
+      // Ensure user.id is a string
+      const normalizedUser = user ? {
+        ...user,
+        id: String(user.id)
+      } : undefined;
+
+      await setToken(token, normalizedUser);
+
       // Redirect to dashboard
       router.replace("/dashboard");
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Login failed. Please try again.";
       setError(errorMsg);
-      console.error("[Login] Error:", err);
     } finally {
       setIsLoading(false);
     }

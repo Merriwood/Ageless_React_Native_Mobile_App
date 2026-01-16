@@ -8,7 +8,6 @@ appId: exp.ageless
 ---
 
 # Setup: Login to Dashboard
-- label: "Setup: Login to Dashboard"
 - tapOn:
     id: "signin-button"
 - inputText: "test@ageless.app"
@@ -24,14 +23,12 @@ appId: exp.ageless
     timeout: 5
 
 # Test 1: Profile Tab in Bottom Nav
-- label: "Test 1: Profile Tab Accessible"
 - assertVisible:
     id: "profile-tab"
 - assertVisible:
     text: "🎁"
 
 # Test 2: Navigate to Profile
-- label: "Test 2: Navigate to Profile Screen"
 - tapOn:
     text: "🎁"
 - waitForText:
@@ -39,21 +36,18 @@ appId: exp.ageless
     timeout: 3
 
 # Test 3: MyBody Screen Loads
-- label: "Test 3: MyBody Screen Displays"
 - assertVisible:
     id: "profile-screen"
 - assertVisible:
     text: "My Body"
 
 # Test 4: User Info Displays
-- label: "Test 4: User Information Shows"
 - assertVisible:
     id: "user-name-display"
 - assertVisible:
     id: "user-email-display"
 
 # Test 5: Body Measurements Section
-- label: "Test 5: Body Measurements Section"
 - assertVisible:
     id: "body-measurements"
 - assertVisible:
@@ -62,7 +56,6 @@ appId: exp.ageless
     text: "Weight"
 
 # Test 6: Settings/Preferences
-- label: "Test 6: Settings Section"
 - assertVisible:
     id: "profile-settings"
 - scroll:
@@ -70,14 +63,12 @@ appId: exp.ageless
     iterations: 2
 
 # Test 7: Logout Button
-- label: "Test 7: Logout Button Present"
 - assertVisible:
     id: "logout-button"
 - assertVisible:
     text: "Logout"
 
 # Test 8: Navigate Away and Back
-- label: "Test 8: Navigation Away"
 - tapOn:
     text: "🏠"
 - waitForText:
@@ -85,7 +76,6 @@ appId: exp.ageless
     timeout: 2
 
 # Test 9: Return to Profile
-- label: "Test 9: Return to Profile"
 - tapOn:
     text: "🎁"
 - waitForText:
@@ -93,7 +83,6 @@ appId: exp.ageless
     timeout: 2
 
 # Test 10: Profile Persistence
-- label: "Test 10: Profile Data Persists"
 - assertVisible:
     id: "user-name-display"
 - assertVisible:

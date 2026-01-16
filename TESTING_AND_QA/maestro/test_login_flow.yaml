@@ -8,7 +8,6 @@ appId: exp.ageless
 ---
 
 # Test 1: Valid Login
-- label: "Test 1: Valid Login with Correct Credentials"
 - tapOn:
     text: "Sign in"
 - inputText: "test@ageless.app"
@@ -26,7 +25,6 @@ appId: exp.ageless
     text: "Dashboard"
 
 # Test 2: Email Validation
-- label: "Test 2: Invalid Email Format"
 - tapOn:
     id: "email-input"
 - clearTextInput:
@@ -40,7 +38,6 @@ appId: exp.ageless
     timeout: 3
 
 # Test 3: Password Required
-- label: "Test 3: Missing Password"
 - tapOn:
     id: "email-input"
 - clearTextInput:
@@ -59,7 +56,6 @@ appId: exp.ageless
     timeout: 3
 
 # Test 4: Invalid Credentials
-- label: "Test 4: Wrong Password"
 - tapOn:
     id: "password-input"
 - clearTextInput:
@@ -73,7 +69,6 @@ appId: exp.ageless
     timeout: 5
 
 # Test 5: Valid Login Success
-- label: "Test 5: Successful Login and Navigation"
 - tapOn:
     id: "email-input"
 - clearTextInput:

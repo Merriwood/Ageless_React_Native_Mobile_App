@@ -8,7 +8,6 @@ appId: exp.ageless
 ---
 
 # Setup: Navigate to Register
-- label: "Setup: Open Registration Screen"
 - assertVisible:
     text: "Sign in"
 - tapOn:
@@ -18,7 +17,6 @@ appId: exp.ageless
     timeout: 3
 
 # Test 1: Email Validation (Invalid Format)
-- label: "Test 1: Invalid Email Format Validation"
 - tapOn:
     id: "register-email-input"
 - inputText: "invalidemail"
@@ -32,7 +30,6 @@ appId: exp.ageless
     timeout: 3
 
 # Test 2: Password Too Short
-- label: "Test 2: Password Minimum Length Validation"
 - tapOn:
     id: "register-email-input"
 - clearTextInput:
@@ -52,7 +49,6 @@ appId: exp.ageless
     timeout: 3
 
 # Test 3: Valid Registration
-- label: "Test 3: Successful Registration"
 - tapOn:
     id: "register-password-input"
 - clearTextInput:
@@ -71,7 +67,6 @@ appId: exp.ageless
     timeout: 5
 
 # Test 4: Duplicate Email Validation
-- label: "Test 4: Duplicate Email Error"
 - tapOn:
     text: "Create new account"
 - waitForText:
@@ -93,7 +88,6 @@ appId: exp.ageless
     timeout: 5
 
 # Test 5: Required Fields Validation
-- label: "Test 5: Missing Required Fields"
 - tapOn:
     id: "register-email-input"
 - clearTextInput:
@@ -111,7 +105,6 @@ appId: exp.ageless
     timeout: 3
 
 # Test 6: Back to Login
-- label: "Test 6: Navigate Back to Login"
 - tapOn:
     text: "Back"
 - waitForText:

@@ -8,7 +8,6 @@ appId: exp.ageless
 ---
 
 # Setup: Login to Dashboard
-- label: "Setup: Login and Navigate to Dashboard"
 - tapOn:
     id: "signin-button"
 - inputText: "test@ageless.app"
@@ -24,7 +23,6 @@ appId: exp.ageless
     timeout: 5
 
 # Test 1: Hamburger Menu Opens
-- label: "Test 1: Open Hamburger Menu"
 - tapOn:
     id: "hamburger-menu"
 - waitForText:
@@ -32,7 +30,6 @@ appId: exp.ageless
     timeout: 2
 
 # Test 2: History Modal Opens from Menu
-- label: "Test 2: Open History Modal from Menu"
 - tapOn:
     text: "History"
 - waitForText:
@@ -42,7 +39,6 @@ appId: exp.ageless
     id: "history-modal"
 
 # Test 3: History Cards Display
-- label: "Test 3: Workout History Cards Load"
 - waitForText:
     regex: "\\d{4}-\\d{2}-\\d{2}"
     timeout: 3
@@ -50,7 +46,6 @@ appId: exp.ageless
     id: "history-card-0"
 
 # Test 4: Multiple History Cards Visible
-- label: "Test 4: Multiple Workouts Display"
 - scroll:
     direction: DOWN
     iterations: 3
@@ -59,7 +54,6 @@ appId: exp.ageless
     timeout: 2
 
 # Test 5: Edit Workout Button
-- label: "Test 5: Edit Workout Modal Opens"
 - tapOn:
     id: "edit-button-0"
 - waitForText:
@@ -69,7 +63,6 @@ appId: exp.ageless
     text: "Save Changes"
 
 # Test 6: Close Edit Modal
-- label: "Test 6: Close Edit Modal"
 - tapOn:
     text: "Cancel"
 - waitForText:
@@ -77,7 +70,6 @@ appId: exp.ageless
     timeout: 2
 
 # Test 7: Delete Workout Confirmation
-- label: "Test 7: Delete Confirmation Dialog"
 - tapOn:
     id: "delete-button-0"
 - waitForText:
@@ -90,7 +82,6 @@ appId: exp.ageless
     timeout: 2
 
 # Test 8: Scroll Through History
-- label: "Test 8: Scroll History List"
 - scroll:
     direction: DOWN
     iterations: 5
@@ -99,7 +90,6 @@ appId: exp.ageless
     iterations: 5
 
 # Test 9: Close History Modal
-- label: "Test 9: Close History Modal"
 - tapOn:
     id: "close-button"
 - waitForText:
@@ -107,7 +97,6 @@ appId: exp.ageless
     timeout: 2
 
 # Test 10: Bottom Nav History Tab
-- label: "Test 10: Navigate via Bottom Nav"
 - tapOn:
     text: "📱"
 - waitForText:

@@ -117,8 +117,10 @@ class ApiClient {
   async post<T>(url: string, data?: any): Promise<T> {
     try {
       const response: AxiosResponse<T> = await this.instance.post<T>(url, data);
+      console.log(`[ApiClient] POST ${url} success:`, { status: response.status, data: response.data });
       return response.data;
     } catch (error) {
+      console.error(`[ApiClient] POST ${url} error:`, error);
       throw handleError(error as AxiosError);
     }
   }

@@ -1,15 +1,15 @@
 services:
   - type: web
-    name: ageless-mobile-web
+    name: locali-corp
     runtime: node
     buildCommand: npm install && npm run build
-    startCommand: npx serve -s dist -p 8081 --single
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
-      - key: NODE_OPTIONS
-        value: --max-old-space-size=512
-    disk:
-      name: data
-      mountPath: /data
-      sizeGB: 10
+      - key: DATABASE_URL
+        value: postgresql://fitness_tracker_db_ewht_user:m4sxNiEGxSkhPYpHJDI6uiL2rIu41GsD@dpg-d2g5j8fdiees73d3nne0-a.virginia-postgres.render.com/fitness_tracker_db_ewht
+      - key: JWT_SECRET
+        value: Ageless2026HealthFitness!SecureTokenGeneratedForProduction
+      - key: CORS_ORIGIN
+        value: https://locali-corp.onrender.com

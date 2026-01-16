@@ -40,9 +40,30 @@ app.use(helmet({
 }));
 app.use(express.json());
 app.use(morgan(process.env.NODE_ENV === "production" ? "tiny" : "dev"));
+// CORS configuration - restrict to known origins
+const allowedOrigins = [
+  'https://locali-corp.onrender.com',
+  'https://ageless.app',
+  process.env.CORS_ORIGIN,  // Allow override via environment variable
+].filter(Boolean);  // Remove undefined values
+
+// In development, allow localhost
+if (process.env.NODE_ENV !== 'production') {
+  allowedOrigins.push('http://localhost:3000', 'http://localhost:8081', 'http://localhost:19006');
+}
+
 app.use(cors({
-  origin: "*",
-  credentials: false,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -116,12 +137,13 @@ app.get('/api/health', (req, res) => {
 });
 console.log('[startup] ✓ GET /api/health');
 
-// Debug: Check if test user exists
-app.get('/api/debug/test-user', (req, res) => {
-  console.log('[debug] test-user endpoint called');
-  res.json({ message: 'test-user endpoint works', timestamp: new Date().toISOString() });
-});
-console.log('[startup] ✓ GET /api/debug/test-user');
+// Debug endpoint - only available in development
+if (process.env.NODE_ENV !== 'production') {
+  app.get('/api/debug/test-user', (req, res) => {
+    res.json({ message: 'test-user endpoint works', timestamp: new Date().toISOString() });
+  });
+  console.log('[startup] ✓ GET /api/debug/test-user (dev only)');
+}
 
 // Authentication endpoints
 app.post('/api/auth/register', register);

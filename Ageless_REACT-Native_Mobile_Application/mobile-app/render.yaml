@@ -7,9 +7,11 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      # IMPORTANT: Set these secrets in Render Dashboard > Environment
+      # Do NOT commit actual values to this file
       - key: DATABASE_URL
-        value: postgresql://fitness_tracker_db_ewht_user:m4sxNiEGxSkhPYpHJDI6uiL2rIu41GsD@dpg-d2g5j8fdiees73d3nne0-a.virginia-postgres.render.com/fitness_tracker_db_ewht
+        sync: false  # Set manually in Render Dashboard
       - key: JWT_SECRET
-        value: Ageless2026HealthFitness!SecureTokenGeneratedForProduction
+        sync: false  # Set manually in Render Dashboard
       - key: CORS_ORIGIN
         value: https://locali-corp.onrender.com

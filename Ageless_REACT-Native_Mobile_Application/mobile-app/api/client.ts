@@ -4,6 +4,7 @@
  */
 
 import axios, { AxiosInstance, AxiosError, AxiosResponse } from 'axios';
+import { tokenManager } from './tokenManager';
 
 const getApiBaseUrl = (): string => {
   // On web, use relative URLs (same origin)
@@ -81,8 +82,13 @@ class ApiClient {
   }
 
   private setupInterceptors(): void {
+    // Request interceptor - Add Authorization header
     this.requestInterceptor = this.instance.interceptors.request.use(
       async (config) => {
+        const token = tokenManager.getToken();
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
         return config;
       },
       (error) => {
@@ -90,13 +96,15 @@ class ApiClient {
       }
     );
 
+    // Response interceptor - Handle 401 unauthorized
     this.responseInterceptor = this.instance.interceptors.response.use(
       (response) => {
         return response;
       },
       (error: AxiosError) => {
         if (error.response?.status === 401) {
-          // Handle unauthorized
+          // Clear token on 401 - session expired or invalid
+          tokenManager.clearToken();
         }
         return Promise.reject(handleError(error));
       }
@@ -117,10 +125,8 @@ class ApiClient {
   async post<T>(url: string, data?: any): Promise<T> {
     try {
       const response: AxiosResponse<T> = await this.instance.post<T>(url, data);
-      console.log(`[ApiClient] POST ${url} success:`, { status: response.status, data: response.data });
       return response.data;
     } catch (error) {
-      console.error(`[ApiClient] POST ${url} error:`, error);
       throw handleError(error as AxiosError);
     }
   }
@@ -168,7 +174,3 @@ class ApiClient {
 export const apiClient = new ApiClient();
 export const client = apiClient;
 export { ApiClient };
-
-if (process.env.NODE_ENV === 'development') {
-  console.log('API Client initialized with base URL:', API_BASE_URL);
-}

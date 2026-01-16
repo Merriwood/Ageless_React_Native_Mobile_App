@@ -62,12 +62,9 @@ export const login = async (
       password,
     };
 
-    console.log('[API] login request:', { email });
     const response = await apiClient.post<AuthResponse>("/api/auth/login", payload);
-    console.log('[API] login response:', { token: response?.token ? 'present' : 'missing', user: response?.user });
     return response;
   } catch (error) {
-    console.error('[API] login error:', error);
     if (error instanceof Error) {
       throw new Error(`Login failed: ${error.message}`);
     }
@@ -82,9 +79,8 @@ export const login = async (
 export const logout = async (): Promise<void> => {
   try {
     await apiClient.post("/api/auth/logout");
-  } catch (error) {
-    // Logout is best-effort, don't throw
-    console.error("[Auth API] Logout error:", error);
+  } catch {
+    // Logout is best-effort, silently ignore errors
   }
 };
 

@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { tokenManager } from "../api/tokenManager";
 
 /**
  * JWT token payload structure
@@ -132,6 +133,7 @@ export const useAuth = () => {
   /**
    * Store token securely in SecureStore (encrypted on native, AsyncStorage on web)
    * Also stores user profile in AsyncStorage for quick access
+   * Syncs with tokenManager for API client authentication
    */
   const setToken = useCallback(
     async (newToken: string, userData?: User): Promise<void> => {
@@ -143,6 +145,9 @@ export const useAuth = () => {
         if (userData) {
           await AsyncStorage.setItem("user_profile", JSON.stringify(userData));
         }
+
+        // Sync with tokenManager for API client
+        tokenManager.setToken(newToken);
 
         setTokenState(newToken);
         setUser(userData || null);
@@ -174,11 +179,16 @@ export const useAuth = () => {
 
   /**
    * Clear token and user data (logout)
+   * Also clears tokenManager for API client
    */
   const clearToken = useCallback(async (): Promise<void> => {
     try {
       await deleteTokenSecurely("auth_token");
       await AsyncStorage.removeItem("user_profile");
+
+      // Clear tokenManager for API client
+      tokenManager.clearToken();
+
       setTokenState(null);
       setUser(null);
       setError(null);
@@ -192,6 +202,7 @@ export const useAuth = () => {
 
   /**
    * Load token and user data from storage (called on app boot)
+   * Syncs with tokenManager for API client authentication
    */
   const loadAuthState = useCallback(async (): Promise<void> => {
     try {
@@ -201,6 +212,7 @@ export const useAuth = () => {
       const storedToken = await retrieveTokenSecurely("auth_token");
 
       if (!storedToken) {
+        tokenManager.clearToken();
         setTokenState(null);
         setUser(null);
         setIsLoading(false);
@@ -219,6 +231,9 @@ export const useAuth = () => {
       const userJson = await AsyncStorage.getItem("user_profile");
       const userData = userJson ? JSON.parse(userJson) : null;
 
+      // Sync with tokenManager for API client
+      tokenManager.setToken(storedToken);
+
       setTokenState(storedToken);
       setUser(userData);
       setError(null);
@@ -226,6 +241,7 @@ export const useAuth = () => {
       const message =
         err instanceof Error ? err.message : "Failed to load auth state";
       setError(message);
+      tokenManager.clearToken();
       setTokenState(null);
       setUser(null);
     } finally {

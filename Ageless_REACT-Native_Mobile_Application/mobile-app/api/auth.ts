@@ -62,9 +62,12 @@ export const login = async (
       password,
     };
 
+    console.log('[API] login request:', { email });
     const response = await apiClient.post<AuthResponse>("/api/auth/login", payload);
+    console.log('[API] login response:', { token: response?.token ? 'present' : 'missing', user: response?.user });
     return response;
   } catch (error) {
+    console.error('[API] login error:', error);
     if (error instanceof Error) {
       throw new Error(`Login failed: ${error.message}`);
     }

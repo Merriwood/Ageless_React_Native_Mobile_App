@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: ageless-mobile-web
+    runtime: node
+    buildCommand: cd Ageless_REACT-Native_Mobile_Application/mobile-app && npm install && npm run build
+    startCommand: cd Ageless_REACT-Native_Mobile_Application/mobile-app && npx serve -s dist -p 8081
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_OPTIONS
+        value: --max-old-space-size=512
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 10

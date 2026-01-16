@@ -18,15 +18,17 @@ import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { useUI } from '../../context/UIContext';
 import { useResponsive } from '../../hooks/useResponsive';
+import { useAuth } from '../../hooks/useAuth';
 
 export default function ProfileScreen() {
   const [loading, setLoading] = useState(false);
   const { showToast } = useUI();
   const responsive = useResponsive();
+  const { user, clearToken } = useAuth();
 
-  // Placeholder user data - would come from context/API
-  const userEmail = 'user@example.com';
-  const userId = 'user-123';
+  // User data from auth context
+  const userEmail = user?.email || 'Not logged in';
+  const userId = user?.id || 'N/A';
   const appVersion = '1.0.0';
 
   const handleLogout = () => {
@@ -38,12 +40,11 @@ export default function ProfileScreen() {
         onPress: async () => {
           setLoading(true);
           try {
-            // Clear authentication state
-            // await clearAuth();
+            // Clear authentication state (token + user)
+            await clearToken();
             showToast('Logged out successfully', 'success');
             router.replace('/(auth)/login');
           } catch (error) {
-            console.error('Logout failed:', error);
             showToast('Logout failed', 'error');
           } finally {
             setLoading(false);

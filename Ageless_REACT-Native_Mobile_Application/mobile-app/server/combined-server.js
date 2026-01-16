@@ -18,8 +18,8 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 
 // Load server auth/db modules
-import { register, login, requireAuth } from "./server/auth.js";
-import { query } from "./server/db.js";
+import { register, login, requireAuth } from "./auth.js";
+import { query } from "./db.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

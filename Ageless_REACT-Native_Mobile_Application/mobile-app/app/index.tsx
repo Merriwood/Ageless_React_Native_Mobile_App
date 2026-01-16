@@ -1,21 +1,23 @@
-import { View, Text } from 'react-native';
-import { Link, router } from 'expo-router';
-import { Button } from '../components/ui/Button';
+import { useEffect } from 'react';
+import { View, ActivityIndicator } from 'react-native';
+import { router } from 'expo-router';
+import { theme } from '../theme';
 
+/**
+ * Root Index - Redirects to login
+ * The _layout.tsx handles auth state and will redirect to dashboard if authenticated
+ */
 export default function Home() {
+  useEffect(() => {
+    // Redirect to login - _layout.tsx will handle auth check
+    // and redirect to dashboard if already authenticated
+    router.replace('/(auth)/login');
+  }, []);
+
+  // Show loading while redirecting
   return (
-    <View className="flex-1 items-center justify-center bg-white p-4">
-      <Text className="text-3xl font-bold text-slate-900 mb-2">MindBodyHeart</Text>
-      <Text className="text-slate-500 mb-8 text-center">
-        Your fitness journey starts here.
-      </Text>
-      
-      <Button 
-        onPress={() => router.push('/dashboard')}
-        className="w-full max-w-xs"
-      >
-        Go to Dashboard
-      </Button>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.background }}>
+      <ActivityIndicator size="large" color={theme.colors.primary} />
     </View>
   );
 }

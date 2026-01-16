@@ -42,22 +42,21 @@ function RootLayoutContent() {
   useEffect(() => {
     const bootApp = async () => {
       try {
-        // Load auth state (token and user from storage)
-        await loadAuthState();
+        // Load auth state and get the token directly (avoids race condition)
+        const loadedToken = await loadAuthState();
 
         // If token exists, validate it with backend
-        if (token) {
+        if (loadedToken) {
           try {
-            const currentUser = await validateToken();
+            await validateToken();
             // Token is valid, user is authenticated
           } catch (error) {
             // Token is invalid or expired
-            console.error("[RootLayout] Token validation failed:", error);
             await clearToken();
           }
         }
       } catch (error) {
-        console.error("[RootLayout] Boot sequence error:", error);
+        // Silent fail - will redirect to login
       } finally {
         setIsChecking(false);
       }

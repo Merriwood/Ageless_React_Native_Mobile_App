@@ -203,8 +203,9 @@ export const useAuth = () => {
   /**
    * Load token and user data from storage (called on app boot)
    * Syncs with tokenManager for API client authentication
+   * Returns the loaded token (or null) for immediate use
    */
-  const loadAuthState = useCallback(async (): Promise<void> => {
+  const loadAuthState = useCallback(async (): Promise<string | null> => {
     try {
       setIsLoading(true);
 
@@ -216,7 +217,7 @@ export const useAuth = () => {
         setTokenState(null);
         setUser(null);
         setIsLoading(false);
-        return;
+        return null;
       }
 
       // Check if token is expired
@@ -224,7 +225,7 @@ export const useAuth = () => {
         // Token expired, clear it
         await clearToken();
         setIsLoading(false);
-        return;
+        return null;
       }
 
       // Get user profile from AsyncStorage
@@ -237,6 +238,8 @@ export const useAuth = () => {
       setTokenState(storedToken);
       setUser(userData);
       setError(null);
+
+      return storedToken;
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Failed to load auth state";
@@ -244,6 +247,7 @@ export const useAuth = () => {
       tokenManager.clearToken();
       setTokenState(null);
       setUser(null);
+      return null;
     } finally {
       setIsLoading(false);
     }

@@ -76,20 +76,6 @@ export async function login(req, res) {
   }
 }
 
-function issueToken(user) {
-  let parsedGoal = null;
-  if (user.goal) {
-    try {
-      parsedGoal = JSON.parse(user.goal);
-    } catch {
-      parsedGoal = user.goal; // legacy single string
-    }
-  }
-  const payload = { sub: user.id, email: user.email, goal: parsedGoal };
-  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: TOKEN_TTL });
-  return { token, user: { id: user.id, email: user.email, goal: parsedGoal } };
-}
-
 export function requireAuth(req, res, next) {
   const hdr = req.headers.authorization || "";
   const token = hdr.startsWith("Bearer ") ? hdr.slice(7) : null;

@@ -110,17 +110,9 @@ app.get('/api/health', (req, res) => {
 });
 
 // Debug: Check if test user exists
-app.get('/api/debug/test-user', async (req, res) => {
-  try {
-    const result = await query("SELECT id, email FROM users WHERE email = $1", ["test@ageless.app"]);
-    if (result.rows.length > 0) {
-      res.json({ exists: true, user: result.rows[0] });
-    } else {
-      res.json({ exists: false, message: 'Test user not found' });
-    }
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+app.get('/api/debug/test-user', (req, res) => {
+  console.log('[debug] test-user endpoint called');
+  res.json({ message: 'test-user endpoint works', timestamp: new Date().toISOString() });
 });
 
 // Authentication endpoints

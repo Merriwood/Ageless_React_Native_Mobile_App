@@ -16,9 +16,12 @@ import { useRouter } from "expo-router";
 import { theme } from "../../theme";
 import { isValidEmail } from "../../lib/validation";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { login as loginApi } from "../../api/auth";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { setToken } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -49,20 +52,19 @@ export default function LoginScreen() {
     setIsLoading(true);
 
     try {
-      // Connect to actual API endpoint
-      // const response = await api.auth.login(email, password);
-      // const { token, user } = response;
-      // Store token in SecureStore and redirect to dashboard
-
-      // Simulated successful login (temporary until API connected)
-      setTimeout(() => {
-        Alert.alert("Success", "Login successful!");
-        // router.replace("/(drawer)/(tabs)/dashboard");
-      }, 1000);
+      // Call actual API endpoint
+      const response = await loginApi(email, password);
+      const { token, user } = response;
+      
+      // Store token in SecureStore and user in AsyncStorage
+      await setToken(token, user);
+      
+      // Redirect to dashboard
+      router.replace("/dashboard");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Login failed. Please try again."
-      );
+      const errorMsg = err instanceof Error ? err.message : "Login failed. Please try again.";
+      setError(errorMsg);
+      console.error("[Login] Error:", err);
     } finally {
       setIsLoading(false);
     }

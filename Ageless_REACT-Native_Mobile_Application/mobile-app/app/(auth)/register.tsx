@@ -14,9 +14,12 @@ import { useRouter } from "expo-router";
 import { theme } from "../../theme";
 import { isValidEmail, isValidPassword, isValidConfirm, getPasswordStrength } from "../../lib/validation";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { register as registerApi } from "../../api/auth";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const { setToken } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -67,20 +70,19 @@ export default function RegisterScreen() {
     setIsLoading(true);
 
     try {
-      // Connect to actual API endpoint
-      // const response = await api.auth.register(email, password, goal);
-      // const { token, user } = response;
-      // Store token and redirect to dashboard
-
-      // Simulated successful registration (temporary until API connected)
-      setTimeout(() => {
-        Alert.alert("Success", "Account created successfully!");
-        // router.replace("/(drawer)/(tabs)/dashboard");
-      }, 1000);
+      // Call actual API endpoint
+      const response = await registerApi(email, password, goal || undefined);
+      const { token, user } = response;
+      
+      // Store token in SecureStore and user in AsyncStorage
+      await setToken(token, user);
+      
+      // Redirect to dashboard
+      router.replace("/dashboard");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Registration failed. Please try again."
-      );
+      const errorMsg = err instanceof Error ? err.message : "Registration failed. Please try again.";
+      setError(errorMsg);
+      console.error("[Register] Error:", err);
     } finally {
       setIsLoading(false);
     }

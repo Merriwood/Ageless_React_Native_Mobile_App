@@ -2,7 +2,7 @@ import { Text, TouchableOpacity, TouchableOpacityProps, StyleSheet } from 'react
 import { theme } from '../../theme';
 
 interface ButtonProps extends TouchableOpacityProps {
-  variant?: 'default' | 'outline' | 'ghost';
+  variant?: 'default' | 'outline' | 'ghost' | 'danger';
   size?: 'default' | 'sm' | 'lg';
   textClassName?: string;
 }
@@ -24,6 +24,11 @@ const styles = StyleSheet.create({
   },
   ghostButton: {
     backgroundColor: 'transparent',
+  },
+  dangerButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: theme.colors.status.error,
   },
   defaultSize: {
     height: 44,
@@ -52,6 +57,9 @@ const styles = StyleSheet.create({
   ghostText: {
     color: theme.colors.text.primary,
   },
+  dangerText: {
+    color: theme.colors.status.error,
+  },
 });
 
 export function Button({ 
@@ -66,6 +74,7 @@ export function Button({
     default: styles.defaultButton,
     outline: styles.outlineButton,
     ghost: styles.ghostButton,
+    danger: styles.dangerButton,
   };
 
   const sizeStyles = {
@@ -78,6 +87,7 @@ export function Button({
     default: styles.defaultText,
     outline: styles.outlineText,
     ghost: styles.ghostText,
+    danger: styles.dangerText,
   };
 
   return (

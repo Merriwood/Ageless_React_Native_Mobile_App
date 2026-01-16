@@ -100,6 +100,8 @@ async function runMigrationsOnce() {
 
 // ============ API ENDPOINTS ============
 
+console.log('[startup] Registering API routes...');
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ 
@@ -108,17 +110,24 @@ app.get('/api/health', (req, res) => {
     uptime: process.uptime()
   });
 });
+console.log('[startup] ✓ GET /api/health');
 
 // Debug: Check if test user exists
 app.get('/api/debug/test-user', (req, res) => {
   console.log('[debug] test-user endpoint called');
   res.json({ message: 'test-user endpoint works', timestamp: new Date().toISOString() });
 });
+console.log('[startup] ✓ GET /api/debug/test-user');
 
 // Authentication endpoints
 app.post('/api/auth/register', register);
+console.log('[startup] ✓ POST /api/auth/register');
+
 app.post('/api/auth/login', login);
+console.log('[startup] ✓ POST /api/auth/login');
+
 app.post('/api/mobile/login', login); // Mobile-specific alias
+console.log('[startup] ✓ POST /api/mobile/login');
 
 // Protected endpoint - get current user
 app.get('/api/me', requireAuth, async (req, res) => {
@@ -135,6 +144,9 @@ app.get('/api/me', requireAuth, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+console.log('[startup] ✓ GET /api/me');
+
+console.log('[startup] All API routes registered!');
 
 // ============ STATIC FILES (React Web App) ============
 

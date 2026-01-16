@@ -153,7 +153,8 @@ class ApiClient {
   }
 }
 
-export const client = new ApiClient();
+export const apiClient = new ApiClient();
+export const client = apiClient;
 export { ApiClient };
 
 if (process.env.NODE_ENV === 'development') {

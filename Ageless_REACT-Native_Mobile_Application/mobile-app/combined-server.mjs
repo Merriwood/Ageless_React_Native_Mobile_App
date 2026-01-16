@@ -16,6 +16,7 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import bcrypt from "bcryptjs";
 
 // Load server auth/db modules
 import { register, login, requireAuth } from "./server/auth.js";
@@ -60,6 +61,22 @@ async function runMigrationsOnce() {
     } catch (e) {
       console.warn('[startup] goal column ensure failed (non-fatal):', e.message);
     }
+    
+    // Seed test user if it doesn't exist
+    try {
+      const testUserExists = await query("SELECT id FROM users WHERE email = $1", ["test@ageless.app"]);
+      if (!testUserExists.rows.length) {
+        const hash = await bcrypt.hash('Test@123', 10);
+        await query(
+          "INSERT INTO users(email, password_hash, goal) VALUES ($1, $2, $3)",
+          ["test@ageless.app", hash, null]
+        );
+        console.log('[startup] Test user seeded ✓');
+      }
+    } catch (e) {
+      console.warn('[startup] Test user seeding failed (non-fatal):', e.message);
+    }
+    
     migrated = true;
     console.log('[startup] Database schema ensured ✓');
   } catch (e) {

@@ -1,8 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Linking, useSafeAreaInsets } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Linking, Platform } from 'react-native';
+import { useSafeAreaInsets as useNativeSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { theme } from '../../theme';
+
+// Platform-aware safe area insets hook
+const useSafeAreaInsets = () => {
+  if (Platform.OS === 'web') {
+    // Web doesn't have safe area insets
+    return { bottom: 0, top: 0, left: 0, right: 0 };
+  }
+  // Native platforms use the actual hook
+  return useNativeSafeAreaInsets();
+};
 
 interface NavItem {
   id: string;

@@ -1,10 +1,9 @@
 {
   "name": "mobile-app",
   "version": "1.0.0",
-  "type": "module",
   "main": "expo-router/entry",
   "scripts": {
-    "start": "node combined-server.js",
+    "start": "node combined-server.mjs",
     "start:web": "npx serve -s dist -p 8081 --single",
     "dev": "expo start",
     "android": "expo start --android",

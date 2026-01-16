@@ -124,7 +124,7 @@ jobs:
               ls -la "$MAESTRO_DIR"/*.yaml
 
               # Run all Maestro test flows
-              maestro test "$MAESTRO_DIR" --timeout 180 --verbose || echo "Tests completed with status: $?"
+              maestro test "$MAESTRO_DIR" --format=JUNIT --debug-output=./maestro-debug || echo "Tests completed with status: $?"
             else
               echo "⚠️ Maestro test folder not found at $MAESTRO_DIR"
               echo "📁 Searching for maestro folders..."

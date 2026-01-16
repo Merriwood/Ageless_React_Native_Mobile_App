@@ -135,7 +135,7 @@ jobs:
             ls -la "$MAESTRO_DIR"/*.yaml
 
             # Run all Maestro test flows
-            maestro test "$MAESTRO_DIR" --timeout 180 --verbose || echo "Tests completed with status: $?"
+            maestro test "$MAESTRO_DIR" --format=JUNIT --debug-output=./maestro-debug || echo "Tests completed with status: $?"
           else
             echo "⚠️ Maestro test folder not found at $MAESTRO_DIR"
             find "${GITHUB_WORKSPACE}" -type d -name "maestro" 2>/dev/null | head -5
@@ -154,8 +154,8 @@ jobs:
           name: maestro-results
           path: |
             Ageless_REACT-Native_Mobile_Application/mobile-app/ios/build/
+            Ageless_REACT-Native_Mobile_Application/mobile-app/maestro-debug/
             TESTING_AND_QA/maestro/
-            ~/.maestro/tests/
           retention-days: 30
 
   # code-quality job disabled - focus on Maestro testing

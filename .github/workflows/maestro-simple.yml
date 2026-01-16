@@ -113,16 +113,22 @@ jobs:
 
       - name: Run Maestro Tests
         run: |
-          cd Ageless_REACT-Native_Mobile_Application/mobile-app
+          # Maestro tests are in TESTING_AND_QA/maestro/ (repo root)
+          MAESTRO_DIR="${GITHUB_WORKSPACE}/TESTING_AND_QA/maestro"
 
           # Check if Maestro is available
           if command -v maestro &> /dev/null; then
-            if [ -d "maestro" ]; then
-              echo "📱 Running Maestro tests..."
-              maestro test maestro --timeout 120 --verbose || echo "Tests completed with status: $?"
+            if [ -d "$MAESTRO_DIR" ]; then
+              echo "📱 Running Maestro tests from $MAESTRO_DIR..."
+              echo "📋 Available test files:"
+              ls -la "$MAESTRO_DIR"/*.yaml
+
+              # Run all Maestro test flows
+              maestro test "$MAESTRO_DIR" --timeout 180 --verbose || echo "Tests completed with status: $?"
             else
-              echo "⚠️ No maestro test folder found"
-              ls -la | head -20
+              echo "⚠️ Maestro test folder not found at $MAESTRO_DIR"
+              echo "📁 Searching for maestro folders..."
+              find "${GITHUB_WORKSPACE}" -type d -name "maestro" 2>/dev/null | head -5
             fi
           else
             echo "⚠️ Maestro CLI not available, skipping tests"

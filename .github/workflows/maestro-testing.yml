@@ -126,8 +126,20 @@ jobs:
 
       - name: Run Maestro Tests
         run: |
-          # Run test flows
-          maestro test . --udid=com.ageless.fitnessapp || true
+          # Maestro tests are in TESTING_AND_QA/maestro/ (repo root)
+          MAESTRO_DIR="${GITHUB_WORKSPACE}/TESTING_AND_QA/maestro"
+
+          if [ -d "$MAESTRO_DIR" ]; then
+            echo "📱 Running Maestro tests from $MAESTRO_DIR..."
+            echo "📋 Available test files:"
+            ls -la "$MAESTRO_DIR"/*.yaml
+
+            # Run all Maestro test flows
+            maestro test "$MAESTRO_DIR" --timeout 180 --verbose || echo "Tests completed with status: $?"
+          else
+            echo "⚠️ Maestro test folder not found at $MAESTRO_DIR"
+            find "${GITHUB_WORKSPACE}" -type d -name "maestro" 2>/dev/null | head -5
+          fi
         continue-on-error: true
 
       - name: Verify test execution
@@ -141,8 +153,9 @@ jobs:
         with:
           name: maestro-results
           path: |
-            Ageless_REACT-Native_Mobile_Application/mobile-app/build/
-            Ageless_REACT-Native_Mobile_Application/mobile-app/maestro-results/
+            Ageless_REACT-Native_Mobile_Application/mobile-app/ios/build/
+            TESTING_AND_QA/maestro/
+            ~/.maestro/tests/
           retention-days: 30
 
   # code-quality job disabled - focus on Maestro testing

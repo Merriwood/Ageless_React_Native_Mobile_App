@@ -140,19 +140,6 @@ app.get('/api/me', requireAuth, async (req, res) => {
 
 // ============ STATIC FILES (React Web App) ============
 
-const distPath = path.join(__dirname, 'dist');
-
-// Serve static files
-app.use(express.static(distPath));
-
-// SPA fallback - route all non-API requests to index.html
-app.get('*', (req, res) => {
-  if (req.path.startsWith('/api')) {
-    return res.status(404).json({ error: 'API endpoint not found' });
-  }
-  res.sendFile(path.join(distPath, 'index.html'));
-});
-
 // ============ START SERVER ============
 
 // Run migrations then start server

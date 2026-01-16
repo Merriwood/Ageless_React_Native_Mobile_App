@@ -33,7 +33,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(helmet());
+// Helmet with CSP disabled for Expo web bundles (which use inline scripts)
+app.use(helmet({
+  contentSecurityPolicy: false,
+  // Keep other security headers but allow inline scripts from Expo
+}));
 app.use(express.json());
 app.use(morgan(process.env.NODE_ENV === "production" ? "tiny" : "dev"));
 app.use(cors({

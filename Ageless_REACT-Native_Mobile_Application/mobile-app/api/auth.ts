@@ -39,7 +39,7 @@ export const register = async (
     };
 
     const response = await apiClient.post<AuthResponse>("/api/auth/register", payload);
-    return response.data;
+    return response;
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(`Registration failed: ${error.message}`);
@@ -63,7 +63,7 @@ export const login = async (
     };
 
     const response = await apiClient.post<AuthResponse>("/api/auth/login", payload);
-    return response.data;
+    return response;
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(`Login failed: ${error.message}`);

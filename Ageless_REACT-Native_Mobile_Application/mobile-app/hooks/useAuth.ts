@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
+import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -27,12 +28,71 @@ export interface User {
  * Manages authentication state, token storage, and session persistence
  *
  * Features:
- * - Secure token storage in SecureStore (encrypted)
+ * - Secure token storage in SecureStore (native) or AsyncStorage (web)
  * - Token persistence across app restarts
  * - Token expiration checking
  * - Token refresh capability
  * - User profile management
  */
+
+/**
+ * Helper: Store token securely (platform-aware)
+ * Uses SecureStore on native platforms, AsyncStorage on web
+ */
+const storeTokenSecurely = async (
+  key: string,
+  value: string
+): Promise<void> => {
+  try {
+    if (Platform.OS === "web") {
+      // On web, use AsyncStorage (no native secure storage available)
+      await AsyncStorage.setItem(key, value);
+    } else {
+      // On native platforms, use SecureStore for encryption
+      await SecureStore.setItemAsync(key, value);
+    }
+  } catch (err) {
+    console.error(`[useAuth] Failed to store ${key}:`, err);
+    throw err;
+  }
+};
+
+/**
+ * Helper: Retrieve token securely (platform-aware)
+ */
+const retrieveTokenSecurely = async (key: string): Promise<string | null> => {
+  try {
+    if (Platform.OS === "web") {
+      // On web, use AsyncStorage
+      return await AsyncStorage.getItem(key);
+    } else {
+      // On native platforms, use SecureStore
+      return await SecureStore.getItemAsync(key);
+    }
+  } catch (err) {
+    console.error(`[useAuth] Failed to retrieve ${key}:`, err);
+    return null;
+  }
+};
+
+/**
+ * Helper: Delete token securely (platform-aware)
+ */
+const deleteTokenSecurely = async (key: string): Promise<void> => {
+  try {
+    if (Platform.OS === "web") {
+      // On web, use AsyncStorage
+      await AsyncStorage.removeItem(key);
+    } else {
+      // On native platforms, use SecureStore
+      await SecureStore.deleteItemAsync(key);
+    }
+  } catch (err) {
+    console.error(`[useAuth] Failed to delete ${key}:`, err);
+    throw err;
+  }
+};
+
 export const useAuth = () => {
   const [token, setTokenState] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -70,14 +130,14 @@ export const useAuth = () => {
   }, [decodeToken]);
 
   /**
-   * Store token securely in SecureStore
+   * Store token securely in SecureStore (encrypted on native, AsyncStorage on web)
    * Also stores user profile in AsyncStorage for quick access
    */
   const setToken = useCallback(
     async (newToken: string, userData?: User): Promise<void> => {
       try {
-        // Store token in SecureStore (encrypted)
-        await SecureStore.setItemAsync("auth_token", newToken);
+        // Store token securely (platform-aware)
+        await storeTokenSecurely("auth_token", newToken);
 
         // Store user in AsyncStorage (for quick access, not sensitive)
         if (userData) {
@@ -98,11 +158,11 @@ export const useAuth = () => {
   );
 
   /**
-   * Retrieve token from SecureStore
+   * Retrieve token from SecureStore (or AsyncStorage on web)
    */
   const getToken = useCallback(async (): Promise<string | null> => {
     try {
-      const storedToken = await SecureStore.getItemAsync("auth_token");
+      const storedToken = await retrieveTokenSecurely("auth_token");
       return storedToken || null;
     } catch (err) {
       const message =
@@ -117,7 +177,7 @@ export const useAuth = () => {
    */
   const clearToken = useCallback(async (): Promise<void> => {
     try {
-      await SecureStore.deleteItemAsync("auth_token");
+      await deleteTokenSecurely("auth_token");
       await AsyncStorage.removeItem("user_profile");
       setTokenState(null);
       setUser(null);
@@ -137,8 +197,8 @@ export const useAuth = () => {
     try {
       setIsLoading(true);
 
-      // Get token from SecureStore
-      const storedToken = await SecureStore.getItemAsync("auth_token");
+      // Get token from storage (platform-aware)
+      const storedToken = await retrieveTokenSecurely("auth_token");
 
       if (!storedToken) {
         setTokenState(null);

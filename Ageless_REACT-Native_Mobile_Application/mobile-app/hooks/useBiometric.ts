@@ -1,6 +1,8 @@
 import { useState, useCallback, useEffect } from "react";
+import { Platform } from "react-native";
 import * as LocalAuthentication from "expo-local-authentication";
 import * as SecureStore from "expo-secure-store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 /**
  * useBiometric Hook
@@ -9,10 +11,71 @@ import * as SecureStore from "expo-secure-store";
  * Features:
  * - Detect device biometric capability
  * - Trigger Face ID/Touch ID prompt
- * - Store/retrieve biometric credentials securely
+ * - Store/retrieve biometric credentials securely (platform-aware)
  * - Fallback to password authentication
  * - Retry logic with 3 attempts before fallback
  */
+
+/**
+ * Helper: Store biometric credentials securely (platform-aware)
+ * Uses SecureStore on native platforms, AsyncStorage on web
+ */
+const storeBiometricCredentials = async (
+  key: string,
+  value: string
+): Promise<void> => {
+  try {
+    if (Platform.OS === "web") {
+      // On web, use AsyncStorage (no native secure storage available)
+      await AsyncStorage.setItem(key, value);
+    } else {
+      // On native platforms, use SecureStore for encryption
+      await SecureStore.setItemAsync(key, value);
+    }
+  } catch (err) {
+    console.error(`[useBiometric] Failed to store ${key}:`, err);
+    throw err;
+  }
+};
+
+/**
+ * Helper: Retrieve biometric credentials securely (platform-aware)
+ */
+const retrieveBiometricCredentials = async (
+  key: string
+): Promise<string | null> => {
+  try {
+    if (Platform.OS === "web") {
+      // On web, use AsyncStorage
+      return await AsyncStorage.getItem(key);
+    } else {
+      // On native platforms, use SecureStore
+      return await SecureStore.getItemAsync(key);
+    }
+  } catch (err) {
+    console.error(`[useBiometric] Failed to retrieve ${key}:`, err);
+    return null;
+  }
+};
+
+/**
+ * Helper: Delete biometric credentials securely (platform-aware)
+ */
+const deleteBiometricCredentials = async (key: string): Promise<void> => {
+  try {
+    if (Platform.OS === "web") {
+      // On web, use AsyncStorage
+      await AsyncStorage.removeItem(key);
+    } else {
+      // On native platforms, use SecureStore
+      await SecureStore.deleteItemAsync(key);
+    }
+  } catch (err) {
+    console.error(`[useBiometric] Failed to delete ${key}:`, err);
+    throw err;
+  }
+};
+
 export const useBiometric = () => {
   const [isAvailable, setIsAvailable] = useState(false);
   const [biometricType, setBiometricType] = useState<string | null>(null);
@@ -122,16 +185,16 @@ export const useBiometric = () => {
    * Store biometric credentials (encrypted)
    * Used for quick login with Face ID after initial password login
    */
-  const storeBiometricCredentials = useCallback(
+  const saveCredentials = useCallback(
     async (email: string, password: string): Promise<void> => {
       if (!isAvailable) {
         return;
       }
 
       try {
-        // Store credentials in SecureStore (encrypted)
+        // Store credentials in SecureStore (encrypted) - platform-aware
         // In production, only store a hash or token, not the plain password
-        await SecureStore.setItemAsync(
+        await storeBiometricCredentials(
           "biometric_credentials",
           JSON.stringify({ email, password })
         );
@@ -154,7 +217,7 @@ export const useBiometric = () => {
   const getBiometricCredentials = useCallback(
     async (): Promise<{ email: string; password: string } | null> => {
       try {
-        const credentialsJson = await SecureStore.getItemAsync(
+        const credentialsJson = await retrieveBiometricCredentials(
           "biometric_credentials"
         );
         if (!credentialsJson) return null;
@@ -177,7 +240,7 @@ export const useBiometric = () => {
    */
   const clearBiometricCredentials = useCallback(async (): Promise<void> => {
     try {
-      await SecureStore.deleteItemAsync("biometric_credentials");
+      await deleteBiometricCredentials("biometric_credentials");
       setRetryCount(0);
       setError(null);
     } catch (err) {
@@ -209,7 +272,7 @@ export const useBiometric = () => {
     // Methods
     authenticate,
     checkBiometricAvailable,
-    storeBiometricCredentials,
+    saveCredentials,
     getBiometricCredentials,
     clearBiometricCredentials,
   };

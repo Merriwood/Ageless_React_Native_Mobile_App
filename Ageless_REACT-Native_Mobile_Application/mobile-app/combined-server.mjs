@@ -66,15 +66,23 @@ async function runMigrationsOnce() {
     try {
       const testUserExists = await query("SELECT id FROM users WHERE email = $1", ["test@ageless.app"]);
       if (!testUserExists.rows.length) {
+        console.log('[startup] Hashing test password...');
         const hash = await bcrypt.hash('Test@123', 10);
+        console.log('[startup] Password hashed, inserting test user...');
         await query(
           "INSERT INTO users(email, password_hash, goal) VALUES ($1, $2, $3)",
           ["test@ageless.app", hash, null]
         );
         console.log('[startup] Test user seeded ✓');
+      } else {
+        console.log('[startup] Test user already exists ✓');
       }
     } catch (e) {
-      console.warn('[startup] Test user seeding failed (non-fatal):', e.message);
+      if (e.code === '23505') { // Unique violation
+        console.log('[startup] Test user already exists (duplicate key) ✓');
+      } else {
+        console.error('[startup] Test user seeding failed:', e.message);
+      }
     }
     
     migrated = true;
@@ -93,6 +101,20 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime()
   });
+});
+
+// Debug: Check if test user exists
+app.get('/api/debug/test-user', async (req, res) => {
+  try {
+    const result = await query("SELECT id, email FROM users WHERE email = $1", ["test@ageless.app"]);
+    if (result.rows.length > 0) {
+      res.json({ exists: true, user: result.rows[0] });
+    } else {
+      res.json({ exists: false, message: 'Test user not found' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Authentication endpoints

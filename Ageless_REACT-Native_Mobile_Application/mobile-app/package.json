@@ -10,8 +10,11 @@
     "audit:design": "node scripts/audit-design.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "preinstall": "npm config set legacy-peer-deps true",
+    "build": "npx expo export --platform web"
   },
+,
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
     "@react-native-async-storage/async-storage": "^2.2.0",

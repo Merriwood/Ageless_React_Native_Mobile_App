@@ -100,7 +100,7 @@ class ApiClient {
       });
       return response.data;
     } catch (error) {
-      throw error instanceof ApiError ? error : handleError(error as AxiosError);
+      throw handleError(error as AxiosError);
     }
   }
 
@@ -109,7 +109,7 @@ class ApiClient {
       const response: AxiosResponse<T> = await this.instance.post<T>(url, data);
       return response.data;
     } catch (error) {
-      throw error instanceof ApiError ? error : handleError(error as AxiosError);
+      throw handleError(error as AxiosError);
     }
   }
 
@@ -118,7 +118,7 @@ class ApiClient {
       const response: AxiosResponse<T> = await this.instance.put<T>(url, data);
       return response.data;
     } catch (error) {
-      throw error instanceof ApiError ? error : handleError(error as AxiosError);
+      throw handleError(error as AxiosError);
     }
   }
 
@@ -127,7 +127,7 @@ class ApiClient {
       const response: AxiosResponse<T> = await this.instance.delete<T>(url);
       return response.data;
     } catch (error) {
-      throw error instanceof ApiError ? error : handleError(error as AxiosError);
+      throw handleError(error as AxiosError);
     }
   }
 

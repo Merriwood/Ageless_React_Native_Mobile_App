@@ -222,36 +222,7 @@ export function BiometricIcon({
 
   const content = (
     <View style={[styles.container, { width: size, height: size }]}>
-      {/* Outer pulse ring */}
-      <Animated.View
-        style={[
-          styles.pulseRing,
-          {
-            width: size,
-            height: size,
-            borderRadius: size * 0.2,
-            opacity: opacityAnim,
-            transform: [{ scale: pulseAnim }],
-            borderColor: theme.colors.primary,
-          },
-        ]}
-      />
-
-      {/* Background glow */}
-      <Animated.View
-        style={[
-          styles.glowBackground,
-          {
-            width: size * 0.9,
-            height: size * 0.9,
-            borderRadius: size * 0.18,
-            opacity: opacityAnim,
-            backgroundColor: theme.colors.primary,
-          },
-        ]}
-      />
-
-      {/* Main icon container */}
+      {/* Main icon container - clean white background */}
       <Animated.View
         style={[
           styles.iconContainer,
@@ -292,25 +263,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position: 'relative',
   },
-  pulseRing: {
-    position: 'absolute',
-    borderWidth: 2,
-  },
-  glowBackground: {
-    position: 'absolute',
-  },
   iconContainer: {
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
     zIndex: 2,
     // Shadow for iOS
-    shadowColor: theme.colors.primary,
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
     // Shadow for Android
-    elevation: 4,
+    elevation: 3,
   },
 });
 

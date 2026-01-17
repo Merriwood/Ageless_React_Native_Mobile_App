@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Slot, useRouter, useSegments } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { useAuth, User } from "../hooks/useAuth";
+import { AuthProvider, useAuth } from "../context/AuthContext";
 import { validateToken } from "../api/auth";
 import { theme } from "../theme";
 import { WorkoutProvider } from "../context/WorkoutContext";
@@ -117,12 +117,19 @@ function RootLayoutContent() {
 
 /**
  * Root Layout Export
- * Wraps RootLayoutContent with SafeAreaProvider at the top level
+ * Wraps RootLayoutContent with providers at the top level
+ *
+ * Context Nesting Order:
+ * 1. SafeAreaProvider
+ * 2. AuthProvider (shared auth state)
+ * 3. RootLayoutContent (route protection, other providers)
  */
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <RootLayoutContent />
+      <AuthProvider>
+        <RootLayoutContent />
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }

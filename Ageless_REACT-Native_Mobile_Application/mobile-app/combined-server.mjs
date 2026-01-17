@@ -158,9 +158,11 @@ console.log('[startup] ✓ POST /api/mobile/login');
 // Protected endpoint - get current user
 app.get('/api/me', requireAuth, async (req, res) => {
   try {
+    // Token uses 'sub' for user id (JWT standard)
+    const userId = req.user.sub || req.user.id;
     const result = await query(
       'SELECT id, email, goal FROM users WHERE id = $1',
-      [req.user.id]
+      [userId]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });

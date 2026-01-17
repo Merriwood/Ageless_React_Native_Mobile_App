@@ -73,7 +73,8 @@
       "Bash(gh run list:*)",
       "Bash(gh run view:*)",
       "Bash(gh workflow run:*)",
-      "Bash(nslookup:*)"
+      "Bash(nslookup:*)",
+      "mcp__ide__getDiagnostics"
     ]
   }
 }

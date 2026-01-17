@@ -32,7 +32,7 @@ This file documents all Claude Code sessions for the Ageless React Native Mobile
 
 | Date | Session | Focus | Key Accomplishments | Files |
 |------|---------|-------|---------------------|-------|
-| Jan 16, 2026 | **Current** | CI/CD & Maestro Fix | Fixed Maestro test paths in workflows, set up session documentation | This file |
+| Jan 16, 2026 | **Session 11** | Security & Auth Fixes | Critical security fixes, auth routing, logout functionality | [Summary](#session-11-summary) |
 | Jan 15, 2026 | Session 10 | Missing Screens & Maestro Setup | Implemented 3 missing screens, created zero-cost Maestro testing solution | [Summary](Ageless_REACT-Native_Mobile_Application/mobile-app/SESSION_SUMMARY_2026_01_15.md) |
 | Jan 14, 2026 | Session 9 | Card Optimization & UI Polish | Card optimization, history screen refinement, login fixes | [Summary](Ageless_REACT-Native_Mobile_Application/mobile-app/SESSION_SUMMARY_2026_01_14.md) |
 | Jan 13, 2026 | Session 8 | Biometric & Styling | Biometric registration, professional styling, icon assets | [Summary](Ageless_REACT-Native_Mobile_Application/mobile-app/SESSION_SUMMARY_2026_01_13.md) |
@@ -156,6 +156,97 @@ Ageless_React_Native_Mobile_App/
 2. **Test IDs**: Components include `testID` props for Maestro - see `TESTING_AND_QA/maestro/README.md`
 3. **API Status**: Login/register have API calls commented out (using setTimeout simulation)
 4. **Backend**: Same Render backend as PWA - shared database
+
+---
+
+## Session 11 Summary
+
+**Date**: 2026-01-16
+**Focus**: Critical Security Fixes & Auth Flow Repair
+**Status**: In Progress
+
+### Objectives
+- [x] Code review of frontend, backend, API, and security
+- [x] Fix 5 critical security issues identified in review
+- [x] Fix auth routing (login → dashboard flow)
+- [x] Enable logout functionality
+- [ ] Address styling issues (pending)
+- [ ] Debug login not redirecting after deploy
+
+### Code Review Findings
+
+**Overall Scores:**
+| Area | Score | Notes |
+|------|-------|-------|
+| Frontend Architecture | 8/10 | Well-structured, good patterns |
+| Backend Architecture | 6.5/10 | Needs security hardening |
+| API Design | 7/10 | Good caching, deduplication |
+| Security | 5/10 | Critical gaps found |
+
+### Critical Security Issues Fixed
+
+1. **Token Injection** - API client wasn't adding `Authorization: Bearer` header
+   - Created `api/tokenManager.ts` singleton
+   - Updated `api/client.ts` interceptors
+   - Synced `hooks/useAuth.ts` with tokenManager
+
+2. **CORS Wide Open** - Was `origin: "*"`
+   - Restricted to whitelist: `locali-corp.onrender.com`, `ageless.app`
+   - Allows same-origin and mobile app requests
+
+3. **Sensitive Console Logs** - Email/token logging removed
+   - Cleaned `api/auth.ts` and `api/client.ts`
+
+4. **Hardcoded Credentials** - DB password and JWT_SECRET in code
+   - Removed from `render.yaml` and `.env.local`
+   - User rotated credentials in Render dashboard
+
+5. **Credential Rotation** - Exposed secrets rotated
+   - New database user: `fitnesstrackerdb_gfv6_user`
+   - New JWT_SECRET generated
+
+### Other Fixes
+
+- **Auth Routing Race Condition**: `loadAuthState` now returns token directly
+- **index.tsx**: Redirects to login instead of showing bypass button
+- **Logout Button**: Profile screen now properly clears auth state
+- **Button Component**: Added `danger` variant for logout button
+- **Login Error Handling**: Normalize `user.id` to string, better error messages
+
+### Commits Made
+| Commit | Description |
+|--------|-------------|
+| `d833fd2` | fix: Critical security improvements |
+| `b2128bf` | fix: Auth routing - redirect properly and fix race condition |
+| `bcd9438` | fix: Enable logout functionality on Profile screen |
+| `f4e2a91` | fix: Add danger variant to Button component |
+| `4d983fc` | fix: Improve login error handling and normalize user.id |
+
+### Files Changed
+- `api/tokenManager.ts` (NEW) - Token singleton for API client
+- `api/client.ts` - Token injection, removed sensitive logs
+- `api/auth.ts` - Removed sensitive console.log calls
+- `hooks/useAuth.ts` - Syncs with tokenManager, returns token from loadAuthState
+- `combined-server.mjs` - CORS whitelist, dev-only debug endpoint
+- `render.yaml` - Removed hardcoded credentials
+- `.env.local` - Converted to template
+- `app/_layout.tsx` - Fixed race condition in boot sequence
+- `app/index.tsx` - Redirects to login
+- `app/profile/index.tsx` - Working logout with useAuth
+- `components/ui/Button.tsx` - Added danger variant
+
+### Current Issue
+Login form stays static after clicking Sign In - no loading spinner, no error, no redirect. Debugging in progress.
+
+### Next Steps
+1. Debug login flow (check browser console/network)
+2. Address styling issues user has identified
+3. Test full auth flow end-to-end
+
+### Environment
+- **Deployment**: https://locali-corp.onrender.com
+- **Database**: Render PostgreSQL (credentials rotated)
+- **Test Account**: test@ageless.app / Test@123
 
 ---
 

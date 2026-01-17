@@ -41,7 +41,7 @@ export default function Dashboard() {
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryError, setSummaryError] = useState<string | null>(null);
 
-  const { enqueue, getQueue } = useOfflineQueue();
+  const { addToQueue, queue: offlineQueue } = useOfflineQueue();
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Helper to format date as YYYY-MM-DD
@@ -96,21 +96,14 @@ export default function Dashboard() {
       let currentExercises: Record<string, number> = {};
 
       // Check offline queue for pending changes
-      const queue = await getQueue();
-      const pendingEntry = queue.find((entry) => {
-        if (entry.body && typeof entry.body.date === 'string') {
-          return entry.body.date === dateStr;
-        }
-        return false;
-      });
+      const pendingEntry = offlineQueue.find((entry) => entry.date === dateStr);
 
       if (pendingEntry && pendingEntry.body) {
-        const body = pendingEntry.body as any;
-        if (body.weight !== undefined && body.weight !== null) {
-          currentWeight = body.weight.toString();
+        if (pendingEntry.body.weight !== undefined && pendingEntry.body.weight !== null) {
+          currentWeight = pendingEntry.body.weight.toString();
         }
-        if (body.fitnessData) {
-          currentExercises = body.fitnessData;
+        if (pendingEntry.body.exercises) {
+          currentExercises = pendingEntry.body.exercises;
         }
       } else if (user?.id) {
         // Load weight from AsyncStorage if no pending entry
@@ -153,11 +146,12 @@ export default function Dashboard() {
       if (payloadString === lastPayload) return;
 
       // Queue for offline sync
-      await enqueue({
-        path: '/api/entries',
-        method: 'POST',
-        body: payload,
-      });
+      await addToQueue(
+        'POST',
+        '/api/entries',
+        dateStr,
+        { exercises, weight: weight ? parseFloat(weight) : undefined }
+      );
 
       setLastPayload(payloadString);
     } catch (error) {

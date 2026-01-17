@@ -96,7 +96,6 @@ export function DatePicker({ selectedDate = new Date(), onDateChange }: DatePick
         onPress={() => setIsExpanded(!isExpanded)}
         activeOpacity={0.7}
       >
-        <Text style={styles.buttonIcon}>📅</Text>
         <Text style={styles.buttonText}>{formattedDate}</Text>
         <Text style={[styles.arrow, isExpanded && styles.arrowOpen]}>▼</Text>
       </TouchableOpacity>
@@ -186,88 +185,85 @@ const styles = StyleSheet.create({
   button: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: theme.spacing.md,
     backgroundColor: theme.colors.surface,
     borderRadius: theme.radius.md,
     borderWidth: 1,
     borderColor: theme.colors.border.light,
-    gap: theme.spacing.base,
-  },
-  buttonIcon: {
-    fontSize: 18,
+    gap: theme.spacing.sm,
   },
   buttonText: {
-    flex: 1,
-    fontSize: theme.typography.body.fontSize,
-    fontWeight: theme.typography.body.fontWeight,
+    fontSize: 15,
+    fontWeight: '600',
     color: theme.colors.text.primary,
+    textAlign: 'center',
   },
   arrow: {
-    fontSize: 12,
+    fontSize: 10,
     color: theme.colors.text.secondary,
-    transition: 'all 0.12s ease-out',
   },
   arrowOpen: {
     transform: [{ rotate: '180deg' }],
   },
   calendarContainer: {
-    marginTop: theme.spacing.base,
+    marginTop: theme.spacing.sm,
     backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.lg,
+    borderRadius: theme.radius.md,
     borderWidth: 1,
     borderColor: theme.colors.border.light,
-    padding: theme.spacing.lg,
-    ...theme.shadows.md,
+    padding: theme.spacing.md,
+    ...theme.shadows.sm,
   },
   calendarHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: theme.spacing.lg,
+    marginBottom: theme.spacing.sm,
   },
   navButton: {
-    width: 32,
-    height: 32,
+    width: 28,
+    height: 28,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: theme.radius.sm,
   },
   navArrow: {
-    fontSize: 14,
+    fontSize: 12,
     color: theme.colors.primary,
     fontWeight: '600',
   },
   monthYear: {
-    fontSize: theme.typography.h3.fontSize,
-    fontWeight: theme.typography.h3.fontWeight,
+    fontSize: 14,
+    fontWeight: '600',
     color: theme.colors.text.primary,
   },
   daysHeader: {
     flexDirection: 'row',
-    marginBottom: theme.spacing.base,
+    marginBottom: theme.spacing.xs,
     justifyContent: 'space-between',
   },
   dayHeader: {
     flex: 1,
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: '600',
     color: theme.colors.text.secondary,
-    lineHeight: 18,
+    lineHeight: 14,
   },
   calendarGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: theme.spacing.lg,
+    marginBottom: theme.spacing.sm,
   },
   dayCell: {
-    width: '14.285%', // 7 columns per week
-    aspectRatio: 1,
+    width: '14.285%',
+    aspectRatio: 1.2,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: theme.radius.sm,
-    marginBottom: theme.spacing.xs,
+    borderRadius: 4,
+    marginBottom: 2,
   },
   emptyCell: {
     backgroundColor: 'transparent',
@@ -279,7 +275,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.primary,
   },
   dayText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '500',
     color: theme.colors.text.primary,
   },
@@ -291,14 +287,14 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   todayButton: {
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.md,
     backgroundColor: theme.colors.primaryLight,
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.sm,
     alignItems: 'center',
   },
   todayButtonText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
     color: theme.colors.primary,
   },

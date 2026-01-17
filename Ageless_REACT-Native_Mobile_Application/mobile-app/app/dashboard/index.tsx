@@ -8,7 +8,7 @@ import { theme } from '../../theme';
 import { useAuth } from '../../hooks/useAuth';
 import { useResponsive } from '../../hooks/useResponsive';
 
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
+// Card components removed - using simple View for PWA-matching exercise cards
 import { Input } from '../../components/ui/Input';
 import { DatePicker } from '../../components/ui/DatePicker';
 import { BottomNav } from '../../components/layout/BottomNav';
@@ -208,52 +208,55 @@ export default function Dashboard() {
 
   const progress = calculateProgress();
 
+  // PWA-matching exercise card renderer - NO Card/CardHeader/CardContent wrappers
+  // Uses simple View with exact PWA .station specs for correct ~157×149 dimensions
   const renderExerciseCard = ({ item: exercise }: { item: Exercise }) => {
     const count = exercises[exercise.id] || 0;
     const isCompleted = count >= exercise.maxSets;
 
     return (
-      <Card style={[styles.exerciseCard, isCompleted && styles.exerciseCardCompleted]}>
-        <CardHeader style={styles.exerciseHeader}>
-          <CardTitle style={styles.exerciseName}>{exercise.name}</CardTitle>
-          <Text style={styles.exerciseTarget}>
-            Target: {exercise.targetReps} {exercise.unit}
-          </Text>
-        </CardHeader>
-        <CardContent>
-          {/* Exercise Controls */}
-          <View style={styles.exerciseControls}>
-            {/* Minus Button (Secondary - Gray) */}
-            <TouchableOpacity
-              style={styles.controlBtnSecondary}
-              onPress={() => handleExerciseChange(exercise.id, count - 1)}
-              disabled={count === 0}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.controlBtnSecondaryText}>−</Text>
-            </TouchableOpacity>
+      <View style={[styles.exerciseCard, isCompleted && styles.exerciseCardCompleted]}>
+        {/* Station Name - PWA: .station-name */}
+        <Text style={styles.exerciseName}>{exercise.name}</Text>
 
-            <View style={styles.countDisplay}>
-              <Text style={styles.countText}>{count}</Text>
-            </View>
+        {/* Station Info - PWA: .station-info */}
+        <Text style={styles.exerciseTarget}>
+          Target: {exercise.targetReps} {exercise.unit}
+        </Text>
 
-            {/* Plus Button (Primary - Red) */}
-            <TouchableOpacity
-              style={styles.controlBtn}
-              onPress={() => handleExerciseChange(exercise.id, count + 1)}
-              disabled={count >= exercise.maxSets}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.controlBtnText}>+</Text>
-            </TouchableOpacity>
+        {/* Station Controls - PWA: .station-controls */}
+        <View style={styles.exerciseControls}>
+          {/* Minus Button (Gray) */}
+          <TouchableOpacity
+            style={[styles.controlBtnSecondary, count === 0 && styles.controlBtnDisabled]}
+            onPress={() => handleExerciseChange(exercise.id, count - 1)}
+            disabled={count === 0}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.controlBtnSecondaryText, count === 0 && styles.controlBtnDisabledText]}>−</Text>
+          </TouchableOpacity>
+
+          {/* Count - PWA: .count */}
+          <View style={styles.countDisplay}>
+            <Text style={styles.countText}>{count}</Text>
           </View>
 
-          {/* Count Line */}
-          <Text style={styles.countLine}>
-            {count} / {exercise.maxSets} sets
-          </Text>
-        </CardContent>
-      </Card>
+          {/* Plus Button (Red) */}
+          <TouchableOpacity
+            style={[styles.controlBtn, count >= exercise.maxSets && styles.controlBtnDisabled]}
+            onPress={() => handleExerciseChange(exercise.id, count + 1)}
+            disabled={count >= exercise.maxSets}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.controlBtnText, count >= exercise.maxSets && styles.controlBtnDisabledText]}>+</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Sets Count */}
+        <Text style={styles.countLine}>
+          {count} / {exercise.maxSets} sets
+        </Text>
+      </View>
     );
   };
 
@@ -306,39 +309,41 @@ export default function Dashboard() {
       paddingBottom: theme.spacing.xl,
     },
 
-    // Progress Section - PWA Red Banner Style
+    // Progress Section - PWA Style (WHITE card, not red)
     progressSection: {
-      backgroundColor: theme.colors.primary,  // Red background (#C5282F)
-      borderRadius: theme.radius.xl,          // 20px rounded corners
-      paddingVertical: 20,                    // Vertical padding
-      paddingHorizontal: 24,                  // Horizontal padding
+      backgroundColor: theme.colors.surface,  // WHITE background (#FFFFFF)
+      borderRadius: theme.radius.card,        // 16px rounded corners (same as exercise cards)
+      borderWidth: 1,
+      borderColor: theme.colors.border.light,
+      paddingVertical: 20,
+      paddingHorizontal: 20,
       ...theme.shadows.sm,
-      alignItems: 'center',                   // Center content
+      alignItems: 'center',
     },
     progressLabel: {
-      fontSize: 24,                           // PWA: Large bold title
+      fontSize: 20,                           // PWA: "Today's Workout" title
       fontWeight: '700',                      // Bold
-      color: '#FFFFFF',                       // White text on red
+      color: theme.colors.text.primary,       // BLACK text (#111)
       marginBottom: 8,
       textAlign: 'center',
     },
     progressText: {
-      fontSize: 16,                           // PWA: Smaller progress text
+      fontSize: 14,                           // PWA: Smaller progress text
       fontWeight: '400',                      // Normal weight
-      color: '#FFFFFF',                       // White text
+      color: theme.colors.text.secondary,     // Gray text (#666)
       marginBottom: 16,
       textAlign: 'center',
     },
     progressBar: {
-      height: 6,                              // Thinner progress bar
-      backgroundColor: 'rgba(255,255,255,0.3)', // Semi-transparent white
-      borderRadius: 3,
+      height: 8,                              // Progress bar height
+      backgroundColor: theme.colors.border.light, // Light gray track
+      borderRadius: 4,
       overflow: 'hidden',
-      width: '100%',                          // Full width
+      width: '100%',
     },
     progressFill: {
       height: '100%',
-      backgroundColor: '#FFFFFF',             // White fill on red background
+      backgroundColor: '#F59E0B',             // YELLOW/GOLD progress fill
     },
 
     // Weight Input Card - PWA Style
@@ -381,41 +386,35 @@ export default function Dashboard() {
       // This matches the 2-column layout
     },
 
-    // Exercise Cards (2-column grid layout) - PWA .station specs
+    // Exercise Cards - PWA .station specs (exact dimensions for ~157×149 cards)
     exerciseCard: {
       backgroundColor: theme.colors.surface,
-      borderWidth: 1,                              // Full border all sides
-      borderColor: theme.colors.border.light,      // Light gray border
-      borderRadius: theme.radius.card,             // 16px (PWA .station)
-      paddingTop: 18,                              // PWA: 18px 16px 20px
+      borderWidth: 1,
+      borderColor: theme.colors.border.light,      // #E2E3E6
+      borderRadius: theme.radius.card,             // 16px
+      paddingTop: 18,                              // PWA: padding: 18px 16px 20px
       paddingHorizontal: 16,
       paddingBottom: 20,
-      ...theme.shadows.sm,                         // 0.08 opacity shadow
-      flex: 1,
-      minWidth: '45%',                             // Forces 2-column layout
-      flexDirection: 'column',
-      gap: 10,                                     // PWA: gap: 10px
-    },
-    exerciseCardLandscape: {
-      minWidth: responsive.isLandscape ? '30%' : '45%',
+      ...theme.shadows.sm,                         // 0 4px 12px rgba(0,0,0,0.08)
+      // NO flex:1 or minWidth - wrapper View handles sizing
     },
     exerciseCardCompleted: {
       borderColor: theme.colors.status.success,    // Green border (#31a24c)
       ...theme.shadows.completedCard,              // Green-tinted shadow
     },
-    exerciseHeader: {
-      marginBottom: 6,                             // Tighter spacing
-    },
+    // PWA: .station-name { font-size:18px; font-weight:600; margin:0 0 6px; }
     exerciseName: {
-      fontSize: 18,                                // PWA: .station-name 18px
-      fontWeight: '600',                           // Semibold (bold)
+      fontSize: 18,
+      fontWeight: '600',
       color: theme.colors.text.primary,
       marginBottom: 6,
     },
+    // PWA: .station-info { font-size:13px; color:#555; margin:0 0 10px; }
     exerciseTarget: {
-      fontSize: 13,                                // PWA: .station-info 13px
-      fontWeight: '400',                           // Normal weight
-      color: '#555555',                            // PWA: color:#555
+      fontSize: 13,
+      fontWeight: '400',
+      color: '#555555',
+      marginBottom: 10,
     },
 
     // Exercise Controls - PWA .station-controls specs
@@ -452,6 +451,15 @@ export default function Dashboard() {
       fontSize: 18,
       fontWeight: '600',
       color: theme.colors.text.primary,
+    },
+    // PWA: .btn:disabled { background:#ccc; cursor:not-allowed; box-shadow:none; }
+    controlBtnDisabled: {
+      backgroundColor: '#CCCCCC',
+      shadowOpacity: 0,
+      elevation: 0,
+    },
+    controlBtnDisabledText: {
+      color: '#999999',
     },
     countDisplay: {
       width: 40,                                   // PWA: .count width:40px
@@ -511,11 +519,11 @@ export default function Dashboard() {
               onDateChange={setSelectedDate}
             />
 
-            {/* Progress Section - PWA Red Banner */}
+            {/* Progress Section - PWA Style (WHITE card) */}
             <View style={styles.progressSection}>
               <Text style={styles.progressLabel}>Today's Workout</Text>
               <Text style={styles.progressText}>
-                Progress: <Text style={{ fontWeight: '700' }}>{progress.completed}</Text>/
+                Progress: <Text style={{ fontWeight: '700', color: theme.colors.text.primary }}>{progress.completed}</Text>/
                 {progress.total} exercises ({progress.percentage}%)
               </Text>
               <View style={styles.progressBar}>

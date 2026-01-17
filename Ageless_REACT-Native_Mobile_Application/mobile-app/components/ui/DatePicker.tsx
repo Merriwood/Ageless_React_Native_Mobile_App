@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../theme';
 
 interface DatePickerProps {
@@ -66,8 +67,9 @@ export function DatePicker({ selectedDate = new Date(), onDateChange }: DatePick
     Array.from({ length: daysInMonth }, (_, i) => i + 1)
   );
 
+  // PWA uses short month format: "Jan 9, 2026"
   const formattedDate = selectedDate.toLocaleDateString('en-US', {
-    month: 'long',
+    month: 'short',
     day: 'numeric',
     year: 'numeric',
   });
@@ -96,6 +98,10 @@ export function DatePicker({ selectedDate = new Date(), onDateChange }: DatePick
         onPress={() => setIsExpanded(!isExpanded)}
         activeOpacity={0.7}
       >
+        {/* Calendar Icon - PWA style */}
+        <View style={styles.calendarIcon}>
+          <Ionicons name="calendar" size={18} color={theme.colors.primary} />
+        </View>
         <Text style={styles.buttonText}>{formattedDate}</Text>
         <Text style={[styles.arrow, isExpanded && styles.arrowOpen]}>▼</Text>
       </TouchableOpacity>
@@ -180,29 +186,38 @@ export function DatePicker({ selectedDate = new Date(), onDateChange }: DatePick
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: theme.spacing.base,
+    alignItems: 'center',                        // Center the button horizontally
+    marginVertical: theme.spacing.sm,
   },
   button: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
+    paddingHorizontal: 16,                       // PWA: compact horizontal padding
+    paddingVertical: 10,                         // PWA: compact vertical padding
     backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.md,               // 8px rounded corners
     borderWidth: 1,
     borderColor: theme.colors.border.light,
-    gap: theme.spacing.sm,
+    gap: 8,                                      // Gap between icon, text, arrow
+    ...theme.shadows.sm,                         // Subtle shadow like PWA
+  },
+  calendarIcon: {
+    width: 22,
+    height: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   buttonText: {
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '500',                           // Medium weight
     color: theme.colors.text.primary,
     textAlign: 'center',
   },
   arrow: {
     fontSize: 10,
     color: theme.colors.text.secondary,
+    marginLeft: 2,
   },
   arrowOpen: {
     transform: [{ rotate: '180deg' }],
@@ -210,11 +225,13 @@ const styles = StyleSheet.create({
   calendarContainer: {
     marginTop: theme.spacing.sm,
     backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.lg,               // 12px rounded
     borderWidth: 1,
     borderColor: theme.colors.border.light,
-    padding: theme.spacing.md,
-    ...theme.shadows.sm,
+    padding: 12,
+    maxWidth: 280,                               // Compact width like PWA
+    width: '100%',
+    ...theme.shadows.md,                         // Slightly more shadow for flyout
   },
   calendarHeader: {
     flexDirection: 'row',

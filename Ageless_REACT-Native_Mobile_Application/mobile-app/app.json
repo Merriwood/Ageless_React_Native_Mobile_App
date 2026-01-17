@@ -17,7 +17,8 @@
       "orientationLock": "default",
       "bundleIdentifier": "com.ageless.mobile",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSFaceIDUsageDescription": "Ageless uses Face ID to securely sign you in to your account."
       }
     },
     "android": {
@@ -34,7 +35,13 @@
       "favicon": "./assets/icon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Ageless uses Face ID to securely sign you in to your account."
+        }
+      ]
     ],
     "extra": {
       "router": {},

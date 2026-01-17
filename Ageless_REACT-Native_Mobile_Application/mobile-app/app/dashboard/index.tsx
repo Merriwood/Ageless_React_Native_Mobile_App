@@ -421,8 +421,10 @@ export default function Dashboard() {
     exerciseControls: {
       flexDirection: 'row',
       alignItems: 'center',
+      justifyContent: 'center',                    // Center buttons laterally
       gap: 12,                                     // PWA: gap: 12px
       marginBottom: 10,
+      paddingHorizontal: 8,                        // Add horizontal padding
     },
     controlBtn: {
       width: 44,                                   // PWA: w-11 h-11 (44px)

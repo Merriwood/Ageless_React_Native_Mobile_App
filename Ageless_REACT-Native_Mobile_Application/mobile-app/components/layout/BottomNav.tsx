@@ -155,7 +155,7 @@ function ScanIcon({ active }: { active: boolean }) {
 }
 
 function ListenIcon({ active }: { active: boolean }) {
-  return <Ionicons name={active ? "headphones" : "headphones-outline"} size={20} color={active ? theme.colors.primary : theme.colors.text.primary} />;
+  return <Ionicons name={active ? "musical-notes" : "musical-notes-outline"} size={20} color={active ? theme.colors.primary : theme.colors.text.primary} />;
 }
 
 function HistoryIcon({ active }: { active: boolean }) {

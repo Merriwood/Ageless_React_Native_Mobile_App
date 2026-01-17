@@ -95,7 +95,7 @@ export const radius = {
   md: 8,      // Rounded (chips, borders)
   button: 14, // Web PWA button radius (rounded-[14px])
   lg: 12,     // Progress section (rounded-xl)
-  card: 16,   // Exercise cards - PWA .station { border-radius: 16px }
+  card: 20,   // Exercise cards - increased for softer appearance
   xl: 20,     // Pill-shaped (badges, progress banner)
   '2xl': 24,  // Very rounded
   full: 999,  // Circle

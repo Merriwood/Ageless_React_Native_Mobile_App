@@ -55,13 +55,13 @@ export function BottomNav({ onNavigate, activeTab = 'home' }: BottomNavProps) {
       id: 'home',
       label: 'Home',
       icon: (active) => <HomeIcon active={active} />,
-      href: '/(app)/dashboard',
+      href: '/dashboard',
     },
     {
       id: 'history',
       label: 'History',
       icon: (active) => <HistoryIcon active={active} />,
-      href: '/(app)/history',
+      href: '/history',
     },
     {
       id: 'myabs',
@@ -85,7 +85,7 @@ export function BottomNav({ onNavigate, activeTab = 'home' }: BottomNavProps) {
       id: 'profile',
       label: 'Profile',
       icon: (active) => <ProfileIcon active={active} />,
-      href: '/(app)/profile',
+      href: '/profile',
     },
   ];
 

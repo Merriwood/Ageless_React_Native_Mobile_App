@@ -8,6 +8,7 @@ import {
   Alert,
   ActivityIndicator,
   Linking,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, router } from 'expo-router';
@@ -31,27 +32,30 @@ export default function ProfileScreen() {
   const userId = user?.id || 'N/A';
   const appVersion = '1.0.0';
 
-  const handleLogout = () => {
-    Alert.alert('Logout', 'Are you sure you want to logout?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Logout',
-        style: 'destructive',
-        onPress: async () => {
-          setLoading(true);
-          try {
-            // Clear authentication state (token + user)
-            await clearToken();
-            showToast('Logged out successfully', 'success');
-            router.replace('/(auth)/login');
-          } catch (error) {
-            showToast('Logout failed', 'error');
-          } finally {
-            setLoading(false);
-          }
-        },
-      },
-    ]);
+  const handleLogout = async () => {
+    // Alert.alert doesn't work on web, use window.confirm as fallback
+    const confirmed = Platform.OS === 'web'
+      ? window.confirm('Are you sure you want to logout?')
+      : await new Promise<boolean>((resolve) => {
+          Alert.alert('Logout', 'Are you sure you want to logout?', [
+            { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
+            { text: 'Logout', style: 'destructive', onPress: () => resolve(true) },
+          ]);
+        });
+
+    if (!confirmed) return;
+
+    setLoading(true);
+    try {
+      // Clear authentication state (token + user)
+      await clearToken();
+      showToast('Logged out successfully', 'success');
+      router.replace('/(auth)/login');
+    } catch (error) {
+      showToast('Logout failed', 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChangePassword = () => {

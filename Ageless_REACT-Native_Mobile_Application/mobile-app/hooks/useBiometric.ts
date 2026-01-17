@@ -87,36 +87,63 @@ export const useBiometric = () => {
 
   /**
    * Check if device supports biometric authentication
+   * Checks both hardware availability AND enrollment status
    */
   const checkBiometricAvailable = useCallback(async (): Promise<boolean> => {
     try {
-      const compatible = await LocalAuthentication.hasHardwareAsync();
-      setIsAvailable(compatible);
-
-      if (compatible) {
-        const supportedTypes =
-          await LocalAuthentication.supportedAuthenticationTypesAsync();
-
-        // Determine which type is available
-        if (
-          supportedTypes.includes(
-            LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION
-          )
-        ) {
-          setBiometricType("Face ID");
-        } else if (
-          supportedTypes.includes(
-            LocalAuthentication.AuthenticationType.FINGERPRINT
-          )
-        ) {
-          setBiometricType("Touch ID");
-        }
+      // Skip biometric check on web
+      if (Platform.OS === "web") {
+        console.log("[useBiometric] Web platform - biometrics not supported");
+        setIsAvailable(false);
+        return false;
       }
 
-      return compatible;
+      // Check if device has biometric hardware
+      const hasHardware = await LocalAuthentication.hasHardwareAsync();
+      console.log("[useBiometric] Has hardware:", hasHardware);
+
+      if (!hasHardware) {
+        setIsAvailable(false);
+        return false;
+      }
+
+      // Check if biometrics are enrolled (Face ID/Touch ID set up)
+      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+      console.log("[useBiometric] Is enrolled:", isEnrolled);
+
+      if (!isEnrolled) {
+        setIsAvailable(false);
+        setError("Please set up Face ID or Touch ID in your device settings");
+        return false;
+      }
+
+      // Get supported biometric types
+      const supportedTypes =
+        await LocalAuthentication.supportedAuthenticationTypesAsync();
+      console.log("[useBiometric] Supported types:", supportedTypes);
+
+      // Determine which type is available
+      if (
+        supportedTypes.includes(
+          LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION
+        )
+      ) {
+        setBiometricType("Face ID");
+      } else if (
+        supportedTypes.includes(
+          LocalAuthentication.AuthenticationType.FINGERPRINT
+        )
+      ) {
+        setBiometricType("Touch ID");
+      }
+
+      setIsAvailable(true);
+      setError(null);
+      return true;
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Failed to check biometric";
+      console.error("[useBiometric] Error:", message);
       setError(message);
       setIsAvailable(false);
       return false;

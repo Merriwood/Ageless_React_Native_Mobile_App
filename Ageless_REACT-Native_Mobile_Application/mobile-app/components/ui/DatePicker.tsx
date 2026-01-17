@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../theme';
 
 interface DatePickerProps {
@@ -97,8 +98,8 @@ export function DatePicker({ selectedDate = new Date(), onDateChange }: DatePick
         onPress={() => setIsExpanded(!isExpanded)}
         activeOpacity={0.7}
       >
-        {/* Calendar Icon - PWA uses 📅 emoji */}
-        <Text style={styles.calendarIcon}>📅</Text>
+        {/* Calendar Icon - Red to match PWA theme */}
+        <Ionicons name="calendar" size={18} color={theme.colors.primary} />
         <Text style={styles.buttonText}>{formattedDate}</Text>
         <Text style={[styles.arrow, isExpanded && styles.arrowOpen]}>▼</Text>
       </TouchableOpacity>
@@ -198,9 +199,6 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.border.light,
     gap: 8,                                      // Gap between icon, text, arrow
     ...theme.shadows.sm,                         // Subtle shadow like PWA
-  },
-  calendarIcon: {
-    fontSize: 18,                              // PWA: .date-picker-icon emoji size
   },
   buttonText: {
     fontSize: 15,

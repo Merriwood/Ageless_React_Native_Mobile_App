@@ -91,8 +91,9 @@ export const logout = async (): Promise<void> => {
  */
 export const validateToken = async (): Promise<User> => {
   try {
+    // apiClient.get already returns response.data, so response IS { user: User }
     const response = await apiClient.get<{ user: User }>("/api/me");
-    return response.data.user;
+    return response.user;
   } catch (error) {
     if (error instanceof Error && (error as any).code === "UNAUTHORIZED") {
       throw new Error("Session expired");
@@ -109,10 +110,11 @@ export const refreshToken = async (
   currentToken?: string
 ): Promise<AuthResponse> => {
   try {
+    // apiClient.post already returns response.data
     const response = await apiClient.post<AuthResponse>("/api/auth/refresh", {
       token: currentToken,
     });
-    return response.data;
+    return response;
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(`Token refresh failed: ${error.message}`);

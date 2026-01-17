@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -18,16 +18,94 @@ import { isValidEmail } from "../../lib/validation";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { login as loginApi } from "../../api/auth";
 import { useAuth } from "../../hooks/useAuth";
+import { useBiometric } from "../../hooks/useBiometric";
+import { BiometricIcon } from "../../components/auth/BiometricIcon";
 
 export default function LoginScreen() {
   const router = useRouter();
   const { setToken } = useAuth();
+  const {
+    isAvailable: isBiometricAvailable,
+    biometricType,
+    isLoading: isBiometricLoading,
+    authenticate,
+    getBiometricCredentials,
+    saveCredentials,
+  } = useBiometric();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [signInCollapsed, setSignInCollapsed] = useState(false);
+  const [hasSavedCredentials, setHasSavedCredentials] = useState(false);
+
+  // Check if user has saved biometric credentials
+  useEffect(() => {
+    const checkSavedCredentials = async () => {
+      if (isBiometricAvailable) {
+        const credentials = await getBiometricCredentials();
+        setHasSavedCredentials(!!credentials);
+      }
+    };
+    checkSavedCredentials();
+  }, [isBiometricAvailable, getBiometricCredentials]);
+
+  // Handle biometric login
+  const handleBiometricLogin = async () => {
+    if (!isBiometricAvailable) {
+      Alert.alert(
+        "Biometric Not Available",
+        "Please sign in with your email and password."
+      );
+      return;
+    }
+
+    const credentials = await getBiometricCredentials();
+    if (!credentials) {
+      Alert.alert(
+        "Setup Required",
+        "Please sign in with your email and password first. You can then enable biometric login for future sessions."
+      );
+      setSignInCollapsed(false); // Expand the sign-in form
+      return;
+    }
+
+    // Authenticate with biometrics
+    const success = await authenticate();
+    if (!success) {
+      return; // Error is handled by useBiometric hook
+    }
+
+    // Use saved credentials to log in
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const response = await loginApi(credentials.email, credentials.password);
+
+      if (!response || !response.token) {
+        throw new Error("Invalid response from server");
+      }
+
+      const { token, user } = response;
+      const normalizedUser = user ? { ...user, id: String(user.id) } : undefined;
+      await setToken(token, normalizedUser);
+      router.replace("/dashboard");
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : "Login failed. Please try again.";
+      setError(errorMsg);
+      // If biometric login fails, prompt for password
+      Alert.alert(
+        "Login Failed",
+        "Your saved credentials may be outdated. Please sign in with your password.",
+        [{ text: "OK", onPress: () => setSignInCollapsed(false) }]
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleLogin = async () => {
     // Clear previous errors
@@ -70,6 +148,11 @@ export default function LoginScreen() {
       } : undefined;
 
       await setToken(token, normalizedUser);
+
+      // Save credentials for biometric login (if available)
+      if (isBiometricAvailable) {
+        await saveCredentials(email, password);
+      }
 
       // Redirect to dashboard
       router.replace("/dashboard");
@@ -115,9 +198,20 @@ export default function LoginScreen() {
       color: theme.colors.text.primary,
       marginBottom: 8,
     },
-    faceIdIcon: {
-      fontSize: 48,
-      marginVertical: 12,
+    biometricContainer: {
+      alignItems: "center",
+      marginVertical: 16,
+    },
+    biometricLabel: {
+      fontSize: 13,
+      color: theme.colors.text.secondary,
+      marginTop: 8,
+    },
+    biometricTypeLabel: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: theme.colors.primary,
+      marginTop: 4,
     },
     welcomeText: {
       fontSize: 18,
@@ -287,7 +381,33 @@ export default function LoginScreen() {
             <Text style={styles.logoText}>❤️</Text>
           </View>
           <Text style={styles.title}>Ageless.</Text>
-          <Text style={styles.faceIdIcon}>😊</Text>
+
+          {/* Biometric Login Icon */}
+          <View style={styles.biometricContainer}>
+            <BiometricIcon
+              testID="biometric-login-button"
+              biometricType={biometricType as 'Face ID' | 'Touch ID' | null}
+              isScanning={isBiometricLoading || isLoading}
+              size={90}
+              onPress={handleBiometricLogin}
+              disabled={!isBiometricAvailable || isLoading}
+            />
+            {isBiometricAvailable ? (
+              <>
+                <Text style={styles.biometricLabel}>
+                  {hasSavedCredentials ? "Tap to sign in with" : "Sign in to enable"}
+                </Text>
+                <Text style={styles.biometricTypeLabel}>
+                  {biometricType || "Biometrics"}
+                </Text>
+              </>
+            ) : (
+              <Text style={styles.biometricLabel}>
+                Biometric login unavailable
+              </Text>
+            )}
+          </View>
+
           <Text style={styles.welcomeText}>Welcome</Text>
           <Text style={styles.subtitle}>Track your daily workout progress</Text>
         </View>

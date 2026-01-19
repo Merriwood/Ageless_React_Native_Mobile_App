@@ -186,3 +186,4 @@ backup_*.zip
 # Old_Ageless_Web_PWA/  # COMMENTED OUT - Screenshots folder is tracked
 !Old_Ageless_Web_PWA/Old_Ageless_PWA_Screenshots/
 !Old_Ageless_Web_PWA/Old_Ageless_PWA_Screenshots/**
+.claude/settings.local.json

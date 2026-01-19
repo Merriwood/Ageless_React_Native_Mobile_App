@@ -32,7 +32,8 @@ This file documents all Claude Code sessions for the Ageless React Native Mobile
 
 | Date | Session | Focus | Key Accomplishments | Files |
 |------|---------|-------|---------------------|-------|
-| Jan 16, 2026 | **Session 11** | Security & Auth Fixes | Critical security fixes, auth routing, logout functionality | [Summary](#session-11-summary) |
+| Jan 19, 2026 | **Session 12** | Modal API Integration | HistoryModal & ProgressSummaryScreen real API integration | [Summary](#session-12-summary) |
+| Jan 16, 2026 | Session 11 | Security & Auth Fixes | Critical security fixes, auth routing, logout functionality | [Summary](#session-11-summary) |
 | Jan 15, 2026 | Session 10 | Missing Screens & Maestro Setup | Implemented 3 missing screens, created zero-cost Maestro testing solution | [Summary](Ageless_REACT-Native_Mobile_Application/mobile-app/SESSION_SUMMARY_2026_01_15.md) |
 | Jan 14, 2026 | Session 9 | Card Optimization & UI Polish | Card optimization, history screen refinement, login fixes | [Summary](Ageless_REACT-Native_Mobile_Application/mobile-app/SESSION_SUMMARY_2026_01_14.md) |
 | Jan 13, 2026 | Session 8 | Biometric & Styling | Biometric registration, professional styling, icon assets | [Summary](Ageless_REACT-Native_Mobile_Application/mobile-app/SESSION_SUMMARY_2026_01_13.md) |
@@ -159,6 +160,58 @@ Ageless_React_Native_Mobile_App/
 
 ---
 
+## Session 12 Summary
+
+**Date**: 2026-01-19
+**Focus**: Modal API Integration
+**Status**: Complete
+
+### Objectives
+- [x] Review uncommitted changes from previous session
+- [x] Integrate HistoryModal with real API
+- [x] Integrate ProgressSummaryScreen with real API
+- [x] Fix TypeScript type mismatches
+- [x] Wire up delete functionality
+
+### Accomplishments
+
+1. **HistoryModal.tsx** - Full API integration
+   - Connected to `historyAPI.getHistory()` for fetching workout history
+   - Added expandable rows showing exercise breakdown per workout
+   - Wired up delete button to `entriesAPI.deleteEntry()`
+   - Added loading, error, and empty states
+   - Fixed type imports (WorkoutEntry, Exercise from api/entries)
+   - Fixed id type from `number` to `string` throughout
+
+2. **ProgressSummaryScreen.tsx** - Full API integration
+   - Connected to `summaryAPI.get52WeekSummary()` for 52-week data
+   - Defined immutable 14-column structure matching PWA exactly
+   - Two-dimensional scrollable table (horizontal + vertical)
+   - Added loading, error, empty states with placeholder fallback
+   - Fixed `theme.colors.error` → `theme.colors.status.error`
+
+### Files Changed
+- `components/modals/HistoryModal.tsx` - API integration, delete functionality
+- `components/modals/ProgressSummaryScreen.tsx` - API integration, type fixes
+
+### Commits Made
+| Commit | Description |
+|--------|-------------|
+| `95228de` | feat: Integrate HistoryModal and ProgressSummaryScreen with real APIs |
+
+### Technical Notes
+- Both modals now fetch data on open (`useEffect` with `isVisible` dependency)
+- HistoryModal uses `Set<string>` for expandedRows (matches API id type)
+- ProgressSummaryScreen validates 14 columns at runtime
+- Delete uses optimistic UI update after API success
+
+### Next Steps
+1. Test modal functionality with live backend
+2. Verify history pagination works correctly
+3. Test 52-week summary data display
+
+---
+
 ## Session 11 Summary
 
 **Date**: 2026-01-16
@@ -250,4 +303,4 @@ Login form stays static after clicking Sign In - no loading spinner, no error, n
 
 ---
 
-*Last Updated: January 16, 2026*
+*Last Updated: January 19, 2026*

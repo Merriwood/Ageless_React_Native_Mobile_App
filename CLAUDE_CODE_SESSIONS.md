@@ -193,11 +193,14 @@ Ageless_React_Native_Mobile_App/
 ### Files Changed
 - `components/modals/HistoryModal.tsx` - API integration, delete functionality
 - `components/modals/ProgressSummaryScreen.tsx` - API integration, type fixes
+- `.gitignore` - Added .claude/settings.local.json
 
 ### Commits Made
 | Commit | Description |
 |--------|-------------|
 | `95228de` | feat: Integrate HistoryModal and ProgressSummaryScreen with real APIs |
+| `802056f` | docs: Add Session 12 summary - Modal API integration |
+| `d0c4a65` | chore: Untrack .claude/settings.local.json |
 
 ### Technical Notes
 - Both modals now fetch data on open (`useEffect` with `isVisible` dependency)

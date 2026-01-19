@@ -1,4 +1,13 @@
-import React, { useMemo } from 'react';
+/**
+ * Progress Summary Screen Component
+ *
+ * Displays 52-week workout progress summary in a scrollable table.
+ * IMMUTABLE COLUMN ORDER: Week Of, Avg Weight, 11 exercises, Total Sets (14 columns)
+ * Fetches data from summaryAPI on modal open.
+ * Matches PWA SummaryModal functionality.
+ */
+
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -6,12 +15,38 @@ import {
   StyleSheet,
   Modal,
   ScrollView,
-  FlatList,
-  Dimensions,
   ActivityIndicator,
 } from 'react-native';
 import { theme } from '../../theme';
 import { useResponsive } from '../../hooks/useResponsive';
+import { summaryAPI } from '../../api/summary';
+
+/**
+ * IMMUTABLE SUMMARY TABLE COLUMNS
+ * Exactly 14 items: [Week Of, Avg Weight, Bike, Abs, ..., Row, Total Sets]
+ * DO NOT modify order - matches PWA exactly
+ */
+const IMMUTABLE_COLUMNS = [
+  { key: 'weekOf', label: 'Week Of', width: 160 },
+  { key: 'avgWeight', label: 'Avg Wt', width: 70 },
+  { key: 'bike', label: 'Bike', width: 55 },
+  { key: 'abs', label: 'Abs', width: 50 },
+  { key: 'chestPress', label: 'Chest Press', width: 90 },
+  { key: 'legPress', label: 'Leg Press', width: 85 },
+  { key: 'lat', label: 'Lat', width: 50 },
+  { key: 'military', label: 'Military', width: 70 },
+  { key: 'crunch', label: 'Crunch', width: 65 },
+  { key: 'bicepCurls', label: 'Bicep Curls', width: 90 },
+  { key: 'triceps', label: 'Triceps', width: 70 },
+  { key: 'overheadPull', label: 'Overhead Pull', width: 105 },
+  { key: 'row', label: 'Row', width: 50 },
+  { key: 'totalSets', label: 'Total Sets', width: 80 },
+] as const;
+
+// Validate column count
+if (IMMUTABLE_COLUMNS.length !== 14) {
+  throw new Error(`Summary columns corrupted: expected 14 columns, got ${IMMUTABLE_COLUMNS.length}`);
+}
 
 interface WeekData {
   dateRange: string;
@@ -38,29 +73,10 @@ interface ProgressSummaryScreenProps {
   error?: string | null;
 }
 
-const COLUMN_WIDTHS = {
-  weekOf: 170,
-  avgWt: 80,
-  bike: 60,
-  abs: 60,
-  chestPress: 100,
-  legPress: 100,
-  lat: 60,
-  military: 80,
-  crunch: 60,
-  bicepCurls: 100,
-  triceps: 75,
-  overheadPull: 120,
-  row: 60,
-  totalSets: 90,
-};
-
-const TOTAL_WIDTH = Object.values(COLUMN_WIDTHS).reduce((a, b) => a + b, 0);
-
-// Helper: Get Sunday of the week (weeks run Sunday to Saturday)
+// Helper: Get Sunday of the week
 function getSundayOfWeek(date: Date): Date {
   const d = new Date(date);
-  const day = d.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  const day = d.getDay();
   const diff = d.getDate() - day;
   d.setDate(diff);
   d.setHours(0, 0, 0, 0);
@@ -76,7 +92,7 @@ function getSaturdayOfWeek(date: Date): Date {
   return saturday;
 }
 
-// Helper: Format week range as "MMM D - MMM D, YYYY" (Sunday to Saturday)
+// Helper: Format week range as "MMM D - MMM D, YYYY"
 function formatWeekRange(date: Date): string {
   const sunday = getSundayOfWeek(date);
   const saturday = getSaturdayOfWeek(date);
@@ -90,8 +106,8 @@ function formatWeekRange(date: Date): string {
   return `${startMonth} ${startDay} - ${endMonth} ${endDay}, ${year}`;
 }
 
-// Generate mock data for 52 weeks
-function generateWeekData(): WeekData[] {
+// Generate placeholder data for 52 weeks (used when API is unavailable)
+function generatePlaceholderData(): WeekData[] {
   const data: WeekData[] = [];
   const today = new Date();
 
@@ -99,176 +115,184 @@ function generateWeekData(): WeekData[] {
     const weekDate = new Date(today);
     weekDate.setDate(weekDate.getDate() - i * 7);
 
-    const generateValue = () => Math.floor(Math.random() * 20);
-
-    const bike = generateValue();
-    const abs = generateValue();
-    const chestPress = generateValue();
-    const legPress = generateValue();
-    const lat = generateValue();
-    const military = generateValue();
-    const crunch = generateValue();
-    const bicepCurls = generateValue();
-    const triceps = generateValue();
-    const overheadPull = generateValue();
-    const row = generateValue();
-
-    const totalSets =
-      bike +
-      abs +
-      chestPress +
-      legPress +
-      lat +
-      military +
-      crunch +
-      bicepCurls +
-      triceps +
-      overheadPull +
-      row;
-
     data.push({
       dateRange: formatWeekRange(weekDate),
-      avgWeight: Math.random() > 0.5 ? parseFloat((170 + Math.random() * 20).toFixed(1)) : null,
-      bike,
-      abs,
-      chestPress,
-      legPress,
-      lat,
-      military,
-      crunch,
-      bicepCurls,
-      triceps,
-      overheadPull,
-      row,
-      totalSets,
+      avgWeight: null,
+      bike: 0,
+      abs: 0,
+      chestPress: 0,
+      legPress: 0,
+      lat: 0,
+      military: 0,
+      crunch: 0,
+      bicepCurls: 0,
+      triceps: 0,
+      overheadPull: 0,
+      row: 0,
+      totalSets: 0,
     });
   }
 
   return data;
 }
 
-const TableHeader = () => (
-  <View style={styles.headerRow}>
-    <Text style={[styles.headerCell, { width: COLUMN_WIDTHS.weekOf }]}>Week Of</Text>
-    <Text style={[styles.headerCell, { width: COLUMN_WIDTHS.avgWt }]}>Avg Wt</Text>
-    <Text style={[styles.headerCell, { width: COLUMN_WIDTHS.bike }]}>Bike</Text>
-    <Text style={[styles.headerCell, { width: COLUMN_WIDTHS.abs }]}>Abs</Text>
-    <Text style={[styles.headerCell, { width: COLUMN_WIDTHS.chestPress }]}>Chest Press</Text>
-    <Text style={[styles.headerCell, { width: COLUMN_WIDTHS.legPress }]}>Leg Press</Text>
-    <Text style={[styles.headerCell, { width: COLUMN_WIDTHS.lat }]}>Lat</Text>
-    <Text style={[styles.headerCell, { width: COLUMN_WIDTHS.military }]}>Military</Text>
-    <Text style={[styles.headerCell, { width: COLUMN_WIDTHS.crunch }]}>Crunch</Text>
-    <Text style={[styles.headerCell, { width: COLUMN_WIDTHS.bicepCurls }]}>Bicep Curls</Text>
-    <Text style={[styles.headerCell, { width: COLUMN_WIDTHS.triceps }]}>Triceps</Text>
-    <Text style={[styles.headerCell, { width: COLUMN_WIDTHS.overheadPull }]}>
-      Overhead Pull
-    </Text>
-    <Text style={[styles.headerCell, { width: COLUMN_WIDTHS.row }]}>Row</Text>
-    <Text style={[styles.headerCell, { width: COLUMN_WIDTHS.totalSets }]}>Total Sets</Text>
-  </View>
-);
-
-const TableRow = ({ item, index }: { item: WeekData; index: number }) => {
-  const isOdd = index % 2 === 0;
-
-  return (
-    <View style={[styles.dataRow, !isOdd && styles.dataRowAlt]}>
-      <Text style={[styles.dataCell, styles.weekOfCell, { width: COLUMN_WIDTHS.weekOf }]}>
-        {item.dateRange}
-      </Text>
-      <Text style={[styles.dataCell, { width: COLUMN_WIDTHS.avgWt }]}>
-        {item.avgWeight ? item.avgWeight.toFixed(1) : '–'}
-      </Text>
-      <Text style={[styles.dataCell, { width: COLUMN_WIDTHS.bike }]}>{item.bike}</Text>
-      <Text style={[styles.dataCell, { width: COLUMN_WIDTHS.abs }]}>{item.abs}</Text>
-      <Text style={[styles.dataCell, { width: COLUMN_WIDTHS.chestPress }]}>
-        {item.chestPress}
-      </Text>
-      <Text style={[styles.dataCell, { width: COLUMN_WIDTHS.legPress }]}>{item.legPress}</Text>
-      <Text style={[styles.dataCell, { width: COLUMN_WIDTHS.lat }]}>{item.lat}</Text>
-      <Text style={[styles.dataCell, { width: COLUMN_WIDTHS.military }]}>{item.military}</Text>
-      <Text style={[styles.dataCell, { width: COLUMN_WIDTHS.crunch }]}>{item.crunch}</Text>
-      <Text style={[styles.dataCell, { width: COLUMN_WIDTHS.bicepCurls }]}>
-        {item.bicepCurls}
-      </Text>
-      <Text style={[styles.dataCell, { width: COLUMN_WIDTHS.triceps }]}>{item.triceps}</Text>
-      <Text style={[styles.dataCell, { width: COLUMN_WIDTHS.overheadPull }]}>
-        {item.overheadPull}
-      </Text>
-      <Text style={[styles.dataCell, { width: COLUMN_WIDTHS.row }]}>{item.row}</Text>
-      <Text style={[styles.dataCell, { width: COLUMN_WIDTHS.totalSets }]}>{item.totalSets}</Text>
-    </View>
-  );
-};
-
 export function ProgressSummaryScreen({
   isVisible = false,
   onClose,
   weeks,
-  loading = false,
-  error = null,
+  loading: externalLoading = false,
+  error: externalError = null,
 }: ProgressSummaryScreenProps) {
   const responsive = useResponsive();
+  const [internalLoading, setInternalLoading] = useState(false);
+  const [internalError, setInternalError] = useState<string | null>(null);
+  const [fetchedData, setFetchedData] = useState<WeekData[]>([]);
 
-  const weeksData = useMemo(
-    () => {
-      if (loading || error) return [];
-      return weeks && weeks.length > 0 ? weeks : generateWeekData();
-    },
-    [weeks, loading, error]
-  );
+  const loading = externalLoading || internalLoading;
+  const error = externalError || internalError;
+
+  // Load data when modal opens
+  useEffect(() => {
+    if (isVisible && !weeks) {
+      loadSummaryData();
+    }
+  }, [isVisible, weeks]);
+
+  const loadSummaryData = async () => {
+    setInternalLoading(true);
+    setInternalError(null);
+    try {
+      const data = await summaryAPI.get52WeekSummary();
+      setFetchedData(data);
+    } catch (err) {
+      console.error('Failed to load summary:', err);
+      setInternalError('Unable to load progress data. Showing placeholder.');
+      setFetchedData(generatePlaceholderData());
+    } finally {
+      setInternalLoading(false);
+    }
+  };
+
+  const weeksData = useMemo(() => {
+    if (loading) return [];
+    if (weeks && weeks.length > 0) return weeks;
+    if (fetchedData.length > 0) return fetchedData;
+    return generatePlaceholderData();
+  }, [weeks, fetchedData, loading]);
+
+  const getCellValue = (item: WeekData, key: string): string => {
+    switch (key) {
+      case 'weekOf':
+        return item.dateRange;
+      case 'avgWeight':
+        return item.avgWeight ? item.avgWeight.toFixed(1) : '–';
+      case 'totalSets':
+        return String(item.totalSets);
+      default:
+        const value = item[key as keyof WeekData];
+        return typeof value === 'number' ? String(value) : '–';
+    }
+  };
 
   return (
     <Modal visible={isVisible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={[styles.modalContainer, responsive.isLandscape && styles.modalContainerLandscape]}>
-          {/* Header Card - White background with shadow and rounded corners */}
+          {/* Header Card with Close Button */}
           <View style={styles.headerCard}>
             <View style={styles.headerContent}>
               <Text style={styles.headerTitle}>Progress Summary</Text>
               <Text style={styles.headerSubtitle}>Weekly workout totals</Text>
             </View>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={onClose}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.closeButtonText}>✕</Text>
+            </TouchableOpacity>
           </View>
 
-          {/* Table Container or Loading/Error */}
+          {/* Table Container */}
           <View style={styles.tableContainer}>
             {loading ? (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={theme.colors.primary} />
                 <Text style={styles.loadingText}>Loading progress data...</Text>
               </View>
-            ) : error ? (
+            ) : error && fetchedData.length === 0 ? (
               <View style={styles.errorContainer}>
                 <Text style={styles.errorTitle}>Unable to Load Data</Text>
                 <Text style={styles.errorMessage}>{error}</Text>
-                <TouchableOpacity onPress={onClose} style={styles.errorButton}>
-                  <Text style={styles.errorButtonText}>Dismiss</Text>
+                <TouchableOpacity onPress={loadSummaryData} style={styles.retryButton}>
+                  <Text style={styles.retryButtonText}>Retry</Text>
                 </TouchableOpacity>
               </View>
+            ) : weeksData.length === 0 ? (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyIcon}>📊</Text>
+                <Text style={styles.emptyTitle}>No Data Yet</Text>
+                <Text style={styles.emptyText}>
+                  Complete some workouts to see your weekly summary!
+                </Text>
+              </View>
             ) : (
+              /* Two-dimensional scrollable table */
               <ScrollView
                 horizontal
-                scrollEventThrottle={16}
-                showsHorizontalScrollIndicator={false}
-                showsVerticalScrollIndicator={false}
+                showsHorizontalScrollIndicator={true}
+                bounces={false}
               >
                 <View>
                   {/* Fixed Header Row */}
-                  <TableHeader />
+                  <View style={styles.headerRow}>
+                    {IMMUTABLE_COLUMNS.map((col) => (
+                      <View key={col.key} style={[styles.headerCell, { width: col.width }]}>
+                        <Text style={styles.headerCellText}>{col.label}</Text>
+                      </View>
+                    ))}
+                  </View>
 
-                  {/* Data Rows */}
-                  <FlatList
-                    data={weeksData}
-                    keyExtractor={(_, index) => `week-${index}`}
-                    renderItem={({ item, index }) => <TableRow item={item} index={index} />}
-                    scrollEnabled={false}
-                    nestedScrollEnabled={false}
-                  />
+                  {/* Scrollable Data Rows */}
+                  <ScrollView
+                    showsVerticalScrollIndicator={true}
+                    nestedScrollEnabled={true}
+                    style={styles.dataScrollView}
+                  >
+                    {weeksData.map((item, index) => (
+                      <View
+                        key={`week-${index}`}
+                        style={[styles.dataRow, index % 2 !== 0 && styles.dataRowAlt]}
+                      >
+                        {IMMUTABLE_COLUMNS.map((col) => (
+                          <View key={col.key} style={[styles.dataCell, { width: col.width }]}>
+                            <Text
+                              style={[
+                                styles.dataCellText,
+                                col.key === 'weekOf' && styles.weekOfCellText,
+                                col.key === 'totalSets' && styles.totalSetsCellText,
+                              ]}
+                            >
+                              {getCellValue(item, col.key)}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+                    ))}
+                  </ScrollView>
                 </View>
               </ScrollView>
             )}
           </View>
 
+          {/* Close Button */}
+          <TouchableOpacity
+            style={styles.closeModalButton}
+            onPress={onClose}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.closeModalButtonText}>Close</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </Modal>
@@ -278,18 +302,16 @@ export function ProgressSummaryScreen({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: '#f5f5f5',  // Light grey background
+    backgroundColor: '#f5f5f5',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: theme.spacing.base,
   },
   modalContainer: {
-    width: '95%',
-    height: '90%',
-    backgroundColor: '#f5f5f5',  // Grey background for modal area
+    width: '96%',
+    height: '92%',
+    backgroundColor: '#f5f5f5',
     borderRadius: 0,
     overflow: 'hidden',
-    display: 'flex',
     flexDirection: 'column',
   },
   modalContainerLandscape: {
@@ -297,45 +319,57 @@ const styles = StyleSheet.create({
     height: '95%',
   },
 
-  // Header Card - Separate white card with shadow and rounded corners
+  // Header Card
   headerCard: {
-    marginHorizontal: 16,                          // 16px (matching HTML)
-    marginTop: 8,                                  // 8px (matching HTML)
-    marginBottom: 8,                               // 8px (matching HTML)
-    paddingHorizontal: 24,                         // 24px horizontal (matching HTML)
-    paddingVertical: 12,                           // 12px vertical (matching HTML)
+    marginHorizontal: 12,
+    marginTop: 8,
+    marginBottom: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     ...theme.shadows.sm,
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   headerContent: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
     flex: 1,
+    alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 20,                                  // 20px (matching HTML)
-    fontWeight: '700',                             // Bold (matching HTML)
+    fontSize: 20,
+    fontWeight: '700',
     color: theme.colors.text.primary,
-    marginBottom: 4,                               // 4px (matching HTML)
+    marginBottom: 4,
   },
   headerSubtitle: {
-    fontSize: 13,                                  // 13px (matching HTML)
-    fontWeight: '400',                             // Normal (matching HTML)
+    fontSize: 13,
+    fontWeight: '400',
     color: theme.colors.text.secondary,
-    marginBottom: 0,
+  },
+  closeButton: {
+    position: 'absolute',
+    right: 12,
+    top: 12,
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: theme.radius.full,
+    backgroundColor: theme.colors.surfaceAlt,
+  },
+  closeButtonText: {
+    fontSize: 16,
+    color: theme.colors.text.secondary,
+    fontWeight: '600',
   },
 
-
-  // Table Container - White card with rounded corners
+  // Table Container
   tableContainer: {
     flex: 1,
-    marginHorizontal: theme.spacing.base,
-    marginBottom: theme.spacing.base,
+    marginHorizontal: 12,
+    marginBottom: 8,
     backgroundColor: '#FFFFFF',
     borderRadius: 8,
     overflow: 'hidden',
@@ -346,95 +380,139 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: 'row',
     backgroundColor: theme.colors.primary,
-    borderBottomWidth: 0,
   },
   headerCell: {
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.sm,
-    textAlign: 'center',
-    color: theme.colors.text.onPrimary,
-    fontWeight: '700',
-    fontSize: 13,
-    lineHeight: 1.3 * 13,
-    borderRightWidth: 1,
-    borderRightColor: 'rgba(255, 255, 255, 0.2)',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
     justifyContent: 'center',
     alignItems: 'center',
+    borderRightWidth: 1,
+    borderRightColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  headerCellText: {
+    color: theme.colors.text.onPrimary,
+    fontWeight: '700',
+    fontSize: 12,
+    textAlign: 'center',
   },
 
-  // Table Data Row
+  // Data Rows
+  dataScrollView: {
+    flex: 1,
+  },
   dataRow: {
     flexDirection: 'row',
     backgroundColor: theme.colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',                  // Matching HTML
+    borderBottomColor: '#f0f0f0',
   },
   dataRowAlt: {
-    backgroundColor: '#f9f9f9',                    // Matching HTML
+    backgroundColor: '#f9f9f9',
   },
   dataCell: {
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.sm,
-    textAlign: 'center',
-    color: theme.colors.text.primary,
-    fontSize: 14,
-    fontWeight: '400',
-    lineHeight: 1.4 * 14,
-    borderRightWidth: 1,
-    borderRightColor: '#f0f0f0',                   // Matching HTML
+    paddingVertical: 10,
+    paddingHorizontal: 6,
     justifyContent: 'center',
     alignItems: 'center',
+    borderRightWidth: 1,
+    borderRightColor: '#f0f0f0',
   },
-  weekOfCell: {
+  dataCellText: {
+    color: theme.colors.text.primary,
+    fontSize: 13,
+    fontWeight: '400',
+    textAlign: 'center',
+  },
+  weekOfCellText: {
     textAlign: 'left',
-    paddingLeft: theme.spacing.lg,
+    fontSize: 12,
+  },
+  totalSetsCellText: {
+    fontWeight: '700',
   },
 
-
-  // Loading State Styles
+  // Loading State
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: theme.spacing.lg,
+    paddingHorizontal: 20,
   },
   loadingText: {
-    marginTop: theme.spacing.md,
+    marginTop: 16,
     fontSize: 16,
     color: theme.colors.text.secondary,
     fontWeight: '500',
   },
 
-  // Error State Styles
+  // Error State
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: theme.spacing.lg,
+    paddingHorizontal: 20,
   },
   errorTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: theme.colors.error,
-    marginBottom: theme.spacing.sm,
+    color: theme.colors.status.error,
+    marginBottom: 8,
     textAlign: 'center',
   },
   errorMessage: {
     fontSize: 14,
     color: theme.colors.text.secondary,
-    marginBottom: theme.spacing.lg,
+    marginBottom: 20,
     textAlign: 'center',
-    lineHeight: 1.5 * 14,
   },
-  errorButton: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
+  retryButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
     backgroundColor: theme.colors.primary,
     borderRadius: theme.radius.md,
   },
-  errorButtonText: {
+  retryButtonText: {
     color: theme.colors.text.onPrimary,
     fontWeight: '600',
     fontSize: 14,
+  },
+
+  // Empty State
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  emptyIcon: {
+    fontSize: 64,
+    marginBottom: 16,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: theme.colors.text.primary,
+    marginBottom: 8,
+  },
+  emptyText: {
+    fontSize: 14,
+    color: theme.colors.text.secondary,
+    textAlign: 'center',
+  },
+
+  // Close Button
+  closeModalButton: {
+    marginHorizontal: 12,
+    marginBottom: 12,
+    marginTop: 4,
+    paddingVertical: 14,
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.radius.md,
+    alignItems: 'center',
+  },
+  closeModalButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: theme.colors.text.onPrimary,
   },
 });

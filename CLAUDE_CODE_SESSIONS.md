@@ -193,6 +193,7 @@ Ageless_React_Native_Mobile_App/
 ### Files Changed
 - `components/modals/HistoryModal.tsx` - API integration, delete functionality
 - `components/modals/ProgressSummaryScreen.tsx` - API integration, type fixes
+- `combined-server.mjs` - Added missing /api/entries and /api/summary endpoints
 - `.gitignore` - Added .claude/settings.local.json
 
 ### Commits Made
@@ -202,12 +203,17 @@ Ageless_React_Native_Mobile_App/
 | 2026-01-19 | `802056f` | docs: Add Session 12 summary - Modal API integration |
 | 2026-01-19 | `d0c4a65` | chore: Untrack .claude/settings.local.json |
 | 2026-01-19 | `8a9ac04` | docs: Update Session 12 with all commits |
+| 2026-01-19 | `66c32ed` | docs: Add dates to commit tables in session summaries |
+| 2026-01-19 | `cfe5265` | fix: Add missing /api/entries and /api/summary endpoints to combined-server |
 
 ### Technical Notes
 - Both modals now fetch data on open (`useEffect` with `isVisible` dependency)
 - HistoryModal uses `Set<string>` for expandedRows (matches API id type)
 - ProgressSummaryScreen validates 14 columns at runtime
 - Delete uses optimistic UI update after API success
+
+### Critical Bug Fixed
+**Root cause**: The backend (`combined-server.mjs`) was missing `/api/entries` and `/api/summary` endpoints. These existed in `server/server.js` but were never added to the combined server deployed on Render. Added all 5 endpoints with proper response format matching frontend expectations.
 
 ### Next Steps
 1. Test modal functionality with live backend

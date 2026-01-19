@@ -174,6 +174,159 @@ app.get('/api/me', requireAuth, async (req, res) => {
 });
 console.log('[startup] ✓ GET /api/me');
 
+// ============ ENTRIES API ============
+
+// GET /api/entries - List all entries for user
+app.get('/api/entries', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.sub || req.user.id;
+    const { rows } = await query(
+      `SELECT id, entry_date as date, weight, fitness_data as exercises, created_at, updated_at
+       FROM entries WHERE user_id=$1 ORDER BY entry_date DESC`,
+      [userId]
+    );
+    // Transform to expected format
+    const entries = rows.map(row => ({
+      id: row.id?.toString() || row.date,
+      date: row.date,
+      userId: userId.toString(),
+      weight: row.weight,
+      exercises: row.exercises || {},
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    }));
+    res.json({ entries, total: entries.length, hasMore: false });
+  } catch (err) {
+    console.error('GET /api/entries error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+console.log('[startup] ✓ GET /api/entries');
+
+// GET /api/entries/:date - Get single entry
+app.get('/api/entries/:date', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.sub || req.user.id;
+    const { date } = req.params;
+    const { rows } = await query(
+      `SELECT id, entry_date as date, weight, fitness_data as exercises, created_at, updated_at
+       FROM entries WHERE user_id=$1 AND entry_date=$2`,
+      [userId, date]
+    );
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Entry not found' });
+    }
+    const row = rows[0];
+    res.json({
+      id: row.id?.toString() || row.date,
+      date: row.date,
+      userId: userId.toString(),
+      weight: row.weight,
+      exercises: row.exercises || {},
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    });
+  } catch (err) {
+    console.error('GET /api/entries/:date error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+console.log('[startup] ✓ GET /api/entries/:date');
+
+// POST /api/entries - Create or update entry
+app.post('/api/entries', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.sub || req.user.id;
+    const { date, exercises, weight } = req.body || {};
+    if (!date) {
+      return res.status(400).json({ error: 'date is required' });
+    }
+    const fitnessData = exercises || {};
+    const { rows } = await query(
+      `INSERT INTO entries(user_id, entry_date, weight, fitness_data)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (user_id, entry_date)
+       DO UPDATE SET weight=EXCLUDED.weight, fitness_data=EXCLUDED.fitness_data, updated_at=now()
+       RETURNING id, entry_date as date, weight, fitness_data as exercises, created_at, updated_at`,
+      [userId, date, weight ?? null, fitnessData]
+    );
+    const row = rows[0];
+    res.json({
+      id: row.id?.toString() || row.date,
+      date: row.date,
+      userId: userId.toString(),
+      weight: row.weight,
+      exercises: row.exercises || {},
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    });
+  } catch (err) {
+    console.error('POST /api/entries error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+console.log('[startup] ✓ POST /api/entries');
+
+// DELETE /api/entries/:date - Delete entry
+app.delete('/api/entries/:date', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.sub || req.user.id;
+    const { date } = req.params;
+    await query('DELETE FROM entries WHERE user_id=$1 AND entry_date=$2', [userId, date]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('DELETE /api/entries/:date error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+console.log('[startup] ✓ DELETE /api/entries/:date');
+
+// ============ SUMMARY API ============
+
+// GET /api/summary - Get weekly summary data
+app.get('/api/summary', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.sub || req.user.id;
+    const { rows } = await query(
+      `WITH base AS (
+          SELECT (entry_date - EXTRACT(DOW FROM entry_date)::int * INTERVAL '1 day')::date AS week_of_sunday,
+                 weight,
+                 fitness_data
+          FROM entries
+          WHERE user_id = $1
+        ), weight_agg AS (
+          SELECT week_of_sunday, AVG(weight)::numeric(6,2) AS weight_avg
+          FROM base
+          GROUP BY week_of_sunday
+        ), per_key AS (
+          SELECT (e.entry_date - EXTRACT(DOW FROM e.entry_date)::int * INTERVAL '1 day')::date AS week_of_sunday,
+                 k.key,
+                 SUM((k.value)::int) AS sum_val
+          FROM entries e
+          CROSS JOIN LATERAL jsonb_each_text(e.fitness_data) AS k(key, value)
+          WHERE e.user_id = $1
+          GROUP BY 1, k.key
+        ), totals AS (
+          SELECT week_of_sunday, jsonb_object_agg(key, sum_val) AS totals
+          FROM per_key
+          GROUP BY week_of_sunday
+        )
+        SELECT w.week_of_sunday,
+               w.weight_avg,
+               COALESCE(t.totals, '{}'::jsonb) AS totals
+        FROM weight_agg w
+        LEFT JOIN totals t USING (week_of_sunday)
+        ORDER BY w.week_of_sunday DESC;`,
+      [userId]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error('GET /api/summary error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+console.log('[startup] ✓ GET /api/summary');
+
 console.log('[startup] All API routes registered!');
 
 // ============ STATIC FILES (React Web App) ============

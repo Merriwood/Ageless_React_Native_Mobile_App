@@ -51,7 +51,9 @@ export function HistoryModal({
     setError(null);
     try {
       const response = await historyAPI.getHistory(0, 50);
-      setEntries(response.entries);
+      // Defensive: handle if entries is undefined or not an array
+      const entriesData = response?.entries || [];
+      setEntries(Array.isArray(entriesData) ? entriesData : []);
     } catch (err) {
       console.error('Failed to load history:', err);
       setError('Unable to load workout history. Please try again.');

@@ -151,9 +151,9 @@ export function ProgressSummaryScreen({
   const loading = externalLoading || internalLoading;
   const error = externalError || internalError;
 
-  // Load data when modal opens
+  // Load data when modal opens (fetch if no external weeks data provided)
   useEffect(() => {
-    if (isVisible && !weeks) {
+    if (isVisible && (!weeks || weeks.length === 0)) {
       loadSummaryData();
     }
   }, [isVisible, weeks]);

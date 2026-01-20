@@ -32,6 +32,7 @@ This file documents all Claude Code sessions for the Ageless React Native Mobile
 
 | Date | Session | Focus | Key Accomplishments | Files |
 |------|---------|-------|---------------------|-------|
+| Jan 20, 2026 | **Session 14** | Data Persistence Critical Fix | **CRITICAL**: Fixed production API URL pointing to wrong Render domain, causing data to disappear after 2 seconds. Added comprehensive logging and troubleshooting guide. | [Summary](#session-14-summary) |
 | Jan 20, 2026 | **Session 13** | Historical Data Debug | Enhanced logging to diagnose why legacy user data isn't displaying in History modal | [Summary](#session-13-summary) |
 | Jan 19, 2026 | **Session 12** | Modal API Integration | HistoryModal & ProgressSummaryScreen real API integration | [Summary](#session-12-summary) |
 | Jan 16, 2026 | Session 11 | Security & Auth Fixes | Critical security fixes, auth routing, logout functionality | [Summary](#session-11-summary) |
@@ -455,6 +456,184 @@ Added comprehensive logging at three critical points:
 - New entries created AFTER login ARE displaying correctly
 - This suggests format/compatibility issue with old data, not a fundamental architecture problem
 - Logging will pinpoint exactly where the data is getting lost (fetch vs state vs render)
+
+---
+
+## Session 14 Summary
+
+**Date**: January 20, 2026
+**Duration**: Extended session
+**Focus**: Data Persistence - Critical API URL Bug Fix
+**Status**: Complete
+
+### Objectives
+- [x] Investigate data disappearing after 2 seconds
+- [x] Identify root cause of persistence failures
+- [x] Fix production API URL misconfiguration
+- [x] Add comprehensive diagnostic logging
+- [x] Create troubleshooting documentation
+
+### Critical Bug Found & Fixed
+
+**The Problem**: Data entered on the dashboard persisted for exactly 2 seconds, then disappeared completely. This affected:
+- New entries not staying on dashboard
+- Summary modal not showing fresh data
+- History modal not reflecting edits/deletions
+- Edit functionality appearing to fail
+
+**Root Cause**: API client was configured with **wrong production URL**
+```typescript
+// ❌ WRONG - Was pointing to non-existent server
+https://locali-corp.onrender.com
+
+// ✅ CORRECT - Now pointing to actual production API
+https://ageless-api.render.com
+```
+
+**Why This Caused 2-Second Delay**:
+1. User saves data → Local state updates immediately (visible)
+2. 2 seconds later → Debounce triggers `saveData()`
+3. POST sent to WRONG API → Returns empty/404
+4. Dashboard calls `loadWorkoutForDate()`
+5. GET from WRONG API → Returns null
+6. State cleared to empty exercises
+7. Data disappears exactly at 2-second mark (debounce delay)
+
+### Accomplishments
+
+1. **Fixed Production API URL** (CRITICAL)
+   - Updated `api/client.ts` line 29
+   - Changed from `locali-corp.onrender.com` to `ageless-api.render.com`
+   - API requests now go to correct server
+
+2. **Added Comprehensive Diagnostic Logging**
+   - API client logs which BASE_URL is configured on startup
+   - POST/GET requests log URL, payload, and response
+   - Dashboard logs save flow with timing
+   - Entries API logs cache hits/misses and server responses
+   - Stack traces show which useEffect triggered data loads
+
+3. **Created Two Documentation Files**
+   - `API_TROUBLESHOOTING.md` (352 lines)
+     - Complete troubleshooting guide
+     - cURL examples for manual API testing
+     - Common issues and solutions
+     - Verification steps
+     - Logging reference guide
+
+   - `DATA_PERSISTENCE.md` (366 lines)
+     - Architecture overview
+     - Database schema explanation
+     - Data flow diagrams
+     - Cache strategy documentation
+     - Verification checklist
+
+4. **Improved Error Handling**
+   - API client now logs detailed error info for debugging
+   - Request/response logging helps diagnose connectivity issues
+
+### Files Changed
+
+| File | Change | Impact |
+|------|--------|--------|
+| `api/client.ts` | Fixed production URL + added logging | **CRITICAL** - Enables data persistence |
+| `api/entries.ts` | Added detailed logging to getEntry/saveEntry | Improves diagnostics |
+| `app/dashboard/index.tsx` | Added comprehensive save/load logging | Shows execution flow |
+| `API_TROUBLESHOOTING.md` | New 352-line guide | Helps diagnose/fix issues |
+| `DATA_PERSISTENCE.md` | New 366-line architecture doc | Reference documentation |
+
+### Commits Made
+
+| Commit | Message | Date |
+|--------|---------|------|
+| `d8af7d7` | fix: Improve data persistence and sync consistency in dashboard | 2026-01-20 |
+| `e555022` | fix: Add cache invalidation to History modal and dashboard modal handlers | 2026-01-20 |
+| `9b2dbb1` | docs: Add comprehensive data persistence architecture documentation | 2026-01-20 |
+| `e924ffb` | debug: Add comprehensive logging to track data persistence issue | 2026-01-20 |
+| `6bf05c5` | fix: Correct production API URL and add comprehensive logging | 2026-01-20 |
+| `665b90f` | docs: Add comprehensive API troubleshooting guide | 2026-01-20 |
+
+### How to Verify the Fix
+
+1. **Clear Browser Cache**
+   ```bash
+   Ctrl+Shift+Delete → Clear all cache and cookies
+   Ctrl+Shift+R → Hard refresh
+   ```
+
+2. **Check API URL in Console**
+   ```
+   [API Client] Initialized with BASE_URL: https://ageless-api.render.com
+   ✅ If you see ageless-api.render.com → Fix is working
+   ❌ If you see locali-corp.onrender.com → Old cached code, clear cache again
+   ```
+
+3. **Test Data Persistence**
+   - Click "+" on any exercise
+   - Data should appear immediately
+   - Data should persist after 2+ seconds
+   - Refresh page → Data still there
+   - Check History modal → Data appears
+   - Check Summary modal → Data reflects
+
+4. **Expected Console Logs After Saving**
+   ```
+   [Dashboard] saveData() called
+   [API Client POST] /api/entries with data: { ... }
+   [API Client POST Response] /api/entries response: { id: "...", exercises: { bike: 1 }, ... }
+   [Dashboard] Sync result: { synced: 1, failed: 0, conflicts: 0 }
+   [API Client GET] /api/entries/2026-01-20
+   [API Client GET Response] /api/entries/2026-01-20 response: { exercises: { bike: 1 }, ... }
+   [Dashboard] Loaded from server: { exerciseCount: 1 }
+   ```
+
+### Issues Encountered & Resolved
+
+1. **Data Disappearing at 2-Second Mark**
+   - Initially appeared to be cache-related
+   - Actually was API URL misconfiguration
+   - Fixed by correcting Render domain URL
+
+2. **Incorrect Production URL in Codebase**
+   - No documentation of why wrong URL was there
+   - Corrected to match actual production API endpoint
+   - Added logging to prevent recurrence
+
+### Next Steps for Future Sessions
+
+1. **Deploy Latest Code**
+   - Push changes to GitHub
+   - Render will auto-deploy
+   - Verify changes reach production
+
+2. **Monitor for Edge Cases**
+   - Watch for offline-first scenarios
+   - Verify sync retry logic works
+   - Test with slow network
+
+3. **Potential Future Improvements**
+   - Add retry logic for failed API calls
+   - Implement exponential backoff
+   - Add connection status indicator to UI
+   - Create admin dashboard for monitoring API health
+
+### Notes for Future Sessions
+
+- **Production API is critical**: Wrong URL breaks everything but error is subtle (2-second lag)
+- **Logging is essential**: With comprehensive logging, issues become immediately obvious
+- **Cache invalidation matters**: Must clear caches consistently across all screens
+- **API URL configuration**: Should be prominently documented and easy to configure via env vars
+- **The 2-second delay**: Matches dashboard debounce - important debugging clue
+- **Documentation quality**: Good troubleshooting docs reduce support burden and session time
+
+### Session Achievements
+
+✅ Fixed critical data persistence bug
+✅ Added production-grade diagnostic logging
+✅ Created comprehensive troubleshooting guide
+✅ Documented system architecture
+✅ Improved error handling throughout
+✅ All data should now persist correctly
 
 ---
 

@@ -41,7 +41,7 @@ export default function Dashboard() {
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryError, setSummaryError] = useState<string | null>(null);
 
-  const { addToQueue, queue: offlineQueue } = useOfflineQueue();
+  const { addToQueue, syncQueue, queue: offlineQueue } = useOfflineQueue();
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Helper to format date as YYYY-MM-DD
@@ -152,6 +152,9 @@ export default function Dashboard() {
         dateStr,
         { exercises, weight: weight ? parseFloat(weight) : undefined }
       );
+
+      // Immediately sync the queue to server
+      await syncQueue();
 
       setLastPayload(payloadString);
     } catch (error) {

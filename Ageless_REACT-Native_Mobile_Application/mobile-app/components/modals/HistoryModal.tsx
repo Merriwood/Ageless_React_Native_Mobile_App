@@ -46,17 +46,40 @@ export function HistoryModal({
     }
   }, [isVisible]);
 
+  // Log when entries state changes
+  useEffect(() => {
+    console.log('[HistoryModal] Entries state changed:', {
+      count: entries.length,
+      isArray: Array.isArray(entries),
+      loading,
+      hasError: !!error,
+      first3: entries.slice(0, 3).map(e => ({ id: e.id, date: e.date }))
+    });
+  }, [entries]);
+
   const loadHistory = async () => {
     setLoading(true);
     setError(null);
     try {
       console.log('[HistoryModal] Fetching history...');
       const response = await historyAPI.getHistory(0, 50);
-      console.log('[HistoryModal] Response:', JSON.stringify(response, null, 2));
+      console.log('[HistoryModal] Response received:', {
+        type: typeof response,
+        hasEntries: !!response?.entries,
+        entriesLength: response?.entries?.length,
+        total: response?.total,
+        response: JSON.stringify(response, null, 2)
+      });
       // Defensive: handle if entries is undefined or not an array
       const entriesData = response?.entries || [];
-      console.log('[HistoryModal] Entries count:', entriesData.length);
+      console.log('[HistoryModal] Extracted entries:', {
+        count: entriesData.length,
+        isArray: Array.isArray(entriesData),
+        first3: entriesData.slice(0, 3).map(e => ({ id: e.id, date: e.date, exerciseCount: Object.keys(e.exercises || {}).length }))
+      });
+      console.log('[HistoryModal] Setting state with entries count:', entriesData.length);
       setEntries(Array.isArray(entriesData) ? entriesData : []);
+      console.log('[HistoryModal] State set successfully.');
     } catch (err: any) {
       console.error('[HistoryModal] Failed to load history:', err);
       const errorMessage = err?.message || err?.toString() || 'Unknown error';
@@ -138,6 +161,14 @@ export function HistoryModal({
   };
 
   const renderWorkoutCard = (entry: WorkoutEntry) => {
+    console.log('[HistoryModal] renderWorkoutCard called for:', {
+      id: entry.id,
+      date: entry.date,
+      weight: entry.weight,
+      exercisesType: typeof entry.exercises,
+      exerciseKeys: entry.exercises ? Object.keys(entry.exercises) : []
+    });
+
     const totalSets = calculateTotalSets(entry.exercises || {});
     const completedExercises = calculateCompletedExercises(entry.exercises || {});
     const isExpanded = expandedRows.has(entry.id);
@@ -291,7 +322,10 @@ export function HistoryModal({
                 </Text>
               </View>
             ) : (
-              entries.map(renderWorkoutCard)
+              <>
+                {console.log('[HistoryModal] Rendering', entries.length, 'entries') && null}
+                {entries.map(renderWorkoutCard)}
+              </>
             )}
           </ScrollView>
 

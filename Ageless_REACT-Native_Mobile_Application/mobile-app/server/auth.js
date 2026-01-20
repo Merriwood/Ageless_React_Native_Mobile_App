@@ -64,7 +64,7 @@ export async function register(req, res) {
     res.json(result);
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
-    const errorCode = (err as any)?.code;
+    const errorCode = err?.code;
     console.error('[register] Error caught:', {
       message: errorMessage,
       code: errorCode,

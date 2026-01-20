@@ -249,10 +249,33 @@ Ageless_React_Native_Mobile_App/
    - `/api/debug/whoami` - Show current user from token
    - `/api/debug/entries-by-user` - Show entry counts per user
 
-### Next Steps
-1. Deploy and test login with existing users
-2. Test registration with new account
-3. Verify "Invalid credentials" errors show properly
+### Auth Issues Resolved (2026-01-20)
+
+**Root Cause Found:** Old user accounts (sdworkin@newurbangroup.com, etc.) were never registered in the database.
+
+**What was actually broken:**
+- TypeScript syntax (`as any`) in JavaScript file crashed the backend
+- API error response extraction wasn't working
+
+**What is now working:**
+- ✅ Registration endpoint creates new users with bcrypt-hashed passwords
+- ✅ Login endpoint authenticates and returns JWT tokens
+- ✅ Error messages display correctly ("Invalid credentials", "This email is already registered", etc.)
+- ✅ Newly registered users can immediately log in
+- ✅ Dashboard, History, and Summary screens work for authenticated users
+
+**Test Results:**
+- Registered: mary@newurbangroup.com - SUCCESS
+- Login with mary@newurbangroup.com - SUCCESS
+- Data persistence - WORKING
+
+**User Workflow:**
+1. User registers with email + password
+2. Account created in database with hashed password
+3. User logs in with credentials
+4. User tracks workouts → History → Progress Summary
+
+All core functionality is now operational.
 
 ---
 

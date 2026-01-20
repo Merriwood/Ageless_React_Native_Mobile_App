@@ -317,7 +317,11 @@ export function useOfflineQueue() {
         };
 
         if (item.body) {
-          config.data = item.body;
+          // Include date in the request body (backend requires it)
+          config.data = {
+            date: item.date,
+            ...item.body,
+          };
         }
 
         await apiClient(config);

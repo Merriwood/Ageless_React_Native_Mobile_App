@@ -236,9 +236,19 @@ app.get('/api/entries', requireAuth, async (req, res) => {
       [userId]
     );
     // Transform to expected format
+    // Helper to format Date to YYYY-MM-DD string
+    const formatDate = (d) => {
+      if (!d) return null;
+      if (typeof d === 'string') return d.split('T')[0];
+      if (d instanceof Date) {
+        return d.toISOString().split('T')[0];
+      }
+      return String(d);
+    };
+
     const entries = rows.map(row => ({
-      id: row.id?.toString() || row.date,
-      date: row.date,
+      id: row.id?.toString() || formatDate(row.date),
+      date: formatDate(row.date),
       userId: userId.toString(),
       weight: row.weight,
       exercises: row.exercises || {},
@@ -370,7 +380,18 @@ app.get('/api/summary', requireAuth, async (req, res) => {
         ORDER BY w.week_of_sunday DESC;`,
       [userId]
     );
-    res.json(rows);
+    // Format dates as YYYY-MM-DD strings
+    const formatDate = (d) => {
+      if (!d) return null;
+      if (typeof d === 'string') return d.split('T')[0];
+      if (d instanceof Date) return d.toISOString().split('T')[0];
+      return String(d);
+    };
+    const formattedRows = rows.map(row => ({
+      ...row,
+      week_of_sunday: formatDate(row.week_of_sunday)
+    }));
+    res.json(formattedRows);
   } catch (err) {
     console.error('GET /api/summary error:', err);
     res.status(500).json({ error: err.message });

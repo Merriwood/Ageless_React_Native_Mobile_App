@@ -109,14 +109,21 @@ export default function Dashboard() {
 
   const loadWorkoutForDate = async () => {
     setLoading(true);
+    const loadStartTime = Date.now();
+    console.log(`[Dashboard] loadWorkoutForDate START - Stack trace:`, new Error().stack);
     try {
       const dateStr = formatDateForApi(selectedDate);
       let currentWeight = '';
       let currentExercises: Record<string, number> = {};
 
+      console.log('[Dashboard] loadWorkoutForDate - Fetching for date:', dateStr);
+
       // First, try to fetch from server for authoritative data
       try {
+        console.log('[Dashboard] Attempting server fetch...');
         const serverEntry = await entriesAPI.getEntry(dateStr);
+        console.log('[Dashboard] Server fetch result:', { serverEntry, isNull: serverEntry === null });
+
         if (serverEntry) {
           // Use server data if available
           if (serverEntry.weight !== undefined && serverEntry.weight !== null) {
@@ -126,11 +133,14 @@ export default function Dashboard() {
             currentExercises = serverEntry.exercises;
           }
           console.log('[Dashboard] Loaded from server:', { dateStr, weight: currentWeight, exerciseCount: Object.keys(currentExercises).length });
+        } else {
+          console.log('[Dashboard] Server returned null entry (no data for this date)');
         }
       } catch (serverError) {
-        console.warn('[Dashboard] Server fetch failed, checking offline queue:', serverError);
+        console.warn('[Dashboard] Server fetch failed:', { error: serverError?.message, code: serverError?.code });
         // If server fetch fails, check offline queue for pending changes
         const pendingEntry = offlineQueue.find((entry) => entry.date === dateStr);
+        console.log('[Dashboard] Checking offline queue:', { hasPending: !!pendingEntry, queueLength: offlineQueue.length });
 
         if (pendingEntry && pendingEntry.body) {
           if (pendingEntry.body.weight !== undefined && pendingEntry.body.weight !== null) {
@@ -139,9 +149,10 @@ export default function Dashboard() {
           if (pendingEntry.body.exercises) {
             currentExercises = pendingEntry.body.exercises;
           }
-          console.log('[Dashboard] Loaded from offline queue:', { dateStr, weight: currentWeight });
+          console.log('[Dashboard] Loaded from offline queue:', { dateStr, weight: currentWeight, exercises: currentExercises });
         } else if (user?.id) {
           // Last resort: Load weight from AsyncStorage
+          console.log('[Dashboard] No server data and no offline queue entry, checking AsyncStorage');
           try {
             const savedWeight = await AsyncStorage.getItem(`weight_${user.id}`);
             if (savedWeight) {
@@ -153,6 +164,12 @@ export default function Dashboard() {
         }
       }
 
+      console.log('[Dashboard] Setting state with:', {
+        weight: currentWeight,
+        exerciseCount: Object.keys(currentExercises).length,
+        exercises: currentExercises
+      });
+
       setWeight(currentWeight);
       setExercises(currentExercises);
 
@@ -162,6 +179,8 @@ export default function Dashboard() {
         fitnessData: currentExercises,
       };
       setLastPayload(JSON.stringify(initialPayload));
+
+      console.log(`[Dashboard] loadWorkoutForDate END - took ${Date.now() - loadStartTime}ms`);
     } catch (error) {
       console.error('Failed to load workout:', error);
     } finally {
@@ -179,20 +198,29 @@ export default function Dashboard() {
       };
 
       const payloadString = JSON.stringify(payload);
-      if (payloadString === lastPayload) return;
+      console.log('[Dashboard] saveData() called:', { dateStr, currentPayload: payload, lastPayload: JSON.parse(lastPayload) });
 
-      console.log('[Dashboard] Saving workout data for', dateStr);
+      if (payloadString === lastPayload) {
+        console.log('[Dashboard] saveData() - payload unchanged, skipping save');
+        return;
+      }
+
+      console.log('[Dashboard] Saving workout data for', dateStr, 'with exercises:', exercises);
 
       // Queue for offline sync
+      console.log('[Dashboard] Adding to offline queue...');
       await addToQueue(
         'POST',
         '/api/entries',
         dateStr,
         { exercises, weight: weight ? parseFloat(weight) : undefined }
       );
+      console.log('[Dashboard] Successfully added to offline queue');
 
       // Immediately sync the queue to server
+      console.log('[Dashboard] Starting syncQueue()...');
       const syncResult = await syncQueue();
+      console.log('[Dashboard] syncQueue() completed:', syncResult);
 
       // After sync (successful or not), refresh dashboard to ensure we have latest data
       // If sync succeeded, this loads the fresh server data
@@ -200,21 +228,28 @@ export default function Dashboard() {
       if (syncResult) {
         console.log('[Dashboard] Sync result:', { synced: syncResult.synced, failed: syncResult.failed, conflicts: syncResult.conflicts });
         if (syncResult.synced > 0) {
-          console.log('[Dashboard] Data synced successfully, refreshing dashboard');
+          console.log('[Dashboard] Data synced successfully (synced count:', syncResult.synced, '), clearing caches and refreshing...');
           // Clear caches to ensure fresh data across all screens
           entriesAPI.clearCache();
           historyAPI.clearCache();
+          console.log('[Dashboard] Caches cleared, waiting 100ms for server to process...');
           // Small delay to ensure server has processed the write
           await new Promise(resolve => setTimeout(resolve, 100));
+          console.log('[Dashboard] Calling loadWorkoutForDate() after successful sync');
           await loadWorkoutForDate();
         } else if (syncResult.failed > 0) {
-          console.log('[Dashboard] Sync had failures, but data is queued for retry');
+          console.log('[Dashboard] Sync had failures (failed count:', syncResult.failed, '), keeping data in offline queue for retry');
+        } else {
+          console.log('[Dashboard] Sync result is not synced and not failed? Unusual case.');
         }
+      } else {
+        console.log('[Dashboard] syncResult is null/undefined - this is unexpected!');
       }
 
+      console.log('[Dashboard] saveData() finished, updating lastPayload');
       setLastPayload(payloadString);
     } catch (error) {
-      console.error('Failed to save:', error);
+      console.error('[Dashboard] Failed to save:', error);
     }
   };
 

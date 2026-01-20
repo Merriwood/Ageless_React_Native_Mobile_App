@@ -199,6 +199,7 @@ export const entriesAPI = {
     // Check cache first
     const cached = cacheManager.get<WorkoutEntry | null>(cacheKey);
     if (cached !== null) {
+      console.log('[entriesAPI.getEntry] Returning from cache:', { date, cached });
       return cached;
     }
 
@@ -206,8 +207,10 @@ export const entriesAPI = {
     const dedupKey = getDedupKey('GET', `/api/entries/${date}`);
 
     try {
+      console.log('[entriesAPI.getEntry] Fetching from server:', { date, dedupKey });
       return await getDedupedRequest(dedupKey, async () => {
         const response = await client.get<WorkoutEntry>(`/api/entries/${date}`);
+        console.log('[entriesAPI.getEntry] Server response:', { date, data: response.data });
 
         // Cache the result
         cacheManager.set(cacheKey, response.data, CACHE_TTL.ENTRY);
@@ -215,8 +218,10 @@ export const entriesAPI = {
         return response.data;
       });
     } catch (error: any) {
+      console.error('[entriesAPI.getEntry] Error:', { date, status: error.response?.status, message: error.message });
       // 404 means no entry for this date (valid scenario)
       if (error.response?.status === 404) {
+        console.log('[entriesAPI.getEntry] No entry found (404) - returning null');
         cacheManager.set(cacheKey, null, CACHE_TTL.ENTRY);
         return null;
       }
@@ -245,13 +250,19 @@ export const entriesAPI = {
       ...(weight !== undefined && { weight }),
     };
 
+    console.log('[entriesAPI.saveEntry] Saving entry:', { payload });
+
     const dedupKey = getDedupKey('POST', '/api/entries', payload);
 
     try {
       const response = await getDedupedRequest(dedupKey, async () => {
-        return await client.post<WorkoutEntry>('/api/entries', payload);
+        console.log('[entriesAPI.saveEntry] Posting to server:', { url: '/api/entries', payload });
+        const result = await client.post<WorkoutEntry>('/api/entries', payload);
+        console.log('[entriesAPI.saveEntry] Server response:', { result: result.data });
+        return result;
       });
 
+      console.log('[entriesAPI.saveEntry] Invalidating caches for date:', date);
       // Invalidate caches after successful save
       cacheManager.invalidate('entries:.*');
       cacheManager.invalidate(`entry:${date}`);

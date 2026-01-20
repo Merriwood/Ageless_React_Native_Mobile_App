@@ -19,7 +19,7 @@ import fs from 'fs';
 import bcrypt from "bcryptjs";
 
 // Load server auth/db modules
-import { register, login, requireAuth } from "./server/auth.js";
+import { register, login, changePassword, requireAuth } from "./server/auth.js";
 import { query } from "./server/db.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -315,6 +315,9 @@ console.log('[startup] ✓ POST /api/auth/login');
 
 app.post('/api/mobile/login', login); // Mobile-specific alias
 console.log('[startup] ✓ POST /api/mobile/login');
+
+app.post('/api/auth/change-password', requireAuth, changePassword);
+console.log('[startup] ✓ POST /api/auth/change-password');
 
 // Protected endpoint - get current user
 app.get('/api/me', requireAuth, async (req, res) => {

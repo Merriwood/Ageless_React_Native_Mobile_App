@@ -111,6 +111,48 @@ export async function login(req, res) {
   }
 }
 
+export async function changePassword(req, res) {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const userId = req.user.sub || req.user.id;
+
+    console.log('[changePassword] Attempt for userId:', userId);
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ error: "oldPassword and newPassword required" });
+    }
+
+    if (oldPassword === newPassword) {
+      return res.status(400).json({ error: "New password must be different from old password" });
+    }
+
+    // Get user's current password hash
+    const { rows } = await query('SELECT id, password_hash FROM users WHERE id = $1', [userId]);
+    if (!rows.length) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const user = rows[0];
+
+    // Verify old password
+    const passwordMatch = await bcrypt.compare(oldPassword, user.password_hash);
+    if (!passwordMatch) {
+      console.log('[changePassword] Old password mismatch for userId:', userId);
+      return res.status(401).json({ error: "Current password is incorrect" });
+    }
+
+    // Hash and update new password
+    const hash = await bcrypt.hash(newPassword, 10);
+    await query('UPDATE users SET password_hash = $1 WHERE id = $2', [hash, userId]);
+
+    console.log('[changePassword] Success for userId:', userId);
+    res.json({ success: true, message: "Password changed successfully" });
+  } catch (err) {
+    console.error('[changePassword] Error:', err.message);
+    res.status(500).json({ error: "Failed to change password" });
+  }
+}
+
 export function requireAuth(req, res, next) {
   const hdr = req.headers.authorization || "";
   const token = hdr.startsWith("Bearer ") ? hdr.slice(7) : null;

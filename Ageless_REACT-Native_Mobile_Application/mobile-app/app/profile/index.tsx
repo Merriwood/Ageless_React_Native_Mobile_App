@@ -17,12 +17,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../theme';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
+import { ChangePasswordModal } from '../../components/modals/ChangePasswordModal';
 import { useUI } from '../../context/UIContext';
 import { useResponsive } from '../../hooks/useResponsive';
 import { useAuth } from '../../hooks/useAuth';
 
 export default function ProfileScreen() {
   const [loading, setLoading] = useState(false);
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
   const { showToast } = useUI();
   const responsive = useResponsive();
   const { user, clearToken } = useAuth();
@@ -59,11 +61,7 @@ export default function ProfileScreen() {
   };
 
   const handleChangePassword = () => {
-    Alert.alert(
-      'Change Password',
-      'This feature is coming soon',
-      [{ text: 'OK', style: 'default' }]
-    );
+    setShowChangePasswordModal(true);
   };
 
   const handleDeleteAccount = () => {
@@ -235,6 +233,16 @@ export default function ProfileScreen() {
           <View style={{ height: theme.spacing.xl * 2 }} />
         </ScrollView>
       )}
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isVisible={showChangePasswordModal}
+        onClose={() => setShowChangePasswordModal(false)}
+        onSuccess={() => {
+          setShowChangePasswordModal(false);
+          showToast('Password changed successfully', 'success');
+        }}
+      />
     </SafeAreaView>
   );
 }

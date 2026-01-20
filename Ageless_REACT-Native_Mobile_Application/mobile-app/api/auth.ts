@@ -130,6 +130,36 @@ export const refreshToken = async (
 };
 
 /**
+ * Change password for authenticated user
+ * POST /api/auth/change-password
+ */
+export const changePassword = async (
+  oldPassword: string,
+  newPassword: string
+): Promise<{ success: boolean; message: string }> => {
+  try {
+    const payload = {
+      oldPassword,
+      newPassword,
+    };
+
+    console.log('[api/auth] Calling POST /api/auth/change-password');
+    const response = await apiClient.post<{ success: boolean; message: string }>(
+      "/api/auth/change-password",
+      payload
+    );
+    console.log('[api/auth] Change password success');
+    return response;
+  } catch (error) {
+    console.error('[api/auth] Change password error:', error);
+    if (error instanceof Error) {
+      throw new Error(`Password change failed: ${error.message}`);
+    }
+    throw new Error("Password change failed");
+  }
+};
+
+/**
  * Error mapping for user-friendly messages
  */
 export const mapAuthError = (error: any): string => {

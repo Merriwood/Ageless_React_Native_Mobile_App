@@ -510,8 +510,8 @@ export default function LoginScreen() {
 
         {/* Forgot Links */}
         <View style={styles.forgotLinks}>
-          <TouchableOpacity onPress={() => Alert.alert("Forgot password - Coming soon")}>
-            <Text style={styles.forgotLink}>Forgot user ID or password?</Text>
+          <TouchableOpacity onPress={() => router.push("/(auth)/forgot-password")}>
+            <Text style={styles.forgotLink}>Forgot password?</Text>
           </TouchableOpacity>
           <Text style={styles.divider}>or</Text>
           <TouchableOpacity onPress={() => router.push("/(auth)/register")}>

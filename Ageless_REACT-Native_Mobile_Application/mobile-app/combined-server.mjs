@@ -319,6 +319,61 @@ console.log('[startup] ✓ POST /api/mobile/login');
 app.post('/api/auth/change-password', requireAuth, changePassword);
 console.log('[startup] ✓ POST /api/auth/change-password');
 
+// Forgot password endpoint - reset password without authentication
+app.post('/api/auth/forgot-password', async (req, res) => {
+  try {
+    const { email, newPassword, confirmPassword } = req.body;
+    console.log('[forgot-password] Attempt for email:', email);
+
+    if (!email || !newPassword || !confirmPassword) {
+      return res.status(400).json({ error: "email, newPassword, and confirmPassword required" });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ error: "Passwords do not match" });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ error: "Password must be at least 8 characters" });
+    }
+
+    // Check if user exists
+    const { rows } = await query("SELECT id, email FROM users WHERE email = $1", [email.toLowerCase()]);
+    if (!rows.length) {
+      // Don't reveal if email exists or not for security
+      console.log('[forgot-password] User not found:', email);
+      return res.status(200).json({
+        success: true,
+        message: "If this email exists in our system, you will receive password reset instructions"
+      });
+    }
+
+    const user = rows[0];
+    console.log('[forgot-password] User found:', { userId: user.id, email: user.email });
+
+    // Hash the new password
+    console.log('[forgot-password] Hashing new password...');
+    const hash = await bcrypt.hash(newPassword, 10);
+
+    // Update password
+    console.log('[forgot-password] Updating password in database...');
+    await query("UPDATE users SET password_hash = $1 WHERE id = $2", [hash, user.id]);
+
+    console.log('[forgot-password] Password reset success for:', email);
+    res.json({
+      success: true,
+      message: "Password has been reset successfully. You can now log in with your new password."
+    });
+  } catch (err) {
+    console.error('[forgot-password] Error:', {
+      message: err.message,
+      code: err.code,
+    });
+    res.status(500).json({ error: "Failed to reset password" });
+  }
+});
+console.log('[startup] ✓ POST /api/auth/forgot-password');
+
 // Protected endpoint - get current user
 app.get('/api/me', requireAuth, async (req, res) => {
   try {

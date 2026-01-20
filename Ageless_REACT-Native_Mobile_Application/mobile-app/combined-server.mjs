@@ -168,6 +168,24 @@ app.get('/api/debug/entries-by-user', async (req, res) => {
 });
 console.log('[startup] ✓ GET /api/debug/entries-by-user');
 
+// Debug endpoint - show current user from token (requires auth)
+app.get('/api/debug/whoami', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.sub || req.user.id;
+    const { rows } = await query('SELECT COUNT(*) as count FROM entries WHERE user_id = $1', [userId]);
+    res.json({
+      tokenUserId: userId,
+      tokenEmail: req.user.email,
+      entriesForThisUser: parseInt(rows[0]?.count || '0'),
+      fullToken: req.user,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+console.log('[startup] ✓ GET /api/debug/whoami');
+
 // Debug endpoint - only available in development
 if (process.env.NODE_ENV !== 'production') {
   app.get('/api/debug/test-user', (req, res) => {
@@ -211,6 +229,7 @@ console.log('[startup] ✓ GET /api/me');
 app.get('/api/entries', requireAuth, async (req, res) => {
   try {
     const userId = req.user.sub || req.user.id;
+    console.log('[GET /api/entries] User:', { userId, email: req.user.email });
     const { rows } = await query(
       `SELECT id, entry_date as date, weight, fitness_data as exercises, created_at, updated_at
        FROM entries WHERE user_id=$1 ORDER BY entry_date DESC`,
@@ -269,6 +288,7 @@ app.post('/api/entries', requireAuth, async (req, res) => {
   try {
     const userId = req.user.sub || req.user.id;
     const { date, exercises, weight } = req.body || {};
+    console.log('[POST /api/entries] User:', { userId, email: req.user.email, date, hasExercises: !!exercises });
     if (!date) {
       return res.status(400).json({ error: 'date is required' });
     }

@@ -310,21 +310,20 @@ export function useOfflineQueue() {
           continue;
         }
 
-        // Make request
-        const config: any = {
-          method: item.method,
-          url: item.endpoint,
-        };
+        // Make request based on method
+        const requestBody = item.body ? { date: item.date, ...item.body } : undefined;
 
-        if (item.body) {
-          // Include date in the request body (backend requires it)
-          config.data = {
-            date: item.date,
-            ...item.body,
-          };
+        switch (item.method) {
+          case 'POST':
+            await apiClient.post(item.endpoint, requestBody);
+            break;
+          case 'PUT':
+            await apiClient.put(item.endpoint, requestBody);
+            break;
+          case 'DELETE':
+            await apiClient.delete(item.endpoint);
+            break;
         }
-
-        await apiClient(config);
 
         // Success: mark as synced
         setQueueState(prev => ({

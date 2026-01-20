@@ -32,6 +32,7 @@ This file documents all Claude Code sessions for the Ageless React Native Mobile
 
 | Date | Session | Focus | Key Accomplishments | Files |
 |------|---------|-------|---------------------|-------|
+| Jan 20, 2026 | **Session 13** | Historical Data Debug | Enhanced logging to diagnose why legacy user data isn't displaying in History modal | [Summary](#session-13-summary) |
 | Jan 19, 2026 | **Session 12** | Modal API Integration | HistoryModal & ProgressSummaryScreen real API integration | [Summary](#session-12-summary) |
 | Jan 16, 2026 | Session 11 | Security & Auth Fixes | Critical security fixes, auth routing, logout functionality | [Summary](#session-11-summary) |
 | Jan 15, 2026 | Session 10 | Missing Screens & Maestro Setup | Implemented 3 missing screens, created zero-cost Maestro testing solution | [Summary](Ageless_REACT-Native_Mobile_Application/mobile-app/SESSION_SUMMARY_2026_01_15.md) |
@@ -366,6 +367,94 @@ Login form stays static after clicking Sign In - no loading spinner, no error, n
 - **Deployment**: https://locali-corp.onrender.com
 - **Database**: Render PostgreSQL (credentials rotated)
 - **Test Account**: test@ageless.app / Test@123
+
+---
+
+## Session 13 Summary
+
+**Date**: 2026-01-20
+**Focus**: Diagnosing Historical Data Display Issue
+**Status**: In Progress - Enhanced Logging Phase
+
+### Problem Statement
+After legacy users reset their passwords and logged in:
+- **Working**: New entries created after login appear in dashboard, history, and summary
+- **Broken**: Historical entries (94 entries from database) are fetched by API but don't display in History modal
+
+Example:
+- API call returns 94 entries with userId "3" (legacy user's data)
+- Console logs confirm response is received
+- But HistoryModal shows "No Workout History" instead of displaying the 94 entries
+
+### Investigation Conducted
+
+1. **Verified Backend Endpoints**: GET /api/entries correctly filters by authenticated userId and returns all entries
+2. **Verified API Response**: API is returning 94 entries with proper format (id, date, exercises, weight)
+3. **Identified Symptoms**:
+   - Response fetch succeeds (console shows complete response)
+   - But rendering logic doesn't execute (entries.map() not called)
+   - Suggests either state update not happening or entries array staying empty
+
+### Enhanced Logging Added to HistoryModal
+
+Added comprehensive logging at three critical points:
+
+1. **Data Fetch Phase** (loadHistory):
+   - Log API response structure and entry count
+   - Log extracted entries array size and first 3 entries
+   - Confirm state.setEntries() is called
+
+2. **State Update Phase** (useEffect):
+   - New useEffect that logs whenever entries array changes
+   - Tracks: count, isArray check, loading state, first 3 entries
+
+3. **Render Phase** (renderWorkoutCard):
+   - Log each card render invocation with entry details
+   - Track exerciseKeys and data structure of each entry
+
+### Files Modified
+- `components/modals/HistoryModal.tsx` - Added detailed logging (commit: `686e479`)
+
+### Build Status
+✓ Web build successful (npm run build)
+✓ No TypeScript errors
+✓ All routes compiled correctly
+
+### Next Steps for Diagnosis
+
+**User should test with these specific steps:**
+
+1. Deploy the new build to render
+2. Log in as legacy user (sdworkin@newurbangroup.com or similar)
+3. Open Workout History modal
+4. **Check browser console logs** for:
+   - "[HistoryModal] Response received:" - Should show entriesLength: 94
+   - "[HistoryModal] Entries state changed:" - Should show count: 94
+   - "[HistoryModal] Rendering 94 entries" - Should appear once entries are in state
+   - "[HistoryModal] renderWorkoutCard called for:" - Should appear 94 times
+
+**If logs show:**
+- ✓ 94 entries fetched, ✓ state updated to 94 entries, ✓ 94 render calls = **UI rendering bug**
+- ✓ 94 entries fetched, ✓ state updated, ✗ 0 render calls = **State not triggering render**
+- ✓ 94 entries fetched, ✗ state not updated = **setEntries() not executing**
+- ✗ Entries not returned = **API filtering issue**
+
+### Potential Root Causes
+1. **Data Format Mismatch**: Old entries stored with different exercises format (string vs number)
+2. **Local Queue Interference**: WorkoutContext might be shadowing fetched data
+3. **Empty exercises**: Old entries might have `exercises: null` instead of `exercises: {}`
+4. **Date Format Issue**: formatDate() might fail on old date format
+
+### Commits Made
+| Date | Commit | Description |
+|------|--------|-------------|
+| 2026-01-20 | `686e479` | debug: Add enhanced logging to HistoryModal to diagnose data display issue |
+
+### Notes for Future Sessions
+- The 94 entries DO exist in database and ARE being returned by API
+- New entries created AFTER login ARE displaying correctly
+- This suggests format/compatibility issue with old data, not a fundamental architecture problem
+- Logging will pinpoint exactly where the data is getting lost (fetch vs state vs render)
 
 ---
 

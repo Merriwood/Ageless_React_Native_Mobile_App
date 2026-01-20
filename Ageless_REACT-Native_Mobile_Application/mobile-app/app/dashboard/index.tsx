@@ -67,11 +67,24 @@ export default function Dashboard() {
   }, [selectedDate]);
 
   // Fetch 52-week progress summary when modal opens
+  // Refresh dashboard when modals close (user may have edited data via History modal)
   useEffect(() => {
     if (summaryModalVisible) {
       fetchProgressSummary();
+    } else {
+      // When summary modal closes, refresh dashboard to show any changes made via modals
+      console.log('[Dashboard] Summary modal closed, refreshing dashboard');
+      loadWorkoutForDate();
     }
   }, [summaryModalVisible]);
+
+  // Also refresh when history modal closes
+  useEffect(() => {
+    if (!historyModalVisible && historyModalVisible !== undefined) {
+      console.log('[Dashboard] History modal closed, refreshing dashboard');
+      loadWorkoutForDate();
+    }
+  }, [historyModalVisible]);
 
   const fetchProgressSummary = async () => {
     setSummaryLoading(true);
@@ -154,7 +167,15 @@ export default function Dashboard() {
       );
 
       // Immediately sync the queue to server
-      await syncQueue();
+      const syncResult = await syncQueue();
+
+      // After successful sync, refresh the dashboard to show latest server data
+      // This ensures we display the authoritative data and stay in sync with History/Summary modals
+      if (syncResult && (syncResult.synced > 0 || syncResult.failed === 0)) {
+        console.log('[Dashboard] Sync successful, refreshing dashboard data');
+        // Reload data for current date to reflect server state
+        await loadWorkoutForDate();
+      }
 
       setLastPayload(payloadString);
     } catch (error) {

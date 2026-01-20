@@ -224,37 +224,63 @@ export const summaryAPI = {
    */
   async get52WeekSummary(referenceDate?: Date) {
     const today = referenceDate || new Date();
-    const weeks = [];
 
-    // Fetch data for each of the 52 weeks (going back in time)
-    for (let i = 0; i < 52; i++) {
-      const weekDate = new Date(today);
-      weekDate.setDate(weekDate.getDate() - i * 7);
+    try {
+      // Single API call - backend returns all weeks with data
+      interface SummaryRow { week_of_sunday: string; weight_avg: string | null; totals: Record<string, number> }
+      const rows = await client.get<SummaryRow[]>('/api/summary') || [];
 
-      try {
-        const summary = await this.getWeekSummary(weekDate);
+      // Create a map of week data from API response
+      const weekDataMap = new Map<string, any>();
+      for (const row of rows) {
+        const weekSunday = row.week_of_sunday;
+        weekDataMap.set(weekSunday, row);
+      }
 
-        // Transform API response to WeekData format
+      // Generate 52 weeks of data
+      const weeks = [];
+      for (let i = 0; i < 52; i++) {
+        const weekDate = new Date(today);
+        weekDate.setDate(weekDate.getDate() - i * 7);
+
+        // Get Sunday of this week
+        const day = weekDate.getDay();
+        const sundayDate = new Date(weekDate);
+        sundayDate.setDate(sundayDate.getDate() - day);
+        const sundayStr = sundayDate.toISOString().split('T')[0];
+
+        // Check if we have data for this week
+        const apiData = weekDataMap.get(sundayStr);
+        const totals = apiData?.totals || {};
+
         const weekData = {
           dateRange: this._formatWeekRange(weekDate),
-          avgWeight: summary.stats.exercises['weight']?.avgSets || null,
-          bike: summary.stats.exercises['bike']?.sets || 0,
-          abs: summary.stats.exercises['abs']?.sets || 0,
-          chestPress: summary.stats.exercises['chest press']?.sets || 0,
-          legPress: summary.stats.exercises['leg press']?.sets || 0,
-          lat: summary.stats.exercises['lat']?.sets || 0,
-          military: summary.stats.exercises['military']?.sets || 0,
-          crunch: summary.stats.exercises['crunch']?.sets || 0,
-          bicepCurls: summary.stats.exercises['bicep curls']?.sets || 0,
-          triceps: summary.stats.exercises['triceps']?.sets || 0,
-          overheadPull: summary.stats.exercises['overhead pull']?.sets || 0,
-          row: summary.stats.exercises['row']?.sets || 0,
-          totalSets: summary.stats.totalSets || 0,
+          avgWeight: apiData?.weight_avg ? parseFloat(apiData.weight_avg) : null,
+          bike: totals['bike'] || 0,
+          abs: totals['abs'] || 0,
+          chestPress: totals['chest press'] || totals['chestPress'] || 0,
+          legPress: totals['leg press'] || totals['legPress'] || 0,
+          lat: totals['lat'] || 0,
+          military: totals['military'] || 0,
+          crunch: totals['crunch'] || 0,
+          bicepCurls: totals['bicep curls'] || totals['bicepCurls'] || 0,
+          triceps: totals['triceps'] || 0,
+          overheadPull: totals['overhead pull'] || totals['overheadPull'] || 0,
+          row: totals['row'] || 0,
+          totalSets: Object.values(totals).reduce((sum: number, val: any) => sum + (Number(val) || 0), 0),
         };
 
         weeks.push(weekData);
-      } catch (error) {
-        // If a week fails, add empty week data to maintain 52-week structure
+      }
+
+      return weeks;
+    } catch (error) {
+      console.error('Failed to fetch 52-week summary:', error);
+      // Return empty placeholder data on error
+      const weeks = [];
+      for (let i = 0; i < 52; i++) {
+        const weekDate = new Date(today);
+        weekDate.setDate(weekDate.getDate() - i * 7);
         weeks.push({
           dateRange: this._formatWeekRange(weekDate),
           avgWeight: null,
@@ -272,9 +298,8 @@ export const summaryAPI = {
           totalSets: 0,
         });
       }
+      return weeks;
     }
-
-    return weeks;
   },
 
   /**

@@ -192,12 +192,13 @@ export const historyAPI = {
     const dedupKey = getDedupKey('GET', '/api/entries', params);
 
     const response = await getDedupedRequest(dedupKey, async () => {
-      const result = await client.get('/api/entries', { params });
+      interface EntriesResponse { entries: WorkoutEntry[]; total: number; hasMore: boolean }
+      const result = await client.get<EntriesResponse>('/api/entries', { params });
 
       return {
-        entries: result.data.entries,
-        total: result.data.total,
-        hasMore: result.data.hasMore,
+        entries: result.entries || [],
+        total: result.total || 0,
+        hasMore: result.hasMore || false,
         currentPage: page,
         pageSize,
       } as HistoryPageResponse;

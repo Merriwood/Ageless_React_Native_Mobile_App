@@ -151,6 +151,23 @@ app.get('/api/debug/entries-count', async (req, res) => {
 });
 console.log('[startup] ✓ GET /api/debug/entries-count');
 
+// Debug endpoint - check entries per user (for debugging user-specific issues)
+app.get('/api/debug/entries-by-user', async (req, res) => {
+  try {
+    const { rows } = await query(`
+      SELECT u.id, u.email, COUNT(e.id) as entry_count
+      FROM users u
+      LEFT JOIN entries e ON u.id = e.user_id
+      GROUP BY u.id, u.email
+      ORDER BY entry_count DESC
+    `);
+    res.json({ users: rows, timestamp: new Date().toISOString() });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+console.log('[startup] ✓ GET /api/debug/entries-by-user');
+
 // Debug endpoint - only available in development
 if (process.env.NODE_ENV !== 'production') {
   app.get('/api/debug/test-user', (req, res) => {

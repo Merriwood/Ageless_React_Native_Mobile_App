@@ -246,6 +246,39 @@ app.post('/api/debug/test-login', async (req, res) => {
 });
 console.log('[startup] ✓ POST /api/debug/test-login');
 
+// Debug endpoint - reset user password (for fixing old accounts)
+app.post('/api/debug/reset-password', async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+    if (!email || !newPassword) {
+      return res.json({ success: false, reason: 'email and newPassword required' });
+    }
+
+    // Check if user exists
+    const { rows } = await query("SELECT id, email FROM users WHERE email = $1", [email.toLowerCase()]);
+    if (!rows.length) {
+      return res.json({ success: false, reason: 'user not found', email: email.toLowerCase() });
+    }
+
+    const user = rows[0];
+    // Hash the new password
+    const hash = await bcrypt.hash(newPassword, 10);
+
+    // Update password
+    await query("UPDATE users SET password_hash = $1 WHERE id = $2", [hash, user.id]);
+
+    res.json({
+      success: true,
+      reason: 'password reset successfully',
+      userId: user.id,
+      email: user.email
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+console.log('[startup] ✓ POST /api/debug/reset-password');
+
 // Debug endpoint - only available in development
 if (process.env.NODE_ENV !== 'production') {
   app.get('/api/debug/test-user', (req, res) => {

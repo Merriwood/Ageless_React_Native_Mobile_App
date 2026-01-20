@@ -20,6 +20,7 @@ import {
 import { theme } from '../../theme';
 import { historyAPI } from '../../api/history';
 import { entriesAPI, WorkoutEntry, Exercise } from '../../api/entries';
+import { historyAPI } from '../../api/history';
 import { EXERCISES } from '../../lib/constants/exercises';
 
 interface HistoryModalProps {
@@ -114,7 +115,10 @@ export function HistoryModal({
             setDeleting(entryId);
             try {
               await entriesAPI.deleteEntry(entryDate);
+              // Clear both entries and history caches to keep all screens in sync
+              historyAPI.clearCache();
               setEntries((prev) => prev.filter((e) => e.id !== entryId));
+              console.log('[HistoryModal] Entry deleted and caches cleared:', entryDate);
             } catch (err) {
               Alert.alert('Error', 'Failed to delete workout');
             } finally {

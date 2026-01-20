@@ -73,9 +73,11 @@ export default function Dashboard() {
   useEffect(() => {
     if (summaryModalVisible) {
       fetchProgressSummary();
-    } else {
-      // When summary modal closes, refresh dashboard to show any changes made via modals
+    } else if (summaryModalVisible === false) {
+      // When summary modal closes, clear caches and refresh dashboard to show any changes made via modals
       console.log('[Dashboard] Summary modal closed, refreshing dashboard');
+      entriesAPI.clearCache();
+      historyAPI.clearCache();
       loadWorkoutForDate();
     }
   }, [summaryModalVisible]);
@@ -84,6 +86,8 @@ export default function Dashboard() {
   useEffect(() => {
     if (!historyModalVisible && historyModalVisible !== undefined) {
       console.log('[Dashboard] History modal closed, refreshing dashboard');
+      entriesAPI.clearCache();
+      historyAPI.clearCache();
       loadWorkoutForDate();
     }
   }, [historyModalVisible]);

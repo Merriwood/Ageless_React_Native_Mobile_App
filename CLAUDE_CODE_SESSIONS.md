@@ -205,6 +205,13 @@ Ageless_React_Native_Mobile_App/
 | 2026-01-19 | `8a9ac04` | docs: Update Session 12 with all commits |
 | 2026-01-19 | `66c32ed` | docs: Add dates to commit tables in session summaries |
 | 2026-01-19 | `cfe5265` | fix: Add missing /api/entries and /api/summary endpoints to combined-server |
+| 2026-01-20 | `b6091d2` | fix: Format PostgreSQL dates as YYYY-MM-DD strings in API responses |
+| 2026-01-20 | `1ac5585` | debug: Add whoami endpoint and logging to track user ID issues |
+| 2026-01-20 | `5e258b6` | debug: Add entries-by-user endpoint to check per-user data |
+| 2026-01-20 | `2b14a7b` | debug: Add logging and debug endpoint for sync troubleshooting |
+| 2026-01-20 | `b9b1ba7` | fix: Trigger sync immediately after saving workout data |
+| 2026-01-20 | `de69f29` | fix: Use apiClient methods correctly in offline queue sync |
+| 2026-01-20 | `7f6c04e` | fix: Improve auth error handling and add debug endpoints |
 
 ### Technical Notes
 - Both modals now fetch data on open (`useEffect` with `isVisible` dependency)
@@ -215,10 +222,37 @@ Ageless_React_Native_Mobile_App/
 ### Critical Bug Fixed
 **Root cause**: The backend (`combined-server.mjs`) was missing `/api/entries` and `/api/summary` endpoints. These existed in `server/server.js` but were never added to the combined server deployed on Render. Added all 5 endpoints with proper response format matching frontend expectations.
 
+### Session 12 Continued (2026-01-20)
+
+**Additional Fixes:**
+
+1. **Date Formatting** - PostgreSQL Date objects weren't converted to YYYY-MM-DD strings
+   - Added `formatDate()` helper in backend responses
+   - Fixed "Invalid Date" display in HistoryModal
+
+2. **Offline Queue Sync** - Data wasn't syncing to server
+   - Fixed `apiClient` usage (was calling as function, not methods)
+   - Added `date` field to sync request body
+   - Added `syncQueue()` call immediately after `addToQueue()` in dashboard
+
+3. **API Response Parsing** - Client was double-unwrapping responses
+   - Fixed `client.get<T>` returns `T` directly (not AxiosResponse)
+   - Updated summary.ts and history.ts response handling
+
+4. **Auth Error Handling** - Backend error messages weren't reaching frontend
+   - Fixed `api/client.ts` to extract `error` or `message` from response body
+   - Added better duplicate email error message in registration
+
+5. **Debug Endpoints Added**:
+   - `/api/debug/users` - List all registered users (emails only)
+   - `/api/debug/test-login` - Test credentials without actual login
+   - `/api/debug/whoami` - Show current user from token
+   - `/api/debug/entries-by-user` - Show entry counts per user
+
 ### Next Steps
-1. Test modal functionality with live backend
-2. Verify history pagination works correctly
-3. Test 52-week summary data display
+1. Deploy and test login with existing users
+2. Test registration with new account
+3. Verify "Invalid credentials" errors show properly
 
 ---
 
@@ -284,7 +318,6 @@ Ageless_React_Native_Mobile_App/
 | 2026-01-16 | `bcd9438` | fix: Enable logout functionality on Profile screen |
 | 2026-01-16 | `f4e2a91` | fix: Add danger variant to Button component |
 | 2026-01-16 | `4d983fc` | fix: Improve login error handling and normalize user.id |
-
 ### Files Changed
 - `api/tokenManager.ts` (NEW) - Token singleton for API client
 - `api/client.ts` - Token injection, removed sensitive logs
@@ -313,4 +346,4 @@ Login form stays static after clicking Sign In - no loading spinner, no error, n
 
 ---
 
-*Last Updated: January 19, 2026*
+*Last Updated: January 20, 2026*

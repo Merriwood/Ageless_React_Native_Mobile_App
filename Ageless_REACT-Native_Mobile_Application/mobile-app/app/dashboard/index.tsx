@@ -20,6 +20,8 @@ import { EXERCISES, Exercise } from '../../lib/constants/exercises';
 import { useOfflineQueue } from '../../hooks/useOfflineQueue';
 import { getTodayDate } from '../../lib/utils';
 import summaryAPI from '../../api/summary';
+import { entriesAPI } from '../../api/entries';
+import { historyAPI } from '../../api/history';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -108,25 +110,42 @@ export default function Dashboard() {
       let currentWeight = '';
       let currentExercises: Record<string, number> = {};
 
-      // Check offline queue for pending changes
-      const pendingEntry = offlineQueue.find((entry) => entry.date === dateStr);
-
-      if (pendingEntry && pendingEntry.body) {
-        if (pendingEntry.body.weight !== undefined && pendingEntry.body.weight !== null) {
-          currentWeight = pendingEntry.body.weight.toString();
-        }
-        if (pendingEntry.body.exercises) {
-          currentExercises = pendingEntry.body.exercises;
-        }
-      } else if (user?.id) {
-        // Load weight from AsyncStorage if no pending entry
-        try {
-          const savedWeight = await AsyncStorage.getItem(`weight_${user.id}`);
-          if (savedWeight) {
-            currentWeight = savedWeight;
+      // First, try to fetch from server for authoritative data
+      try {
+        const serverEntry = await entriesAPI.getEntry(dateStr);
+        if (serverEntry) {
+          // Use server data if available
+          if (serverEntry.weight !== undefined && serverEntry.weight !== null) {
+            currentWeight = serverEntry.weight.toString();
           }
-        } catch (e) {
-          console.error('Weight load error:', e);
+          if (serverEntry.exercises) {
+            currentExercises = serverEntry.exercises;
+          }
+          console.log('[Dashboard] Loaded from server:', { dateStr, weight: currentWeight, exerciseCount: Object.keys(currentExercises).length });
+        }
+      } catch (serverError) {
+        console.warn('[Dashboard] Server fetch failed, checking offline queue:', serverError);
+        // If server fetch fails, check offline queue for pending changes
+        const pendingEntry = offlineQueue.find((entry) => entry.date === dateStr);
+
+        if (pendingEntry && pendingEntry.body) {
+          if (pendingEntry.body.weight !== undefined && pendingEntry.body.weight !== null) {
+            currentWeight = pendingEntry.body.weight.toString();
+          }
+          if (pendingEntry.body.exercises) {
+            currentExercises = pendingEntry.body.exercises;
+          }
+          console.log('[Dashboard] Loaded from offline queue:', { dateStr, weight: currentWeight });
+        } else if (user?.id) {
+          // Last resort: Load weight from AsyncStorage
+          try {
+            const savedWeight = await AsyncStorage.getItem(`weight_${user.id}`);
+            if (savedWeight) {
+              currentWeight = savedWeight;
+            }
+          } catch (e) {
+            console.error('Weight load error:', e);
+          }
         }
       }
 
@@ -158,6 +177,8 @@ export default function Dashboard() {
       const payloadString = JSON.stringify(payload);
       if (payloadString === lastPayload) return;
 
+      console.log('[Dashboard] Saving workout data for', dateStr);
+
       // Queue for offline sync
       await addToQueue(
         'POST',
@@ -169,12 +190,22 @@ export default function Dashboard() {
       // Immediately sync the queue to server
       const syncResult = await syncQueue();
 
-      // After successful sync, refresh the dashboard to show latest server data
-      // This ensures we display the authoritative data and stay in sync with History/Summary modals
-      if (syncResult && (syncResult.synced > 0 || syncResult.failed === 0)) {
-        console.log('[Dashboard] Sync successful, refreshing dashboard data');
-        // Reload data for current date to reflect server state
-        await loadWorkoutForDate();
+      // After sync (successful or not), refresh dashboard to ensure we have latest data
+      // If sync succeeded, this loads the fresh server data
+      // If sync failed, this will still have the offline queue data available
+      if (syncResult) {
+        console.log('[Dashboard] Sync result:', { synced: syncResult.synced, failed: syncResult.failed, conflicts: syncResult.conflicts });
+        if (syncResult.synced > 0) {
+          console.log('[Dashboard] Data synced successfully, refreshing dashboard');
+          // Clear caches to ensure fresh data across all screens
+          entriesAPI.clearCache();
+          historyAPI.clearCache();
+          // Small delay to ensure server has processed the write
+          await new Promise(resolve => setTimeout(resolve, 100));
+          await loadWorkoutForDate();
+        } else if (syncResult.failed > 0) {
+          console.log('[Dashboard] Sync had failures, but data is queued for retry');
+        }
       }
 
       setLastPayload(payloadString);

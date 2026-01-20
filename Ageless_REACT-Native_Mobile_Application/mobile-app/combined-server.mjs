@@ -137,6 +137,20 @@ app.get('/api/health', (req, res) => {
 });
 console.log('[startup] ✓ GET /api/health');
 
+// Debug endpoint - check database entries count (for debugging sync issues)
+app.get('/api/debug/entries-count', async (req, res) => {
+  try {
+    const { rows } = await query('SELECT COUNT(*) as count FROM entries');
+    const entriesCount = parseInt(rows[0]?.count || '0');
+    const { rows: userRows } = await query('SELECT COUNT(*) as count FROM users');
+    const usersCount = parseInt(userRows[0]?.count || '0');
+    res.json({ entriesCount, usersCount, timestamp: new Date().toISOString() });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+console.log('[startup] ✓ GET /api/debug/entries-count');
+
 // Debug endpoint - only available in development
 if (process.env.NODE_ENV !== 'production') {
   app.get('/api/debug/test-user', (req, res) => {

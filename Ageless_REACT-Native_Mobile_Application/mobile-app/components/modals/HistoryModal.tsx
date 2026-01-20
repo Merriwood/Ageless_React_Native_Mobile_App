@@ -50,13 +50,17 @@ export function HistoryModal({
     setLoading(true);
     setError(null);
     try {
+      console.log('[HistoryModal] Fetching history...');
       const response = await historyAPI.getHistory(0, 50);
+      console.log('[HistoryModal] Response:', JSON.stringify(response, null, 2));
       // Defensive: handle if entries is undefined or not an array
       const entriesData = response?.entries || [];
+      console.log('[HistoryModal] Entries count:', entriesData.length);
       setEntries(Array.isArray(entriesData) ? entriesData : []);
-    } catch (err) {
-      console.error('Failed to load history:', err);
-      setError('Unable to load workout history. Please try again.');
+    } catch (err: any) {
+      console.error('[HistoryModal] Failed to load history:', err);
+      const errorMessage = err?.message || err?.toString() || 'Unknown error';
+      setError(`Unable to load workout history: ${errorMessage}`);
     } finally {
       setLoading(false);
     }

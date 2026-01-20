@@ -250,30 +250,49 @@ console.log('[startup] ✓ POST /api/debug/test-login');
 app.post('/api/debug/reset-password', async (req, res) => {
   try {
     const { email, newPassword } = req.body;
+    console.log('[reset-password] Attempt:', { email, newPasswordLength: newPassword?.length });
+
     if (!email || !newPassword) {
-      return res.json({ success: false, reason: 'email and newPassword required' });
+      const msg = 'email and newPassword required';
+      console.log('[reset-password] Validation failed:', msg);
+      return res.status(400).json({ success: false, reason: msg });
     }
 
     // Check if user exists
     const { rows } = await query("SELECT id, email FROM users WHERE email = $1", [email.toLowerCase()]);
     if (!rows.length) {
-      return res.json({ success: false, reason: 'user not found', email: email.toLowerCase() });
+      const msg = `user not found: ${email.toLowerCase()}`;
+      console.log('[reset-password] User not found:', msg);
+      return res.status(404).json({ success: false, reason: msg, email: email.toLowerCase() });
     }
 
     const user = rows[0];
+    console.log('[reset-password] User found:', { userId: user.id, email: user.email });
+
     // Hash the new password
+    console.log('[reset-password] Hashing password...');
     const hash = await bcrypt.hash(newPassword, 10);
+    console.log('[reset-password] Password hashed, updating database...');
 
     // Update password
-    await query("UPDATE users SET password_hash = $1 WHERE id = $2", [hash, user.id]);
+    const updateResult = await query("UPDATE users SET password_hash = $1 WHERE id = $2", [hash, user.id]);
+    console.log('[reset-password] Database update result:', updateResult);
 
-    res.json({
+    const response = {
       success: true,
       reason: 'password reset successfully',
       userId: user.id,
-      email: user.email
-    });
+      email: user.email,
+      message: `Password for ${user.email} has been reset. You can now log in with the new password.`
+    };
+    console.log('[reset-password] Success:', response);
+    res.json(response);
   } catch (err) {
+    console.error('[reset-password] Error:', {
+      message: err.message,
+      code: err.code,
+      fullError: err
+    });
     res.status(500).json({ success: false, error: err.message });
   }
 });

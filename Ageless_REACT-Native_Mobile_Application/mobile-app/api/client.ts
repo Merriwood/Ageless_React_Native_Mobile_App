@@ -41,14 +41,16 @@ export interface ApiError {
 
 const handleError = (error: AxiosError): ApiError => {
   // Extract the actual error message from the backend response
-  const responseData = error.response?.data as { error?: string; message?: string } | undefined;
+  const responseData = error.response?.data as any;
   const backendMessage = responseData?.error || responseData?.message;
 
-  // Log for debugging
-  console.error('[API Error]', {
+  // Log for debugging - show complete response info
+  console.error('[API Error] Complete response:', {
     status: error.response?.status,
     statusText: error.response?.statusText,
-    responseData,
+    headers: error.response?.headers,
+    data: error.response?.data,
+    dataType: typeof error.response?.data,
     backendMessage,
     axiosMessage: error.message,
     code: error.code,
@@ -61,20 +63,30 @@ const handleError = (error: AxiosError): ApiError => {
     originalError: error,
   };
 
-  // Only override with generic messages if no backend message was provided
+  // Provide appropriate messages based on HTTP status if no backend message was provided
   if (!backendMessage) {
-    if (error.response?.status === 404) {
-      apiError.message = 'Resource not found';
-    } else if (error.response?.status === 401) {
-      apiError.message = 'Unauthorized - please log in again';
-    } else if (error.response?.status === 403) {
-      apiError.message = 'Access forbidden';
-    } else if (error.response?.status === 500) {
-      apiError.message = 'Server error - please try again later';
-    } else if (error.code === 'ECONNABORTED') {
-      apiError.message = 'Request timeout - server took too long to respond';
-    } else if (error.message === 'Network Error') {
-      apiError.message = 'Network error - check your internet connection';
+    switch (error.response?.status) {
+      case 400:
+        apiError.message = 'Invalid request - please check your input';
+        break;
+      case 401:
+        apiError.message = 'Invalid credentials - please try again';
+        break;
+      case 403:
+        apiError.message = 'Access forbidden';
+        break;
+      case 404:
+        apiError.message = 'Resource not found';
+        break;
+      case 500:
+        apiError.message = 'Server error - please try again later';
+        break;
+      default:
+        if (error.code === 'ECONNABORTED') {
+          apiError.message = 'Request timeout - server took too long to respond';
+        } else if (error.message === 'Network Error') {
+          apiError.message = 'Network error - check your internet connection';
+        }
     }
   }
 

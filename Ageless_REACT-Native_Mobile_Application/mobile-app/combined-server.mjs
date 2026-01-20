@@ -68,9 +68,19 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Log all requests for debugging
+// Log all requests and responses for debugging
 app.use((req, res, next) => {
   console.log(`[request] ${req.method} ${req.path}`);
+
+  // Capture original json method
+  const originalJson = res.json;
+
+  // Override json method to log responses
+  res.json = function(data) {
+    console.log(`[response] ${req.method} ${req.path} - ${res.statusCode}:`, data);
+    return originalJson.call(this, data);
+  };
+
   next();
 });
 

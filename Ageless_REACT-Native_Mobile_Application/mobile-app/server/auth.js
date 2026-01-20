@@ -55,18 +55,33 @@ export async function register(req, res) {
     const { email, password, goal } = req.body;
     console.log('[register] Attempt:', { email, passwordLength: password?.length });
     if (!email || !password) {
-      return res.status(400).json({ error: "email and password required" });
+      const errorMsg = "email and password required";
+      console.log('[register] Validation failed:', errorMsg);
+      return res.status(400).json({ error: errorMsg });
     }
     const result = await registerUser(email, password, goal);
     console.log('[register] Success:', { email, userId: result.user?.id });
     res.json(result);
   } catch (err) {
-    console.error('[register] Error:', err.message, err.code);
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    const errorCode = (err as any)?.code;
+    console.error('[register] Error caught:', {
+      message: errorMessage,
+      code: errorCode,
+      type: err instanceof Error ? 'Error' : typeof err,
+      fullError: err
+    });
+
     // Handle duplicate email error (PostgreSQL unique constraint violation)
-    if (err.code === '23505' || err.message.includes('duplicate key') || err.message.includes('unique constraint')) {
-      return res.status(400).json({ error: "This email is already registered" });
+    if (errorCode === '23505' || errorMessage.includes('duplicate key') || errorMessage.includes('unique constraint')) {
+      const response = { error: "This email is already registered" };
+      console.log('[register] Sending duplicate email error:', response);
+      return res.status(400).json(response);
     }
-    res.status(400).json({ error: err.message });
+
+    const response = { error: errorMessage };
+    console.log('[register] Sending error response:', { status: 400, response });
+    res.status(400).json(response);
   }
 }
 
@@ -75,14 +90,24 @@ export async function login(req, res) {
     const { email, password } = req.body;
     console.log('[login] Attempt:', { email, passwordLength: password?.length });
     if (!email || !password) {
-      return res.status(400).json({ error: "email and password required" });
+      const errorMsg = "email and password required";
+      console.log('[login] Validation failed:', errorMsg);
+      return res.status(400).json({ error: errorMsg });
     }
     const result = await loginUser(email, password);
     console.log('[login] Success:', { email, tokenLength: result.token?.length, userId: result.user?.id });
     res.json(result);
   } catch (err) {
-    console.error('[login] Error:', err.message);
-    res.status(401).json({ error: err.message });
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    console.error('[login] Error caught:', {
+      message: errorMessage,
+      type: err instanceof Error ? 'Error' : typeof err,
+      fullError: err
+    });
+
+    const response = { error: errorMessage };
+    console.log('[login] Sending error response:', { status: 401, response });
+    res.status(401).json(response);
   }
 }
 

@@ -174,7 +174,13 @@ export function HistoryModal({
     const isExpanded = expandedRows.has(entry.id);
 
     return (
-      <View key={entry.id} style={styles.workoutCard}>
+      <View
+        key={entry.id}
+        style={styles.workoutCard}
+        onLayout={(e) => {
+          console.log('[HistoryModal] Card layout for', entry.id, ':', e.nativeEvent.layout);
+        }}
+      >
         {/* Main Row - Tappable to expand */}
         <TouchableOpacity
           style={styles.workoutCardHeader}
@@ -276,7 +282,12 @@ export function HistoryModal({
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
+        <View
+          style={styles.modalContainer}
+          onLayout={(e) => {
+            console.log('[HistoryModal] Modal container layout:', e.nativeEvent.layout);
+          }}
+        >
           {/* Header */}
           <View style={styles.modalHeader}>
             <View style={styles.headerContent}>
@@ -299,6 +310,7 @@ export function HistoryModal({
             style={styles.scrollView}
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={true}
+            onLayout={(e) => console.log('[HistoryModal] ScrollView layout:', e.nativeEvent.layout)}
           >
             {loading ? (
               <View style={styles.loadingContainer}>

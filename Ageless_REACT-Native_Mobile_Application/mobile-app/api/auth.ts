@@ -38,9 +38,12 @@ export const register = async (
       ...(goal && { goal }),
     };
 
+    console.log('[api/auth] Calling POST /api/auth/register for:', email);
     const response = await apiClient.post<AuthResponse>("/api/auth/register", payload);
+    console.log('[api/auth] Registration success for:', email);
     return response;
   } catch (error) {
+    console.error('[api/auth] Registration error:', error);
     if (error instanceof Error) {
       throw new Error(`Registration failed: ${error.message}`);
     }
@@ -62,9 +65,12 @@ export const login = async (
       password,
     };
 
+    console.log('[api/auth] Calling POST /api/auth/login for:', email);
     const response = await apiClient.post<AuthResponse>("/api/auth/login", payload);
+    console.log('[api/auth] Login success for:', email);
     return response;
   } catch (error) {
+    console.error('[api/auth] Login error:', error);
     if (error instanceof Error) {
       throw new Error(`Login failed: ${error.message}`);
     }

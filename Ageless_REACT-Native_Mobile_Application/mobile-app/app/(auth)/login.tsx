@@ -157,7 +157,9 @@ export default function LoginScreen() {
       // Redirect to dashboard
       router.replace("/dashboard");
     } catch (err) {
+      console.error('[LoginScreen] Error:', err);
       const errorMsg = err instanceof Error ? err.message : "Login failed. Please try again.";
+      console.error('[LoginScreen] Displaying error:', errorMsg);
       setError(errorMsg);
     } finally {
       setIsLoading(false);

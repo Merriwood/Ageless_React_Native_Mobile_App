@@ -70,19 +70,22 @@ export default function RegisterScreen() {
     setIsLoading(true);
 
     try {
+      console.log('[RegisterScreen] Attempting registration:', { email, goalLength: goal?.length });
       // Call actual API endpoint
       const response = await registerApi(email, password, goal || undefined);
+      console.log('[RegisterScreen] Registration successful:', { userId: response.user?.id, email: response.user?.email });
       const { token, user } = response;
-      
+
       // Store token in SecureStore and user in AsyncStorage
       await setToken(token, user);
-      
+
       // Redirect to dashboard
       router.replace("/dashboard");
     } catch (err) {
+      console.error("[RegisterScreen] Error:", err);
       const errorMsg = err instanceof Error ? err.message : "Registration failed. Please try again.";
+      console.error("[RegisterScreen] Displaying error:", errorMsg);
       setError(errorMsg);
-      console.error("[Register] Error:", err);
     } finally {
       setIsLoading(false);
     }

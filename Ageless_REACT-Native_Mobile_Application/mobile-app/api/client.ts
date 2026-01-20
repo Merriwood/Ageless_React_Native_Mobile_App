@@ -44,6 +44,16 @@ const handleError = (error: AxiosError): ApiError => {
   const responseData = error.response?.data as { error?: string; message?: string } | undefined;
   const backendMessage = responseData?.error || responseData?.message;
 
+  // Log for debugging
+  console.error('[API Error]', {
+    status: error.response?.status,
+    statusText: error.response?.statusText,
+    responseData,
+    backendMessage,
+    axiosMessage: error.message,
+    code: error.code,
+  });
+
   const apiError: ApiError = {
     message: backendMessage || error.message,
     status: error.response?.status,

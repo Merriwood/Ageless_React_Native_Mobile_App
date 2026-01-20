@@ -26,11 +26,13 @@ const getApiBaseUrl = (): string => {
   }
   
   // Production default (Render)
-  return 'https://locali-corp.onrender.com';
+  return 'https://ageless-api.render.com';
 };
 
 const API_BASE_URL = getApiBaseUrl();
 const REQUEST_TIMEOUT = 30000;
+
+console.log('[API Client] Initialized with BASE_URL:', API_BASE_URL || '(relative URLs - same origin)');
 
 export interface ApiError {
   message: string;
@@ -142,20 +144,26 @@ class ApiClient {
 
   async get<T>(url: string, params?: any): Promise<T> {
     try {
+      console.log('[API Client GET]', url, 'with params:', params);
       const response: AxiosResponse<T> = await this.instance.get<T>(url, {
         params,
       });
+      console.log('[API Client GET Response]', url, 'response:', response.data);
       return response.data;
     } catch (error) {
+      console.error('[API Client GET Error]', url, 'error:', error);
       throw handleError(error as AxiosError);
     }
   }
 
   async post<T>(url: string, data?: any): Promise<T> {
     try {
+      console.log('[API Client POST]', url, 'with data:', data);
       const response: AxiosResponse<T> = await this.instance.post<T>(url, data);
+      console.log('[API Client POST Response]', url, 'response:', response.data);
       return response.data;
     } catch (error) {
+      console.error('[API Client POST Error]', url, 'error:', error);
       throw handleError(error as AxiosError);
     }
   }

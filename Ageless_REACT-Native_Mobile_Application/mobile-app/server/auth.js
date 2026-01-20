@@ -53,12 +53,19 @@ function issueToken(user) {
 export async function register(req, res) {
   try {
     const { email, password, goal } = req.body;
+    console.log('[register] Attempt:', { email, passwordLength: password?.length });
     if (!email || !password) {
       return res.status(400).json({ error: "email and password required" });
     }
     const result = await registerUser(email, password, goal);
+    console.log('[register] Success:', { email, userId: result.user?.id });
     res.json(result);
   } catch (err) {
+    console.error('[register] Error:', err.message, err.code);
+    // Handle duplicate email error (PostgreSQL unique constraint violation)
+    if (err.code === '23505' || err.message.includes('duplicate key') || err.message.includes('unique constraint')) {
+      return res.status(400).json({ error: "This email is already registered" });
+    }
     res.status(400).json({ error: err.message });
   }
 }

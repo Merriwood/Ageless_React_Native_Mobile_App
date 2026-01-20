@@ -186,6 +186,56 @@ app.get('/api/debug/whoami', requireAuth, async (req, res) => {
 });
 console.log('[startup] ✓ GET /api/debug/whoami');
 
+// Debug endpoint - list all registered users (emails only, no sensitive data)
+app.get('/api/debug/users', async (req, res) => {
+  try {
+    const { rows } = await query(`
+      SELECT id, email, created_at
+      FROM users
+      ORDER BY created_at DESC
+    `);
+    res.json({
+      users: rows.map(u => ({ id: u.id, email: u.email, createdAt: u.created_at })),
+      total: rows.length,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+console.log('[startup] ✓ GET /api/debug/users');
+
+// Debug endpoint - test login credentials (check if user exists and password matches)
+app.post('/api/debug/test-login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.json({ success: false, reason: 'email and password required' });
+    }
+
+    // Check if user exists
+    const { rows } = await query("SELECT id, email, password_hash FROM users WHERE email = $1", [email.toLowerCase()]);
+    if (!rows.length) {
+      return res.json({ success: false, reason: 'user not found', email: email.toLowerCase() });
+    }
+
+    const user = rows[0];
+    // Check password
+    const passwordMatch = await bcrypt.compare(password, user.password_hash);
+
+    res.json({
+      success: passwordMatch,
+      reason: passwordMatch ? 'credentials valid' : 'password mismatch',
+      userId: user.id,
+      email: user.email,
+      passwordHashLength: user.password_hash?.length || 0
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+console.log('[startup] ✓ POST /api/debug/test-login');
+
 // Debug endpoint - only available in development
 if (process.env.NODE_ENV !== 'production') {
   app.get('/api/debug/test-user', (req, res) => {

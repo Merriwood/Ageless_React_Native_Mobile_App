@@ -13,44 +13,59 @@
 
 ---
 
-## Diagnosis Summary
+## 🚨 ROOT CAUSE FOUND (Session 2)
 
-### Root Causes Identified:
+### The ACTUAL Bug: Stale Closure in syncQueue
 
-#### 🔴 Issue 1: Cache Null Handling Bug (`api/entries.ts`)
-- **Location**: `mobile-app/api/entries.ts` lines 178-180
-- **Problem**: When a date has no entry (404 response), `null` is cached for **1 hour** (CACHE_TTL.ENTRY). Even after saving new data for that date, subsequent loads check the cache first and return stale `null` value.
-- **Impact**: Data appears to disappear after entry; History/Summary show no data
+**The timing (2-3 seconds) was the key clue!** This matches the debounce timer exactly.
 
-#### 🔴 Issue 2: Stale Closure in addToQueue (`useOfflineQueue.ts`)
-- **Location**: `mobile-app/hooks/useOfflineQueue.ts` 
-- **Problem**: The `addToQueue` callback references `queueState.items` but doesn't include it in dependency array. Uses stale queue state causing data loss.
-- **Impact**: Intermittent data loss, saves overwrite with old data
+#### What Was Happening:
+1. User enters data → triggers `handleExerciseChange`
+2. 2-second debounce timer starts
+3. Timer fires → `saveData()` called
+4. `saveData()` calls `addToQueue()` which uses `setQueueState()` (ASYNC!)
+5. **Immediately after**, `syncQueue()` is called
+6. **🔴 BUG**: `syncQueue()` reads `queueState.items` - BUT this is STALE because React setState is async!
+7. `syncQueue()` sees 0 pending items → returns `{ synced: 0 }`
+8. Dashboard thinks nothing was synced, doesn't refresh
+9. User's data was **NEVER** actually sent to the server
+10. Data appears to "disappear" after 2-3 seconds
 
-#### 🔴 Issue 3: Synced Items Never Cleaned Up (`useOfflineQueue.ts`)
-- **Location**: `mobile-app/hooks/useOfflineQueue.ts`
-- **Problem**: Successfully synced items marked as `status: 'synced'` but never removed from queue. Queue grows indefinitely, persists stale data.
-- **Impact**: Data corruption on subsequent saves
+#### The Fix (Commit 3131269):
+Added a `queueItemsRef` that is updated **SYNCHRONOUSLY** when items change:
+
+```typescript
+// CRITICAL FIX: Use a ref to always have access to current queue items
+const queueItemsRef = useRef<QueuedRequest[]>([]);
+
+// In addToQueue - update ref SYNCHRONOUSLY before async setState
+const updatedItemsForRef = queueItemsRef.current.filter(...);
+updatedItemsForRef.push(newItem);
+queueItemsRef.current = updatedItemsForRef;  // <-- SYNC update
+
+// In syncQueue - read from ref instead of stale state
+const pendingItems = queueItemsRef.current.filter(item => item.status === 'pending');
+```
 
 ---
 
-## Planned Fixes
+## Previous Session Fixes (Supporting, not root cause)
 
-### Fix 1: `mobile-app/api/entries.ts`
-- Reduce null cache TTL from 1 hour to 10 seconds
-- Ensures fresh data is fetched after saves
+#### Issue 1: Cache Null Handling Bug (`api/entries.ts`)
+- Changed null cache TTL from 1 hour to 10 seconds
+- Minor optimization, not the root cause
 
-### Fix 2: `mobile-app/hooks/useOfflineQueue.ts`
-- Use functional state updates to avoid stale closures
-- Add proper dependency arrays to callbacks
+#### Issue 2: Functional State Updates (`useOfflineQueue.ts`)
+- Changed addToQueue to use `setQueueState(prev => ...)` pattern
+- Correct but insufficient - the stale closure in syncQueue remained
 
-### Fix 3: `mobile-app/hooks/useOfflineQueue.ts`
-- Remove synced items after successful sync completion
-- Prevent queue bloat and data corruption
+#### Issue 3: Synced Items Cleanup (`useOfflineQueue.ts`)
+- Added cleanup of synced items after sync
+- Good practice, not the root cause
 
 ---
 
-## Changes Made
+## All Changes Made
 
 | Timestamp | File | Change Description | Status |
 |-----------|------|-------------------|--------|
@@ -60,45 +75,37 @@
 | 2026-01-21 | `api/entries.ts` | Add __nullMarker pattern for cached nulls | ✅ Complete |
 | 2026-01-21 | `useOfflineQueue.ts` | Fix stale closures with functional state updates | ✅ Complete |
 | 2026-01-21 | `useOfflineQueue.ts` | Cleanup synced items after successful sync | ✅ Complete |
+| **2026-01-21** | **`useOfflineQueue.ts`** | **🔴 CRITICAL: Add queueItemsRef for sync access** | ✅ Complete |
 
 ---
 
-## Technical Details of Fixes
+## Git Commits on CPB_Branch
 
-### Fix 1: `api/entries.ts` - Cache Null Handling
-```typescript
-// BEFORE: Null cached for 1 hour
-cacheManager.set(cacheKey, null, CACHE_TTL.ENTRY); // 1 hour!
+1. `d7a40a2` - Initial fixes (cache TTL, functional updates, cleanup)
+2. **`3131269`** - **CRITICAL FIX**: Use ref to prevent stale closure in syncQueue
 
-// AFTER: Null marker cached for 10 seconds only
-const CACHE_TTL = {
-  ENTRY: 1 * 60 * 60 * 1000,      // 1 hour for valid entries
-  NULL_ENTRY: 10 * 1000,           // 10 seconds for null entries
-};
-cacheManager.set(cacheKey, { __nullMarker: true }, CACHE_TTL.NULL_ENTRY);
+---
+
+## Verification - Console Logs to Look For
+
+**BEFORE fix (broken):**
 ```
-
-### Fix 2: `useOfflineQueue.ts` - Stale Closure Fix
-```typescript
-// BEFORE: Used stale queueState.items reference
-let updatedItems = queueState.items.filter(...); // STALE!
-
-// AFTER: Functional update gets current state
-setQueueState(prev => {
-  const updatedItems = prev.items.filter(...); // FRESH!
-  ...
-});
+[useOfflineQueue.syncQueue] No pending items to sync
 ```
+*This means syncQueue was called but couldn't see the item that was just added*
 
-### Fix 3: `useOfflineQueue.ts` - Cleanup Synced Items
-```typescript
-// AFTER sync completes, remove synced items
-const remainingItems = prev.items.filter(item => item.status !== 'synced');
+**AFTER fix (working):**
+```
+[useOfflineQueue] Added/updated item for 2026-01-21 /api/entries - ref now has 1 items
+[useOfflineQueue.syncQueue] Starting sync of 1 pending items (from ref)
+[useOfflineQueue.syncQueue] POST successful
+[useOfflineQueue.syncQueue] Sync complete: { synced: 1, failed: 0, conflicts: 0 }
 ```
 
 ---
 
 ## Deployment Notes
 
-- Branch `CPB_Branch` to be deployed to Render for testing
-- Same repository, different branch deployment
+- Branch `CPB_Branch` pushed to GitHub
+- Deploy to Render from CPB_Branch
+- Test with console open to verify sync is happening

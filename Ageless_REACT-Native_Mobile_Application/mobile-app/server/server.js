@@ -288,13 +288,17 @@ app.get("/api/entries", requireAuth, async (req, res) => {
 
 app.get("/api/entries/:date", requireAuth, async (req, res) => {
   const { date } = req.params; // YYYY-MM-DD
+  console.log('[GET /api/entries/:date] Fetching for date:', date);
   const { rows } = await query(
     "select id, user_id, entry_date, weight, fitness_data, created_at, updated_at from entries where user_id=$1 and entry_date=$2",
     [req.user.sub, date]
   );
 
   const row = rows[0];
+  console.log('[GET /api/entries/:date] Database returned:', { date, hasRow: !!row, fitness_data: row?.fitness_data, fitness_dataType: typeof row?.fitness_data });
+
   if (!row) {
+    console.log('[GET /api/entries/:date] No row found, returning null');
     return res.json(null);
   }
 
@@ -309,12 +313,17 @@ app.get("/api/entries/:date", requireAuth, async (req, res) => {
     updatedAt: row.updated_at
   };
 
+  console.log('[GET /api/entries/:date] Returning entry:', { date, exerciseKeys: Object.keys(entry.exercises), exercises: entry.exercises });
   res.json(entry);
 });
 
 app.post("/api/entries", requireAuth, async (req, res) => {
   const { date, weight, fitnessData } = req.body || {};
+  console.log('[POST /api/entries] Received payload:', { date, weight, fitnessData, fitnessDataType: typeof fitnessData, fitnessDataKeys: Object.keys(fitnessData || {}) });
+
   if (!date || !fitnessData) return res.status(400).json({ error: "date and fitnessData required" });
+
+  console.log('[POST /api/entries] Inserting into database with:', { userId: req.user.sub, date, weight: weight ?? null, fitnessData });
   const { rows } = await query(
     `insert into entries(user_id, entry_date, weight, fitness_data)
      values ($1,$2,$3,$4)
@@ -325,6 +334,8 @@ app.post("/api/entries", requireAuth, async (req, res) => {
   );
 
   const row = rows[0];
+  console.log('[POST /api/entries] Database returned row:', { id: row.id, fitness_data: row.fitness_data, fitness_dataType: typeof row.fitness_data, fitness_dataKeys: Object.keys(row.fitness_data || {}) });
+
   // Transform to match client expectations
   const entry = {
     id: String(row.id),
@@ -336,6 +347,7 @@ app.post("/api/entries", requireAuth, async (req, res) => {
     updatedAt: row.updated_at
   };
 
+  console.log('[POST /api/entries] Returning entry with exercises:', { exerciseKeys: Object.keys(entry.exercises), exercises: entry.exercises });
   res.json(entry);
 });
 

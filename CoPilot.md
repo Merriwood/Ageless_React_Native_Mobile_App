@@ -56,9 +56,45 @@
 |-----------|------|-------------------|--------|
 | 2026-01-21 | CoPilot.md | Created session documentation | ✅ Complete |
 | 2026-01-21 | Branch | Created `CPB_Branch` from `main` | ✅ Complete |
-| 2026-01-21 | `api/entries.ts` | Fix null cache TTL | 🔄 Pending |
-| 2026-01-21 | `useOfflineQueue.ts` | Fix stale closures | 🔄 Pending |
-| 2026-01-21 | `useOfflineQueue.ts` | Cleanup synced items | 🔄 Pending |
+| 2026-01-21 | `api/entries.ts` | Fix null cache TTL (10s instead of 1hr) | ✅ Complete |
+| 2026-01-21 | `api/entries.ts` | Add __nullMarker pattern for cached nulls | ✅ Complete |
+| 2026-01-21 | `useOfflineQueue.ts` | Fix stale closures with functional state updates | ✅ Complete |
+| 2026-01-21 | `useOfflineQueue.ts` | Cleanup synced items after successful sync | ✅ Complete |
+
+---
+
+## Technical Details of Fixes
+
+### Fix 1: `api/entries.ts` - Cache Null Handling
+```typescript
+// BEFORE: Null cached for 1 hour
+cacheManager.set(cacheKey, null, CACHE_TTL.ENTRY); // 1 hour!
+
+// AFTER: Null marker cached for 10 seconds only
+const CACHE_TTL = {
+  ENTRY: 1 * 60 * 60 * 1000,      // 1 hour for valid entries
+  NULL_ENTRY: 10 * 1000,           // 10 seconds for null entries
+};
+cacheManager.set(cacheKey, { __nullMarker: true }, CACHE_TTL.NULL_ENTRY);
+```
+
+### Fix 2: `useOfflineQueue.ts` - Stale Closure Fix
+```typescript
+// BEFORE: Used stale queueState.items reference
+let updatedItems = queueState.items.filter(...); // STALE!
+
+// AFTER: Functional update gets current state
+setQueueState(prev => {
+  const updatedItems = prev.items.filter(...); // FRESH!
+  ...
+});
+```
+
+### Fix 3: `useOfflineQueue.ts` - Cleanup Synced Items
+```typescript
+// AFTER sync completes, remove synced items
+const remainingItems = prev.items.filter(item => item.status !== 'synced');
+```
 
 ---
 

@@ -105,6 +105,7 @@ const cacheManager = new CacheManager();
 const CACHE_TTL = {
   ENTRY: 1 * 60 * 60 * 1000, // 1 hour for single entry
   ENTRIES_LIST: 5 * 60 * 1000, // 5 minutes for entries list
+  NULL_ENTRY: 10 * 1000, // 10 seconds for null/empty entries - short TTL to allow quick re-fetch after save
 };
 
 // ============================================================================
@@ -196,11 +197,16 @@ export const entriesAPI = {
   async getEntry(date: string): Promise<WorkoutEntry | null> {
     const cacheKey = `entry:${date}`;
 
-    // Check cache first
-    const cached = cacheManager.get<WorkoutEntry | null>(cacheKey);
+    // Check cache first - use special marker for cached null values
+    const cached = cacheManager.get<WorkoutEntry | { __nullMarker: true }>(cacheKey);
     if (cached !== null) {
+      // Check if this is a cached null marker
+      if (cached && '__nullMarker' in cached) {
+        console.log('[entriesAPI.getEntry] Returning cached null marker:', { date });
+        return null;
+      }
       console.log('[entriesAPI.getEntry] Returning from cache:', { date, cached });
-      return cached;
+      return cached as WorkoutEntry;
     }
 
     // Deduplicate simultaneous requests
@@ -221,8 +227,9 @@ export const entriesAPI = {
       console.error('[entriesAPI.getEntry] Error:', { date, status: error.response?.status, message: error.message });
       // 404 means no entry for this date (valid scenario)
       if (error.response?.status === 404) {
-        console.log('[entriesAPI.getEntry] No entry found (404) - returning null');
-        cacheManager.set(cacheKey, null, CACHE_TTL.ENTRY);
+        console.log('[entriesAPI.getEntry] No entry found (404) - caching null marker with short TTL');
+        // Use short TTL for null entries so fresh data appears quickly after saves
+        cacheManager.set(cacheKey, { __nullMarker: true }, CACHE_TTL.NULL_ENTRY);
         return null;
       }
       throw error;

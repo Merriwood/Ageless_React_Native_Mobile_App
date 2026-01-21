@@ -264,14 +264,28 @@ export function useOfflineQueue() {
 
       // Deduplicate: remove ANY request (pending, synced, or failed) for same date/endpoint
       // This ensures we only have the latest version of data for each date
-      let updatedItems = queueState.items.filter(
-        item => !(item.date === date && item.endpoint === endpoint)
-      );
+      // Use functional update to avoid stale closure issues
+      setQueueState(prev => {
+        const updatedItems = prev.items.filter(
+          item => !(item.date === date && item.endpoint === endpoint)
+        );
+        updatedItems.push(newItem);
+        
+        const pendingCount = updatedItems.filter(i => i.status === 'pending').length;
+        const failedCount = updatedItems.filter(i => i.status === 'failed').length;
+        const conflictCount = updatedItems.filter(i => i.status === 'conflict').length;
+        
+        return {
+          ...prev,
+          items: updatedItems,
+          totalSize: updatedItems.length,
+          pendingCount,
+          failedCount,
+          conflictCount,
+        };
+      });
 
-      updatedItems.push(newItem);
-      updateQueueState(updatedItems);
-
-      console.log('[useOfflineQueue] Deduplication: removed', queueState.items.length - updatedItems.length, 'old items for', date, endpoint);
+      console.log('[useOfflineQueue] Added/updated item for', date, endpoint);
 
       const fitnessData = newItem.body?.fitnessData || {};
       const fitnessDataKeys = Object.keys(fitnessData);
@@ -495,11 +509,30 @@ export function useOfflineQueue() {
       totalProcessed: result.synced + result.failed + result.conflicts,
     });
 
-    setQueueState(prev => ({
-      ...prev,
-      syncInProgress: false,
-      lastSyncTime: Date.now(),
-    }));
+    // Clean up: Remove successfully synced items from queue to prevent stale data
+    setQueueState(prev => {
+      const remainingItems = prev.items.filter(item => item.status !== 'synced');
+      const pendingCount = remainingItems.filter(i => i.status === 'pending').length;
+      const failedCount = remainingItems.filter(i => i.status === 'failed').length;
+      const conflictCount = remainingItems.filter(i => i.status === 'conflict').length;
+      
+      console.log('[useOfflineQueue.syncQueue] Cleaned up synced items:', {
+        before: prev.items.length,
+        after: remainingItems.length,
+        removed: prev.items.length - remainingItems.length,
+      });
+      
+      return {
+        ...prev,
+        items: remainingItems,
+        totalSize: remainingItems.length,
+        pendingCount,
+        failedCount,
+        conflictCount,
+        syncInProgress: false,
+        lastSyncTime: Date.now(),
+      };
+    });
 
     // Show result toast
     if (result.synced > 0) {

@@ -78,6 +78,7 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
+    console.log('[Dashboard] selectedDate changed, calling loadWorkoutForDate:', selectedDate);
     loadWorkoutForDate();
   }, [selectedDate]);
 
@@ -208,6 +209,8 @@ export default function Dashboard() {
   const saveData = async () => {
     try {
       const dateStr = formatDateForApi(selectedDate);
+      console.log('[Dashboard] saveData() START - exercises state:', { exercisesState: exercises, exerciseKeys: Object.keys(exercises) });
+
       const payload = {
         date: dateStr,
         weight: weight ? parseFloat(weight) : null,
@@ -215,6 +218,7 @@ export default function Dashboard() {
       };
 
       const payloadString = JSON.stringify(payload);
+      console.log('[Dashboard] saveData() PAYLOAD:', { dateStr, fitnessDataKeys: Object.keys(payload.fitnessData), fitnessData: payload.fitnessData });
       console.log('[Dashboard] saveData() called:', { dateStr, currentPayload: payload, lastPayload: JSON.parse(lastPayload) });
 
       if (payloadString === lastPayload) {
@@ -299,10 +303,15 @@ export default function Dashboard() {
   const handleExerciseChange = (id: string, value: number) => {
     // Mark this as user-initiated change
     isUserInitiatedChange.current = true;
-    setExercises((prev) => ({
-      ...prev,
-      [id]: Math.min(Math.max(value, 0), 4), // Clamp between 0 and maxSets (4)
-    }));
+    console.log('[Dashboard] handleExerciseChange BEFORE:', { id, newValue: value, currentExercises: exercises });
+    setExercises((prev) => {
+      const updated = {
+        ...prev,
+        [id]: Math.min(Math.max(value, 0), 4), // Clamp between 0 and maxSets (4)
+      };
+      console.log('[Dashboard] handleExerciseChange AFTER:', { id, newValue: value, updatedExercises: updated });
+      return updated;
+    });
   };
 
   const handleNavigate = (tab: string) => {

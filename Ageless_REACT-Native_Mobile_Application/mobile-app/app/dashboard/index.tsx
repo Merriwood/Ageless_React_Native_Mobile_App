@@ -170,6 +170,10 @@ export default function Dashboard() {
         exercises: currentExercises
       });
 
+      // Important: Reset the user-initiated flag BEFORE setting server state
+      // This prevents the save debounce from triggering on server-loaded data
+      isUserInitiatedChange.current = false;
+
       setWeight(currentWeight);
       setExercises(currentExercises);
 
@@ -253,15 +257,22 @@ export default function Dashboard() {
     }
   };
 
-  // Auto-save debounce
+  // Track if we're in the initial load phase or a user-initiated reload
+  const isUserInitiatedChange = useRef(false);
+
+  // Auto-save debounce - only save on USER INITIATED changes, not on initial loads
   useEffect(() => {
-    if (loading) return;
+    // Skip debounce if currently loading or if this is just a state update from server
+    if (loading || !isUserInitiatedChange.current) {
+      return;
+    }
 
     if (saveTimerRef.current) {
       clearTimeout(saveTimerRef.current);
     }
 
     saveTimerRef.current = setTimeout(() => {
+      console.log('[Dashboard] Debounce triggered, saving data');
       saveData();
     }, 2000); // 2 second debounce like Web PWA
 
@@ -273,6 +284,8 @@ export default function Dashboard() {
   }, [weight, exercises]);
 
   const handleExerciseChange = (id: string, value: number) => {
+    // Mark this as user-initiated change
+    isUserInitiatedChange.current = true;
     setExercises((prev) => ({
       ...prev,
       [id]: Math.min(Math.max(value, 0), 4), // Clamp between 0 and maxSets (4)

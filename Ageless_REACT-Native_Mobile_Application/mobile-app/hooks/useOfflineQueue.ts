@@ -262,13 +262,16 @@ export function useOfflineQueue() {
         maxRetries: MAX_RETRIES,
       };
 
-      // Deduplicate: remove any pending request for same date/endpoint
+      // Deduplicate: remove ANY request (pending, synced, or failed) for same date/endpoint
+      // This ensures we only have the latest version of data for each date
       let updatedItems = queueState.items.filter(
-        item => !(item.date === date && item.endpoint === endpoint && item.status === 'pending')
+        item => !(item.date === date && item.endpoint === endpoint)
       );
 
       updatedItems.push(newItem);
       updateQueueState(updatedItems);
+
+      console.log('[useOfflineQueue] Deduplication: removed', queueState.items.length - updatedItems.length, 'old items for', date, endpoint);
 
       const fitnessData = newItem.body?.fitnessData || {};
       const fitnessDataKeys = Object.keys(fitnessData);

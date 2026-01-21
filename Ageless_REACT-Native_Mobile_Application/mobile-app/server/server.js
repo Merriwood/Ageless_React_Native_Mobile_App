@@ -268,19 +268,48 @@ app.get("/api/me", requireAuth, async (req, res) => {
 // ---- Entries
 app.get("/api/entries", requireAuth, async (req, res) => {
   const { rows } = await query(
-    "select entry_date, weight, fitness_data, created_at, updated_at from entries where user_id=$1 order by entry_date desc",
+    "select id, user_id, entry_date, weight, fitness_data, created_at, updated_at from entries where user_id=$1 order by entry_date desc",
     [req.user.sub]
   );
-  res.json(rows);
+
+  // Transform all entries to match client expectations
+  const entries = rows.map(row => ({
+    id: String(row.id),
+    userId: String(row.user_id),
+    date: row.entry_date,
+    exercises: row.fitness_data || {},
+    weight: row.weight,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  }));
+
+  res.json({ entries, total: rows.length, hasMore: false });
 });
 
 app.get("/api/entries/:date", requireAuth, async (req, res) => {
   const { date } = req.params; // YYYY-MM-DD
   const { rows } = await query(
-    "select entry_date, weight, fitness_data from entries where user_id=$1 and entry_date=$2",
+    "select id, user_id, entry_date, weight, fitness_data, created_at, updated_at from entries where user_id=$1 and entry_date=$2",
     [req.user.sub, date]
   );
-  res.json(rows[0] || null);
+
+  const row = rows[0];
+  if (!row) {
+    return res.json(null);
+  }
+
+  // Transform to match client expectations
+  const entry = {
+    id: String(row.id),
+    userId: String(row.user_id),
+    date: row.entry_date,
+    exercises: row.fitness_data || {},
+    weight: row.weight,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  };
+
+  res.json(entry);
 });
 
 app.post("/api/entries", requireAuth, async (req, res) => {
@@ -291,10 +320,23 @@ app.post("/api/entries", requireAuth, async (req, res) => {
      values ($1,$2,$3,$4)
      on conflict (user_id, entry_date)
      do update set weight=excluded.weight, fitness_data=excluded.fitness_data, updated_at=now()
-     returning entry_date, weight, fitness_data, updated_at`,
+     returning id, user_id, entry_date, weight, fitness_data, created_at, updated_at`,
     [req.user.sub, date, weight ?? null, fitnessData]
   );
-  res.json(rows[0]);
+
+  const row = rows[0];
+  // Transform to match client expectations
+  const entry = {
+    id: String(row.id),
+    userId: String(row.user_id),
+    date: row.entry_date,
+    exercises: row.fitness_data || {},
+    weight: row.weight,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  };
+
+  res.json(entry);
 });
 
 app.delete("/api/entries/:date", requireAuth, async (req, res) => {

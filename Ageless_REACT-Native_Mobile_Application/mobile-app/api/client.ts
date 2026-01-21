@@ -7,25 +7,20 @@ import axios, { AxiosInstance, AxiosError, AxiosResponse } from 'axios';
 import { tokenManager } from './tokenManager';
 
 const getApiBaseUrl = (): string => {
-  // On web, use relative URLs (same origin)
-  if (typeof window !== 'undefined') {
-    return '';
-  }
-  
-  // Environment variable overrides
+  // Environment variable overrides (highest priority)
   if (process.env.EXPO_PUBLIC_API_URL) {
     return process.env.EXPO_PUBLIC_API_URL;
   }
   if (process.env.REACT_APP_API_URL) {
     return process.env.REACT_APP_API_URL;
   }
-  
+
   // Development defaults
   if (process.env.NODE_ENV === 'development') {
     return 'http://localhost:3000';
   }
-  
-  // Production default (Render)
+
+  // Production default (Render) - use for both web and native
   return 'https://ageless-api.render.com';
 };
 

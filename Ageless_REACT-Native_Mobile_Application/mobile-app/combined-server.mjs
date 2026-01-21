@@ -467,19 +467,20 @@ console.log('[startup] ✓ GET /api/entries/:date');
 app.post('/api/entries', requireAuth, async (req, res) => {
   try {
     const userId = req.user.sub || req.user.id;
-    const { date, exercises, weight } = req.body || {};
-    console.log('[POST /api/entries] User:', { userId, email: req.user.email, date, hasExercises: !!exercises });
+    // Accept both 'exercises' and 'fitnessData' for backward compatibility
+    const { date, exercises, fitnessData, weight } = req.body || {};
+    const exerciseData = exercises || fitnessData || {};
+    console.log('[POST /api/entries] User:', { userId, email: req.user.email, date, hasExercises: Object.keys(exerciseData).length > 0, exerciseKeys: Object.keys(exerciseData) });
     if (!date) {
       return res.status(400).json({ error: 'date is required' });
     }
-    const fitnessData = exercises || {};
     const { rows } = await query(
       `INSERT INTO entries(user_id, entry_date, weight, fitness_data)
        VALUES ($1, $2, $3, $4)
        ON CONFLICT (user_id, entry_date)
        DO UPDATE SET weight=EXCLUDED.weight, fitness_data=EXCLUDED.fitness_data, updated_at=now()
        RETURNING id, entry_date as date, weight, fitness_data as exercises, created_at, updated_at`,
-      [userId, date, weight ?? null, fitnessData]
+      [userId, date, weight ?? null, exerciseData]
     );
     const row = rows[0];
     res.json({

@@ -258,21 +258,17 @@ export default function Dashboard() {
       const syncResult = await syncQueue();
       console.log('[Dashboard] syncQueue() completed:', syncResult);
 
-      // After sync (successful or not), refresh dashboard to ensure we have latest data
-      // If sync succeeded, this loads the fresh server data
-      // If sync failed, this will still have the offline queue data available
+      // After sync (successful or not), trust local state instead of re-fetching
+      // This prevents UI jumping from unnecessary data refresh
+      // The data we just saved is already in state, and sync was successful
       if (syncResult) {
         console.log('[Dashboard] Sync result:', { synced: syncResult.synced, failed: syncResult.failed, conflicts: syncResult.conflicts });
         if (syncResult.synced > 0) {
-          console.log('[Dashboard] Data synced successfully (synced count:', syncResult.synced, '), clearing caches and refreshing...');
-          // Clear caches to ensure fresh data across all screens
+          console.log('[Dashboard] Data synced successfully (synced count:', syncResult.synced, '), keeping local state to avoid UI jump');
+          // Clear caches so other screens (History, Summary) fetch fresh data on next open
           entriesAPI.clearCache();
           historyAPI.clearCache();
-          console.log('[Dashboard] Caches cleared, waiting 100ms for server to process...');
-          // Small delay to ensure server has processed the write
-          await new Promise(resolve => setTimeout(resolve, 100));
-          console.log('[Dashboard] Calling loadWorkoutForDate() after successful sync');
-          await loadWorkoutForDate();
+          console.log('[Dashboard] Caches cleared for other screens');
         } else if (syncResult.failed > 0) {
           console.log('[Dashboard] Sync had failures (failed count:', syncResult.failed, '), keeping data in offline queue for retry');
         } else {

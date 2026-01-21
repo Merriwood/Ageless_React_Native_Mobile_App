@@ -160,8 +160,8 @@ export default function Dashboard() {
           if (pendingEntry.body.weight !== undefined && pendingEntry.body.weight !== null) {
             currentWeight = pendingEntry.body.weight.toString();
           }
-          if (pendingEntry.body.exercises) {
-            currentExercises = pendingEntry.body.exercises;
+          if (pendingEntry.body.fitnessData) {
+            currentExercises = pendingEntry.body.fitnessData;
           }
           console.log('[Dashboard] Loaded from offline queue:', { dateStr, weight: currentWeight, exercises: currentExercises });
         } else if (user?.id) {

@@ -165,9 +165,9 @@ export const summaryAPI = {
       });
 
       // Cache the result
-      cacheManager.set(cacheKey, response.data.data, CACHE_TTL_SUMMARY);
+      cacheManager.set(cacheKey, response.data, CACHE_TTL_SUMMARY);
 
-      return response.data.data;
+      return response.data;
     });
   },
 

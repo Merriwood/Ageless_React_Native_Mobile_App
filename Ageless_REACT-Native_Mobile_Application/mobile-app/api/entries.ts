@@ -174,14 +174,14 @@ export const entriesAPI = {
     const dedupKey = getDedupKey('GET', '/api/entries', { limit, offset });
 
     return getDedupedRequest(dedupKey, async () => {
-      const response = await client.get<EntriesResponse>('/api/entries', {
+      const entries = await client.get<EntriesResponse>('/api/entries', {
         params: { limit, offset },
       });
 
       // Cache the result
-      cacheManager.set(cacheKey, response.data, CACHE_TTL.ENTRIES_LIST);
+      cacheManager.set(cacheKey, entries, CACHE_TTL.ENTRIES_LIST);
 
-      return response.data;
+      return entries;
     });
   },
 
@@ -209,13 +209,13 @@ export const entriesAPI = {
     try {
       console.log('[entriesAPI.getEntry] Fetching from server:', { date, dedupKey });
       return await getDedupedRequest(dedupKey, async () => {
-        const response = await client.get<WorkoutEntry>(`/api/entries/${date}`);
-        console.log('[entriesAPI.getEntry] Server response:', { date, data: response.data });
+        const entry = await client.get<WorkoutEntry>(`/api/entries/${date}`);
+        console.log('[entriesAPI.getEntry] Server response:', { date, entry });
 
         // Cache the result
-        cacheManager.set(cacheKey, response.data, CACHE_TTL.ENTRY);
+        cacheManager.set(cacheKey, entry, CACHE_TTL.ENTRY);
 
-        return response.data;
+        return entry;
       });
     } catch (error: any) {
       console.error('[entriesAPI.getEntry] Error:', { date, status: error.response?.status, message: error.message });
@@ -255,10 +255,10 @@ export const entriesAPI = {
     const dedupKey = getDedupKey('POST', '/api/entries', payload);
 
     try {
-      const response = await getDedupedRequest(dedupKey, async () => {
+      const entry = await getDedupedRequest(dedupKey, async () => {
         console.log('[entriesAPI.saveEntry] Posting to server:', { url: '/api/entries', payload });
         const result = await client.post<WorkoutEntry>('/api/entries', payload);
-        console.log('[entriesAPI.saveEntry] Server response:', { result: result.data });
+        console.log('[entriesAPI.saveEntry] Server response:', { result });
         return result;
       });
 
@@ -267,14 +267,14 @@ export const entriesAPI = {
       cacheManager.invalidate('entries:.*');
       cacheManager.invalidate(`entry:${date}`);
 
-      return response.data;
+      return entry;
     } catch (error: any) {
       // Handle conflict (server has newer data)
       if (error.response?.status === 409) {
         const conflictData = error.response.data;
         const error409 = new Error('Server has newer data');
         (error409 as any).code = 'CONFLICT';
-        (error409 as any).serverData = conflictData.data;
+        (error409 as any).serverData = conflictData;
         throw error409;
       }
       throw error;

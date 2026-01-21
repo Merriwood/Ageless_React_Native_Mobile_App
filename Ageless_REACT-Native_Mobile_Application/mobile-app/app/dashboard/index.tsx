@@ -217,7 +217,7 @@ export default function Dashboard() {
         'POST',
         '/api/entries',
         dateStr,
-        { exercises, weight: weight ? parseFloat(weight) : undefined }
+        { fitnessData: exercises, weight: weight ? parseFloat(weight) : undefined }
       );
       console.log('[Dashboard] Successfully added to offline queue');
 

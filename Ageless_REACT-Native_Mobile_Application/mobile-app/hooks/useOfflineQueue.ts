@@ -322,9 +322,16 @@ export function useOfflineQueue() {
     const pendingItems = queueState.items.filter(item => item.status === 'pending');
 
     if (pendingItems.length === 0) {
+      console.log('[useOfflineQueue.syncQueue] No pending items to sync');
       setQueueState(prev => ({ ...prev, syncInProgress: false }));
       return result;
     }
+
+    console.log('[useOfflineQueue.syncQueue] Starting sync of', pendingItems.length, 'pending items:', {
+      itemIds: pendingItems.map(i => i.id),
+      dates: pendingItems.map(i => i.date),
+      endpoints: pendingItems.map(i => i.endpoint),
+    });
 
     for (const item of pendingItems) {
       try {
@@ -480,6 +487,13 @@ export function useOfflineQueue() {
         }
       }
     }
+
+    console.log('[useOfflineQueue.syncQueue] Sync complete:', {
+      synced: result.synced,
+      failed: result.failed,
+      conflicts: result.conflicts,
+      totalProcessed: result.synced + result.failed + result.conflicts,
+    });
 
     setQueueState(prev => ({
       ...prev,

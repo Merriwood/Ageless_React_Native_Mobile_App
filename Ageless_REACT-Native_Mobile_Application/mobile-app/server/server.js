@@ -319,22 +319,26 @@ app.get("/api/entries/:date", requireAuth, async (req, res) => {
 
 app.post("/api/entries", requireAuth, async (req, res) => {
   const { date, weight, fitnessData } = req.body || {};
-  console.log('[POST /api/entries] Received payload:', { date, weight, fitnessData, fitnessDataType: typeof fitnessData, fitnessDataKeys: Object.keys(fitnessData || {}) });
+  console.log('[POST /api/entries] ===== SAVE REQUEST =====');
+  console.log('[POST /api/entries] Received:', { date, weight, fitnessData, fitnessDataType: typeof fitnessData, fitnessDataKeys: Object.keys(fitnessData || {}), fitnessDataString: JSON.stringify(fitnessData) });
 
   if (!date || !fitnessData) return res.status(400).json({ error: "date and fitnessData required" });
 
-  console.log('[POST /api/entries] Inserting into database with:', { userId: req.user.sub, date, weight: weight ?? null, fitnessData });
+  // Convert to JSON string if needed for JSONB storage
+  const fitnessDataForDB = typeof fitnessData === 'string' ? fitnessData : JSON.stringify(fitnessData);
+  console.log('[POST /api/entries] Inserting with:', { userId: req.user.sub, date, weight: weight ?? null, fitnessDataForDB });
+
   const { rows } = await query(
     `insert into entries(user_id, entry_date, weight, fitness_data)
-     values ($1,$2,$3,$4)
+     values ($1,$2,$3,$4::jsonb)
      on conflict (user_id, entry_date)
      do update set weight=excluded.weight, fitness_data=excluded.fitness_data, updated_at=now()
      returning id, user_id, entry_date, weight, fitness_data, created_at, updated_at`,
-    [req.user.sub, date, weight ?? null, fitnessData]
+    [req.user.sub, date, weight ?? null, fitnessDataForDB]
   );
 
   const row = rows[0];
-  console.log('[POST /api/entries] Database returned row:', { id: row.id, fitness_data: row.fitness_data, fitness_dataType: typeof row.fitness_data, fitness_dataKeys: Object.keys(row.fitness_data || {}) });
+  console.log('[POST /api/entries] Database returned:', { id: row.id, fitness_data: row.fitness_data, fitness_dataType: typeof row.fitness_data, fitness_dataKeys: Object.keys(row.fitness_data || {}) });
 
   // Transform to match client expectations
   const entry = {
@@ -347,7 +351,8 @@ app.post("/api/entries", requireAuth, async (req, res) => {
     updatedAt: row.updated_at
   };
 
-  console.log('[POST /api/entries] Returning entry with exercises:', { exerciseKeys: Object.keys(entry.exercises), exercises: entry.exercises });
+  console.log('[POST /api/entries] Returning:', { exerciseKeys: Object.keys(entry.exercises), exercises: entry.exercises });
+  console.log('[POST /api/entries] ===== END SAVE =====');
   res.json(entry);
 });
 

@@ -4,6 +4,7 @@
 
 ### Session Start: 2026-01-21
 ### Branch: `CPB_Branch` (created from `main`)
+### Status: ✅ **RESOLVED** - Data persistence working, Edit feature working
 
 ---
 
@@ -11,16 +12,15 @@
 
 **Problem**: User data on entry is not persisting, disappearing from user dashboard on entry, not displaying and persisting properly in Summary and History, Edit feature not working. Issue affects both Web PWA and React Native mobile apps.
 
+**Resolution**: Fixed on January 21, 2026. All features now working correctly.
+
 ---
 
-## 🚨 ROOT CAUSE FOUND (Session 2)
+## 🚨 ROOT CAUSES IDENTIFIED & FIXED
 
-### Bug #1: Stale Closure in syncQueue (FIXED in commit 3131269)
-- `syncQueue()` was reading stale `queueState.items` immediately after `addToQueue()` called setState
-- Solution: Added `queueItemsRef` that is updated synchronously
-
-### Bug #2: Field Name Mismatch (FIXED in commit ab53531)
-**THIS WAS THE MAIN PROBLEM!**
+### Bug #1: Field Name Mismatch (PRIMARY CAUSE)
+**Commit:** `ab53531`  
+**File:** `combined-server.mjs`
 
 The frontend was sending:
 ```json
@@ -32,39 +32,48 @@ But the server expected:
 { "exercises": { "bicep_curls": 10 }, "date": "2026-01-21" }
 ```
 
-**Server code line 470:**
+**Before (broken):**
 ```javascript
-const { date, exercises, weight } = req.body;  // <-- expects 'exercises'
+const { date, exercises, weight } = req.body;  // Only looked for 'exercises'
 ```
 
-**Frontend code line 252:**
-```javascript
-{ fitnessData: exercises, weight: ... }  // <-- sends 'fitnessData'
-```
-
-**Result:** Server received empty `exercises: {}`, saved empty data to DB!
-
-**Solution:** Server now accepts BOTH field names:
+**After (fixed):**
 ```javascript
 const { date, exercises, fitnessData, weight } = req.body;
-const exerciseData = exercises || fitnessData || {};
+const exerciseData = exercises || fitnessData || {};  // Accepts BOTH field names
+```
+
+**Result:** Server now correctly receives and saves exercise data.
+
+---
+
+### Bug #2: Stale Closure in syncQueue
+**Commit:** `3131269`  
+**File:** `useOfflineQueue.ts`
+
+When `addToQueue()` was called followed immediately by `syncQueue()`, the queue state was stale because React's `setState` is asynchronous.
+
+**Solution:** Added `queueItemsRef` (React ref) that is updated synchronously:
+```typescript
+const queueItemsRef = useRef<QueuedRequest[]>([]);
+
+// In addToQueue - update ref SYNCHRONOUSLY
+queueItemsRef.current = updatedItems;
+
+// In syncQueue - read from ref instead of stale state
+const pendingItems = queueItemsRef.current.filter(item => item.status === 'pending');
 ```
 
 ---
 
-## Previous Session Fixes (Supporting, not root cause)
+### Supporting Fixes
 
-#### Issue 1: Cache Null Handling Bug (`api/entries.ts`)
-- Changed null cache TTL from 1 hour to 10 seconds
-- Minor optimization, not the root cause
-
-#### Issue 2: Functional State Updates (`useOfflineQueue.ts`)
-- Changed addToQueue to use `setQueueState(prev => ...)` pattern
-- Correct but insufficient - the stale closure in syncQueue remained
-
-#### Issue 3: Synced Items Cleanup (`useOfflineQueue.ts`)
-- Added cleanup of synced items after sync
-- Good practice, not the root cause
+| Fix | File | Description |
+|-----|------|-------------|
+| Null Cache TTL | `api/entries.ts` | Reduced from 1 hour to 10 seconds |
+| Null Marker Pattern | `api/entries.ts` | Added `__nullMarker` for cached null detection |
+| Functional State Updates | `useOfflineQueue.ts` | Use `setQueueState(prev => ...)` pattern |
+| Synced Items Cleanup | `useOfflineQueue.ts` | Remove synced items after successful sync |
 
 ---
 
@@ -72,44 +81,67 @@ const exerciseData = exercises || fitnessData || {};
 
 | Timestamp | File | Change Description | Status |
 |-----------|------|-------------------|--------|
-| 2026-01-21 | CoPilot.md | Created session documentation | ✅ Complete |
-| 2026-01-21 | Branch | Created `CPB_Branch` from `main` | ✅ Complete |
-| 2026-01-21 | `api/entries.ts` | Fix null cache TTL (10s instead of 1hr) | ✅ Complete |
-| 2026-01-21 | `api/entries.ts` | Add __nullMarker pattern for cached nulls | ✅ Complete |
-| 2026-01-21 | `useOfflineQueue.ts` | Fix stale closures with functional state updates | ✅ Complete |
-| 2026-01-21 | `useOfflineQueue.ts` | Cleanup synced items after successful sync | ✅ Complete |
-| 2026-01-21 | `useOfflineQueue.ts` | Add queueItemsRef for sync access | ✅ Complete |
-| **2026-01-21** | **`combined-server.mjs`** | **🔴 CRITICAL: Accept 'fitnessData' field** | ✅ Complete |
+| 2026-01-21 | Branch | Created `CPB_Branch` from `main` | ✅ |
+| 2026-01-21 | `api/entries.ts` | Fix null cache TTL (10s instead of 1hr) | ✅ |
+| 2026-01-21 | `api/entries.ts` | Add __nullMarker pattern for cached nulls | ✅ |
+| 2026-01-21 | `useOfflineQueue.ts` | Fix stale closures with functional state updates | ✅ |
+| 2026-01-21 | `useOfflineQueue.ts` | Cleanup synced items after successful sync | ✅ |
+| 2026-01-21 | `useOfflineQueue.ts` | Add queueItemsRef for sync access | ✅ |
+| 2026-01-21 | **`combined-server.mjs`** | **Accept 'fitnessData' field (PRIMARY FIX)** | ✅ |
 
 ---
 
 ## Git Commits on CPB_Branch
 
-1. `d7a40a2` - Initial fixes (cache TTL, functional updates, cleanup)
-2. `3131269` - Use ref to prevent stale closure in syncQueue
-3. **`ab53531`** - **CRITICAL FIX: Server accepts 'fitnessData' field from frontend**
+| Commit | Description |
+|--------|-------------|
+| `d7a40a2` | Initial fixes (cache TTL, functional updates, cleanup) |
+| `3131269` | Use ref to prevent stale closure in syncQueue |
+| `7f29635` | Documentation update |
+| **`ab53531`** | **CRITICAL FIX: Server accepts 'fitnessData' field** |
+| `ff18cb9` | Final documentation update |
 
 ---
 
-## Verification - Server Logs to Look For
+## Verification Results
 
-**BEFORE fix (broken):**
+### Before Fix (Server Logs):
 ```
 [POST /api/entries] User: { hasExercises: false }
 exercises: {}
 ```
-*This means server received empty exercises because it was looking for 'exercises' but frontend sent 'fitnessData'*
 
-**AFTER fix (working):**
+### After Fix (Server Logs):
 ```
 [POST /api/entries] User: { hasExercises: true, exerciseKeys: ['bicep_curls', ...] }
 exercises: { bicep_curls: 10, ... }
 ```
 
+### User Confirmation:
+- ✅ Data persisting correctly
+- ✅ Edit feature working
+- ✅ Summary displaying data
+- ✅ History displaying data
+
 ---
 
-## Deployment Notes
+## Deployment
 
-- Branch `CPB_Branch` pushed to GitHub (commit ab53531)
-- Deploy to Render from CPB_Branch
-- Test with server logs open to verify exercises are being saved
+- **Branch:** `CPB_Branch`
+- **Latest Commit:** `ff18cb9`
+- **Deployed to:** Render (https://locali-corp.onrender.com)
+- **Status:** Live and working
+
+---
+
+## Lessons Learned
+
+1. **Field name mismatches** between frontend and backend are easy to miss but cause complete data loss
+2. **Console logs showing the actual request/response** are essential for debugging
+3. **React setState is async** - when you need synchronous access to updated state, use a ref
+4. The **2-3 second timing** was a red herring initially - it matched the debounce timer, but the real issue was the server ignoring the data
+
+---
+
+## Session End: January 21, 2026
+## Resolution: ✅ COMPLETE

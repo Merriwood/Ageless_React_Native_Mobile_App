@@ -162,11 +162,27 @@ export function useOfflineQueue() {
       const stored = await AsyncStorage.getItem(QUEUE_STORAGE_KEY);
       if (stored) {
         const items: QueuedRequest[] = JSON.parse(stored);
+        console.log('[useOfflineQueue] Loaded from storage:', {
+          totalItems: items.length,
+          sampleItem: items[0] ? {
+            id: items[0].id,
+            method: items[0].method,
+            date: items[0].date,
+            hasBody: !!items[0].body,
+            bodyKeys: items[0].body ? Object.keys(items[0].body) : [],
+            hasFitnessData: !!items[0].body?.fitnessData,
+            fitnessDataKeys: items[0].body?.fitnessData ? Object.keys(items[0].body.fitnessData) : [],
+          } : 'N/A',
+        });
 
         // Filter out expired items
         const validItems = items.filter(item => !isItemExpired(item));
 
         if (validItems.length !== items.length) {
+          console.log('[useOfflineQueue] Removed expired items:', {
+            before: items.length,
+            after: validItems.length,
+          });
           await persistQueueToStorage(validItems);
         }
 
@@ -254,9 +270,18 @@ export function useOfflineQueue() {
       updatedItems.push(newItem);
       updateQueueState(updatedItems);
 
-      if (__DEV__) {
-        console.log('[useOfflineQueue] Added to queue:', newItem.id);
-      }
+      console.log('[useOfflineQueue] Added to queue:', {
+        id: newItem.id,
+        method: newItem.method,
+        endpoint: newItem.endpoint,
+        date: newItem.date,
+        hasBody: !!newItem.body,
+        bodyKeys: newItem.body ? Object.keys(newItem.body) : [],
+        hasFitnessData: !!newItem.body?.fitnessData,
+        fitnessDataKeys: newItem.body?.fitnessData ? Object.keys(newItem.body.fitnessData) : [],
+        fitnessData: newItem.body?.fitnessData,
+        weight: newItem.body?.weight,
+      });
 
       return newItem.id;
     },

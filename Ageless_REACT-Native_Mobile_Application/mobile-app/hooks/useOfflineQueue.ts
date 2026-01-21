@@ -34,7 +34,7 @@ export interface QueuedRequest {
   endpoint: string; // e.g., '/api/entries'
   date: string; // YYYY-MM-DD - for deduplication
   body?: {
-    exercises: Record<string, any>;
+    fitnessData: Record<string, any>;
     weight?: number;
   };
 

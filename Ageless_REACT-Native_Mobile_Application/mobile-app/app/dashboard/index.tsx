@@ -209,7 +209,16 @@ export default function Dashboard() {
   const saveData = async () => {
     try {
       const dateStr = formatDateForApi(selectedDate);
-      console.log('[Dashboard] saveData() START - exercises state:', { exercisesState: exercises, exerciseKeys: Object.keys(exercises) });
+      const exerciseKeys = Object.keys(exercises);
+      const isEmpty = exerciseKeys.length === 0;
+
+      console.log('[Dashboard] saveData() START - exercises state:', {
+        exerciseKeys,
+        isEmpty,
+        exerciseCount: exerciseKeys.length,
+        exercises: JSON.stringify(exercises),
+        exerciseValues: exerciseKeys.map(k => `${k}:${exercises[k]}`).join(', ')
+      });
 
       const payload = {
         date: dateStr,
@@ -218,7 +227,13 @@ export default function Dashboard() {
       };
 
       const payloadString = JSON.stringify(payload);
-      console.log('[Dashboard] saveData() PAYLOAD:', { dateStr, fitnessDataKeys: Object.keys(payload.fitnessData), fitnessData: payload.fitnessData });
+      console.log('[Dashboard] saveData() PAYLOAD:', {
+        dateStr,
+        fitnessDataKeys: Object.keys(payload.fitnessData),
+        fitnessDataIsEmpty: Object.keys(payload.fitnessData).length === 0,
+        fitnessData: JSON.stringify(payload.fitnessData),
+        fitnessDataValues: Object.keys(payload.fitnessData).map(k => `${k}:${payload.fitnessData[k]}`).join(', ')
+      });
       console.log('[Dashboard] saveData() called:', { dateStr, currentPayload: payload, lastPayload: JSON.parse(lastPayload) });
 
       if (payloadString === lastPayload) {

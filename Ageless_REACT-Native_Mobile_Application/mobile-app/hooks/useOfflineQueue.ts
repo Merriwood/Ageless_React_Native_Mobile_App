@@ -313,9 +313,24 @@ export function useOfflineQueue() {
         // Make request based on method
         const requestBody = item.body ? { date: item.date, ...item.body } : undefined;
 
+        console.log('[useOfflineQueue.syncQueue] Syncing item:', {
+          itemId: item.id,
+          method: item.method,
+          endpoint: item.endpoint,
+          date: item.date,
+          hasBody: !!item.body,
+          bodyKeys: item.body ? Object.keys(item.body) : [],
+          hasFitnessData: !!item.body?.fitnessData,
+          fitnessDataKeys: item.body?.fitnessData ? Object.keys(item.body.fitnessData) : [],
+          weight: item.body?.weight,
+          constructedRequestBody: requestBody,
+        });
+
         switch (item.method) {
           case 'POST':
+            console.log('[useOfflineQueue.syncQueue] Posting to', item.endpoint, 'with body:', requestBody);
             await apiClient.post(item.endpoint, requestBody);
+            console.log('[useOfflineQueue.syncQueue] POST successful');
             break;
           case 'PUT':
             await apiClient.put(item.endpoint, requestBody);

@@ -15,36 +15,39 @@
 
 ## 🚨 ROOT CAUSE FOUND (Session 2)
 
-### The ACTUAL Bug: Stale Closure in syncQueue
+### Bug #1: Stale Closure in syncQueue (FIXED in commit 3131269)
+- `syncQueue()` was reading stale `queueState.items` immediately after `addToQueue()` called setState
+- Solution: Added `queueItemsRef` that is updated synchronously
 
-**The timing (2-3 seconds) was the key clue!** This matches the debounce timer exactly.
+### Bug #2: Field Name Mismatch (FIXED in commit ab53531)
+**THIS WAS THE MAIN PROBLEM!**
 
-#### What Was Happening:
-1. User enters data → triggers `handleExerciseChange`
-2. 2-second debounce timer starts
-3. Timer fires → `saveData()` called
-4. `saveData()` calls `addToQueue()` which uses `setQueueState()` (ASYNC!)
-5. **Immediately after**, `syncQueue()` is called
-6. **🔴 BUG**: `syncQueue()` reads `queueState.items` - BUT this is STALE because React setState is async!
-7. `syncQueue()` sees 0 pending items → returns `{ synced: 0 }`
-8. Dashboard thinks nothing was synced, doesn't refresh
-9. User's data was **NEVER** actually sent to the server
-10. Data appears to "disappear" after 2-3 seconds
+The frontend was sending:
+```json
+{ "fitnessData": { "bicep_curls": 10 }, "date": "2026-01-21" }
+```
 
-#### The Fix (Commit 3131269):
-Added a `queueItemsRef` that is updated **SYNCHRONOUSLY** when items change:
+But the server expected:
+```json
+{ "exercises": { "bicep_curls": 10 }, "date": "2026-01-21" }
+```
 
-```typescript
-// CRITICAL FIX: Use a ref to always have access to current queue items
-const queueItemsRef = useRef<QueuedRequest[]>([]);
+**Server code line 470:**
+```javascript
+const { date, exercises, weight } = req.body;  // <-- expects 'exercises'
+```
 
-// In addToQueue - update ref SYNCHRONOUSLY before async setState
-const updatedItemsForRef = queueItemsRef.current.filter(...);
-updatedItemsForRef.push(newItem);
-queueItemsRef.current = updatedItemsForRef;  // <-- SYNC update
+**Frontend code line 252:**
+```javascript
+{ fitnessData: exercises, weight: ... }  // <-- sends 'fitnessData'
+```
 
-// In syncQueue - read from ref instead of stale state
-const pendingItems = queueItemsRef.current.filter(item => item.status === 'pending');
+**Result:** Server received empty `exercises: {}`, saved empty data to DB!
+
+**Solution:** Server now accepts BOTH field names:
+```javascript
+const { date, exercises, fitnessData, weight } = req.body;
+const exerciseData = exercises || fitnessData || {};
 ```
 
 ---
@@ -75,37 +78,38 @@ const pendingItems = queueItemsRef.current.filter(item => item.status === 'pendi
 | 2026-01-21 | `api/entries.ts` | Add __nullMarker pattern for cached nulls | ✅ Complete |
 | 2026-01-21 | `useOfflineQueue.ts` | Fix stale closures with functional state updates | ✅ Complete |
 | 2026-01-21 | `useOfflineQueue.ts` | Cleanup synced items after successful sync | ✅ Complete |
-| **2026-01-21** | **`useOfflineQueue.ts`** | **🔴 CRITICAL: Add queueItemsRef for sync access** | ✅ Complete |
+| 2026-01-21 | `useOfflineQueue.ts` | Add queueItemsRef for sync access | ✅ Complete |
+| **2026-01-21** | **`combined-server.mjs`** | **🔴 CRITICAL: Accept 'fitnessData' field** | ✅ Complete |
 
 ---
 
 ## Git Commits on CPB_Branch
 
 1. `d7a40a2` - Initial fixes (cache TTL, functional updates, cleanup)
-2. **`3131269`** - **CRITICAL FIX**: Use ref to prevent stale closure in syncQueue
+2. `3131269` - Use ref to prevent stale closure in syncQueue
+3. **`ab53531`** - **CRITICAL FIX: Server accepts 'fitnessData' field from frontend**
 
 ---
 
-## Verification - Console Logs to Look For
+## Verification - Server Logs to Look For
 
 **BEFORE fix (broken):**
 ```
-[useOfflineQueue.syncQueue] No pending items to sync
+[POST /api/entries] User: { hasExercises: false }
+exercises: {}
 ```
-*This means syncQueue was called but couldn't see the item that was just added*
+*This means server received empty exercises because it was looking for 'exercises' but frontend sent 'fitnessData'*
 
 **AFTER fix (working):**
 ```
-[useOfflineQueue] Added/updated item for 2026-01-21 /api/entries - ref now has 1 items
-[useOfflineQueue.syncQueue] Starting sync of 1 pending items (from ref)
-[useOfflineQueue.syncQueue] POST successful
-[useOfflineQueue.syncQueue] Sync complete: { synced: 1, failed: 0, conflicts: 0 }
+[POST /api/entries] User: { hasExercises: true, exerciseKeys: ['bicep_curls', ...] }
+exercises: { bicep_curls: 10, ... }
 ```
 
 ---
 
 ## Deployment Notes
 
-- Branch `CPB_Branch` pushed to GitHub
+- Branch `CPB_Branch` pushed to GitHub (commit ab53531)
 - Deploy to Render from CPB_Branch
-- Test with console open to verify sync is happening
+- Test with server logs open to verify exercises are being saved

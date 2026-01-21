@@ -270,6 +270,8 @@ export function useOfflineQueue() {
       updatedItems.push(newItem);
       updateQueueState(updatedItems);
 
+      const fitnessData = newItem.body?.fitnessData || {};
+      const fitnessDataKeys = Object.keys(fitnessData);
       console.log('[useOfflineQueue] Added to queue:', {
         id: newItem.id,
         method: newItem.method,
@@ -278,9 +280,13 @@ export function useOfflineQueue() {
         hasBody: !!newItem.body,
         bodyKeys: newItem.body ? Object.keys(newItem.body) : [],
         hasFitnessData: !!newItem.body?.fitnessData,
-        fitnessDataKeys: newItem.body?.fitnessData ? Object.keys(newItem.body.fitnessData) : [],
-        fitnessData: newItem.body?.fitnessData,
+        fitnessDataKeys,
+        fitnessDataIsEmpty: fitnessDataKeys.length === 0,
+        fitnessDataCount: fitnessDataKeys.length,
+        fitnessDataJSON: JSON.stringify(fitnessData),
+        fitnessDataValues: fitnessDataKeys.map(k => `${k}:${fitnessData[k]}`).join(', '),
         weight: newItem.body?.weight,
+        fullBodyJSON: JSON.stringify(newItem.body),
       });
 
       return newItem.id;
@@ -338,6 +344,8 @@ export function useOfflineQueue() {
         // Make request based on method
         const requestBody = item.body ? { date: item.date, ...item.body } : undefined;
 
+        const syncFitnessData = item.body?.fitnessData || {};
+        const syncFitnessDataKeys = Object.keys(syncFitnessData);
         console.log('[useOfflineQueue.syncQueue] Syncing item:', {
           itemId: item.id,
           method: item.method,
@@ -346,9 +354,13 @@ export function useOfflineQueue() {
           hasBody: !!item.body,
           bodyKeys: item.body ? Object.keys(item.body) : [],
           hasFitnessData: !!item.body?.fitnessData,
-          fitnessDataKeys: item.body?.fitnessData ? Object.keys(item.body.fitnessData) : [],
+          fitnessDataKeys: syncFitnessDataKeys,
+          fitnessDataIsEmpty: syncFitnessDataKeys.length === 0,
+          fitnessDataCount: syncFitnessDataKeys.length,
+          fitnessDataJSON: JSON.stringify(syncFitnessData),
+          fitnessDataValues: syncFitnessDataKeys.map(k => `${k}:${syncFitnessData[k]}`).join(', '),
           weight: item.body?.weight,
-          constructedRequestBody: requestBody,
+          constructedRequestBody: JSON.stringify(requestBody),
         });
 
         switch (item.method) {

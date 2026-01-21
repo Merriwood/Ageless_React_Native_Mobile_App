@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../theme';
 import { useAuth } from '../../hooks/useAuth';
@@ -26,6 +26,7 @@ import { historyAPI } from '../../api/history';
 export default function Dashboard() {
   const { user } = useAuth();
   const responsive = useResponsive();
+  const params = useLocalSearchParams();
   const [selectedDate, setSelectedDate] = useState(getTodayDate());
   const [weight, setWeight] = useState('');
   const [exercises, setExercises] = useState<Record<string, number>>({});
@@ -45,6 +46,18 @@ export default function Dashboard() {
 
   const { addToQueue, syncQueue, queue: offlineQueue } = useOfflineQueue();
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Handle date parameter from URL (when editing from History screen)
+  useEffect(() => {
+    if (params.date && typeof params.date === 'string') {
+      console.log('[Dashboard] Date parameter found in URL:', params.date);
+      // Parse the date string (format: YYYY-MM-DD) and set it
+      const [year, month, day] = params.date.split('-').map(Number);
+      const editDate = new Date(year, month - 1, day);
+      console.log('[Dashboard] Setting selectedDate from URL parameter:', editDate);
+      setSelectedDate(editDate);
+    }
+  }, [params.date]);
 
   // Helper to format date as YYYY-MM-DD
   const formatDateForApi = (date: Date): string => {

@@ -342,17 +342,8 @@ All core functionality is now operational.
 | 2026-01-16 | `b2128bf` | fix: Auth routing - redirect properly and fix race condition |
 | 2026-01-16 | `bcd9438` | fix: Enable logout functionality on Profile screen |
 | 2026-01-16 | `f4e2a91` | fix: Add danger variant to Button component |
-| 2026-01-16 | `4d983fc` | fix: Improve login error handling and normalize user.id |
- ### Files Changed
-- `api/tokenManager.ts` (NEW) - Token singleton for API client
-- `api/client.ts` - Token injection, removed sensitive logs
-- `api/auth.ts` - Removed sensitive console.log calls
-- `hooks/useAuth.ts` - Syncs with tokenManager, returns token from loadAuthState
-- `combined-server.mjs` - CORS whitelist, dev-only debug endpoint
-- `render.yaml` - Removed hardcoded credentials
-- `.env.local` - Converted to template
-- `app/_layout.tsx` - Fixed race condition in boot sequence
-- `app/index.tsx` - Redirects to login
+| 2026-01-16 | `4d983fc` | fix
+to login
 - `app/profile/index.tsx` - Working logout with useAuth
 - `components/ui/Button.tsx` - Added danger variant
 

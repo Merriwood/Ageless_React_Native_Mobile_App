@@ -10,7 +10,7 @@
  * - Max item limits and TTL
  */
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from './useAuth';
 import { useUI } from '../context/UIContext';
@@ -122,6 +122,16 @@ export function useOfflineQueue() {
     failedCount: 0,
     conflictCount: 0,
   });
+
+  // CRITICAL FIX: Use a ref to always have access to current queue items
+  // This prevents stale closure issues when syncQueue is called immediately after addToQueue
+  // (React's setState is async, so queueState.items would be stale in syncQueue)
+  const queueItemsRef = useRef<QueuedRequest[]>([]);
+  
+  // Keep ref in sync with state
+  useEffect(() => {
+    queueItemsRef.current = queueState.items;
+  }, [queueState.items]);
 
   // ========================================================================
   // LOAD QUEUE FROM ASYNCSTORAGE ON MOUNT
@@ -264,7 +274,16 @@ export function useOfflineQueue() {
 
       // Deduplicate: remove ANY request (pending, synced, or failed) for same date/endpoint
       // This ensures we only have the latest version of data for each date
-      // Use functional update to avoid stale closure issues
+      
+      // CRITICAL FIX: Update ref IMMEDIATELY (synchronously) so syncQueue can see the new item
+      // This is necessary because React's setState is async - queueState.items would be stale
+      const updatedItemsForRef = queueItemsRef.current.filter(
+        item => !(item.date === date && item.endpoint === endpoint)
+      );
+      updatedItemsForRef.push(newItem);
+      queueItemsRef.current = updatedItemsForRef;
+      
+      // Also update React state (async) for re-renders and persistence
       setQueueState(prev => {
         const updatedItems = prev.items.filter(
           item => !(item.date === date && item.endpoint === endpoint)
@@ -285,7 +304,7 @@ export function useOfflineQueue() {
         };
       });
 
-      console.log('[useOfflineQueue] Added/updated item for', date, endpoint);
+      console.log('[useOfflineQueue] Added/updated item for', date, endpoint, '- ref now has', queueItemsRef.current.length, 'items');
 
       const fitnessData = newItem.body?.fitnessData || {};
       const fitnessDataKeys = Object.keys(fitnessData);
@@ -333,15 +352,18 @@ export function useOfflineQueue() {
       errors: [],
     };
 
-    const pendingItems = queueState.items.filter(item => item.status === 'pending');
+    // CRITICAL FIX: Use ref instead of queueState.items to avoid stale closure
+    // When syncQueue is called immediately after addToQueue, queueState.items is stale
+    // because React's setState is async. The ref is updated synchronously.
+    const pendingItems = queueItemsRef.current.filter(item => item.status === 'pending');
 
     if (pendingItems.length === 0) {
-      console.log('[useOfflineQueue.syncQueue] No pending items to sync');
+      console.log('[useOfflineQueue.syncQueue] No pending items to sync (checked ref with', queueItemsRef.current.length, 'total items)');
       setQueueState(prev => ({ ...prev, syncInProgress: false }));
       return result;
     }
 
-    console.log('[useOfflineQueue.syncQueue] Starting sync of', pendingItems.length, 'pending items:', {
+    console.log('[useOfflineQueue.syncQueue] Starting sync of', pendingItems.length, 'pending items (from ref):', {
       itemIds: pendingItems.map(i => i.id),
       dates: pendingItems.map(i => i.date),
       endpoints: pendingItems.map(i => i.endpoint),
@@ -401,7 +423,10 @@ export function useOfflineQueue() {
             break;
         }
 
-        // Success: mark as synced
+        // Success: mark as synced - update ref synchronously
+        queueItemsRef.current = queueItemsRef.current.map(i =>
+          i.id === item.id ? { ...i, status: 'synced' as const } : i
+        );
         setQueueState(prev => ({
           ...prev,
           items: prev.items.map(i =>
@@ -510,6 +535,10 @@ export function useOfflineQueue() {
     });
 
     // Clean up: Remove successfully synced items from queue to prevent stale data
+    // CRITICAL FIX: Also update the ref synchronously
+    const cleanedItems = queueItemsRef.current.filter(item => item.status !== 'synced');
+    queueItemsRef.current = cleanedItems;
+    
     setQueueState(prev => {
       const remainingItems = prev.items.filter(item => item.status !== 'synced');
       const pendingCount = remainingItems.filter(i => i.status === 'pending').length;

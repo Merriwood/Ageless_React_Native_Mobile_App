@@ -20,7 +20,6 @@ import {
 import { theme } from '../../theme';
 import { historyAPI } from '../../api/history';
 import { entriesAPI, WorkoutEntry, Exercise } from '../../api/entries';
-import { historyAPI } from '../../api/history';
 import { EXERCISES } from '../../lib/constants/exercises';
 
 interface HistoryModalProps {

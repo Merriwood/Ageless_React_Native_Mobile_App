@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover" />
+  <title>Ageless</title>
+  
+  <!-- Status Bar Color for Web/PWA -->
+  <meta name="theme-color" content="#C5282F" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  
+  <style>
+    /* Critical CSS for status bar area - loads before JS */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #C5282F; /* Primary red - matches status bar */
+    }
+    
+    /* iOS Safari safe area handling */
+    body {
+      padding-top: env(safe-area-inset-top, 0);
+      padding-bottom: env(safe-area-inset-bottom, 0);
+      padding-left: env(safe-area-inset-left, 0);
+      padding-right: env(safe-area-inset-right, 0);
+    }
+    
+    #root {
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      background-color: #C5282F;
+    }
+    
+    /* Hide content until app loads to prevent flash */
+    body.loading #root {
+      visibility: hidden;
+    }
+  </style>
+</head>
+<body class="loading">
+  <div id="root"></div>
+  <script>
+    // Remove loading class once app starts
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(function() {
+        document.body.classList.remove('loading');
+      }, 100);
+    });
+  </script>
+</body>
+</html>

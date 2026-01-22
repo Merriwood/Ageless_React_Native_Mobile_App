@@ -111,6 +111,25 @@ export default function Dashboard() {
     setSummaryError(null);
     try {
       const weekData = await summaryAPI.get52WeekSummary();
+      console.log('[Dashboard] fetchProgressSummary received data:', {
+        count: weekData.length,
+        firstRow: weekData.length > 0 ? {
+          dateRange: weekData[0].dateRange,
+          avgWeight: weekData[0].avgWeight,
+          bike: weekData[0].bike,
+          abs: weekData[0].abs,
+          chestPress: weekData[0].chestPress,
+          legPress: weekData[0].legPress,
+          lat: weekData[0].lat,
+          military: weekData[0].military,
+          crunch: weekData[0].crunch,
+          bicepCurls: weekData[0].bicepCurls,
+          triceps: weekData[0].triceps,
+          overheadPull: weekData[0].overheadPull,
+          row: weekData[0].row,
+          totalSets: weekData[0].totalSets,
+        } : null,
+      });
       setSummaryWeekData(weekData);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to load progress data';

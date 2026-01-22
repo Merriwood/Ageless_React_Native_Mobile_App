@@ -216,6 +216,52 @@ export const summaryAPI = {
   },
 
   /**
+   * Helper: Normalize exercise name to camelCase
+   * Handles multiple formats: 'Exercise Name', 'exerciseName', 'ExerciseName', etc.
+   * @internal
+   */
+  _normalizeExerciseName(name: string): string {
+    if (!name) return '';
+    
+    // Remove leading/trailing spaces and convert to lowercase
+    let normalized = name.trim().toLowerCase();
+    
+    // Handle space-separated names: 'chest press' -> 'chestPress'
+    if (normalized.includes(' ')) {
+      normalized = normalized
+        .split(' ')
+        .map((word, idx) => idx === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1))
+        .join('');
+    }
+    
+    return normalized;
+  },
+
+  /**
+   * Helper: Get value from totals object with multiple format support
+   * Tries camelCase, lower with spaces, PascalCase, PascalCase with spaces
+   * @internal
+   */
+  _getTotalValue(totals: Record<string, number>, exerciseName: string): number {
+    // Direct lookup (exact match)
+    if (totals[exerciseName] !== undefined) {
+      return totals[exerciseName] || 0;
+    }
+
+    // Normalize and find with case-insensitive matching
+    const normalized = this._normalizeExerciseName(exerciseName);
+    
+    for (const [key, value] of Object.entries(totals)) {
+      const normalizedKey = this._normalizeExerciseName(key);
+      if (normalizedKey === normalized) {
+        return value || 0;
+      }
+    }
+
+    return 0;
+  },
+
+  /**
    * Get summaries for all 52 weeks (52-week rolling window)
    * Used by Progress Summary screen to show year-long progress
    *
@@ -230,11 +276,14 @@ export const summaryAPI = {
       interface SummaryRow { week_of_sunday: string; weight_avg: string | null; totals: Record<string, number> }
       const rows = await client.get<SummaryRow[]>('/api/summary') || [];
 
+      console.log('[Summary API] get52WeekSummary received rows:', rows);
+
       // Create a map of week data from API response
       const weekDataMap = new Map<string, any>();
       for (const row of rows) {
         const weekSunday = row.week_of_sunday;
         weekDataMap.set(weekSunday, row);
+        console.log('[Summary API] Mapped week', weekSunday, ':', row);
       }
 
       // Generate 52 weeks of data
@@ -253,26 +302,28 @@ export const summaryAPI = {
         const apiData = weekDataMap.get(sundayStr);
         const totals = apiData?.totals || {};
 
+        // Use the helper method to get values with proper case handling
         const weekData = {
           dateRange: this._formatWeekRange(weekDate),
           avgWeight: apiData?.weight_avg ? parseFloat(apiData.weight_avg) : null,
-          bike: totals['bike'] || 0,
-          abs: totals['abs'] || 0,
-          chestPress: totals['chest press'] || totals['chestPress'] || 0,
-          legPress: totals['leg press'] || totals['legPress'] || 0,
-          lat: totals['lat'] || 0,
-          military: totals['military'] || 0,
-          crunch: totals['crunch'] || 0,
-          bicepCurls: totals['bicep curls'] || totals['bicepCurls'] || 0,
-          triceps: totals['triceps'] || 0,
-          overheadPull: totals['overhead pull'] || totals['overheadPull'] || 0,
-          row: totals['row'] || 0,
+          bike: this._getTotalValue(totals, 'bike'),
+          abs: this._getTotalValue(totals, 'abs'),
+          chestPress: this._getTotalValue(totals, 'chestPress'),
+          legPress: this._getTotalValue(totals, 'legPress'),
+          lat: this._getTotalValue(totals, 'lat'),
+          military: this._getTotalValue(totals, 'military'),
+          crunch: this._getTotalValue(totals, 'crunch'),
+          bicepCurls: this._getTotalValue(totals, 'bicepCurls'),
+          triceps: this._getTotalValue(totals, 'triceps'),
+          overheadPull: this._getTotalValue(totals, 'overheadPull'),
+          row: this._getTotalValue(totals, 'row'),
           totalSets: Object.values(totals).reduce((sum: number, val: any) => sum + (Number(val) || 0), 0),
         };
 
         weeks.push(weekData);
       }
 
+      console.log('[Summary API] Generated 52 weeks data:', weeks.slice(0, 3));
       return weeks;
     } catch (error) {
       console.error('Failed to fetch 52-week summary:', error);

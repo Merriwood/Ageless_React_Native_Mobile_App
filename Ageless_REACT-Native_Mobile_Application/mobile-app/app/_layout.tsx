@@ -108,14 +108,11 @@ function RootLayoutContent() {
   }
 
   return (
-    <>
-      <StatusBar barStyle="light-content" backgroundColor={theme.colors.primary} />
-      <UIProvider>
-        <WorkoutProvider>
-          <Slot />
-        </WorkoutProvider>
-      </UIProvider>
-    </>
+    <UIProvider>
+      <WorkoutProvider>
+        <Slot />
+      </WorkoutProvider>
+    </UIProvider>
   );
 }
 
@@ -132,6 +129,7 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
+        <StatusBar barStyle="light-content" backgroundColor={theme.colors.primary} />
         <RootLayoutContent />
       </AuthProvider>
     </SafeAreaProvider>

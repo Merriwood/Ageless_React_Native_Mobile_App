@@ -126,15 +126,13 @@ function RootLayoutContent() {
  */
 export default function RootLayout() {
   return (
-    <>
+    <SafeAreaProvider>
       <StatusBar barStyle="light-content" translucent={true} />
-      <SafeAreaProvider>
-        <View style={{ backgroundColor: theme.colors.primary, flex: 1 }}>
-          <AuthProvider>
-            <RootLayoutContent />
-          </AuthProvider>
-        </View>
-      </SafeAreaProvider>
-    </>
+      <View style={{ flex: 1, backgroundColor: theme.colors.primary }}>
+        <AuthProvider>
+          <RootLayoutContent />
+        </AuthProvider>
+      </View>
+    </SafeAreaProvider>
   );
 }

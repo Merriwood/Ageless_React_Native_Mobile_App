@@ -163,11 +163,6 @@ export function ProgressSummaryScreen({
     setInternalError(null);
     try {
       const data = await summaryAPI.get52WeekSummary();
-      console.log('[ProgressSummaryScreen] loadSummaryData received data:', {
-        count: data.length,
-        firstRow: data.length > 0 ? data[0] : null,
-        secondRow: data.length > 1 ? data[1] : null,
-      });
       setFetchedData(data);
     } catch (err) {
       console.error('Failed to load summary:', err);
@@ -180,21 +175,8 @@ export function ProgressSummaryScreen({
 
   const weeksData = useMemo(() => {
     if (loading) return [];
-    if (weeks && weeks.length > 0) {
-      console.log('[ProgressSummaryScreen] Using external weeks prop:', {
-        count: weeks.length,
-        firstRow: weeks.length > 0 ? weeks[0] : null,
-      });
-      return weeks;
-    }
-    if (fetchedData.length > 0) {
-      console.log('[ProgressSummaryScreen] Using fetchedData:', {
-        count: fetchedData.length,
-        firstRow: fetchedData.length > 0 ? fetchedData[0] : null,
-      });
-      return fetchedData;
-    }
-    console.log('[ProgressSummaryScreen] Using placeholder data');
+    if (weeks && weeks.length > 0) return weeks;
+    if (fetchedData.length > 0) return fetchedData;
     return generatePlaceholderData();
   }, [weeks, fetchedData, loading]);
 

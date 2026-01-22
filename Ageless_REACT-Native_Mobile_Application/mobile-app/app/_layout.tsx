@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Slot, useRouter, useSegments } from "expo-router";
-import { ActivityIndicator, View } from "react-native";
-import { StatusBar } from "expo-status-bar";
+import { ActivityIndicator, View, StatusBar } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import { validateToken } from "../api/auth";
@@ -126,10 +125,17 @@ function RootLayoutContent() {
  * 3. RootLayoutContent (route protection, other providers)
  */
 export default function RootLayout() {
+  useEffect(() => {
+    // Set status bar styling on native platforms
+    StatusBar.setBarStyle('light-content', true);
+    if (StatusBar.setBackgroundColor) {
+      StatusBar.setBackgroundColor(theme.colors.primary);
+    }
+  }, []);
+
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <StatusBar barStyle="light-content" backgroundColor={theme.colors.primary} />
         <RootLayoutContent />
       </AuthProvider>
     </SafeAreaProvider>

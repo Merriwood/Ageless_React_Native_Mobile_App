@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Slot, useRouter, useSegments } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import { validateToken } from "../api/auth";
@@ -107,11 +108,14 @@ function RootLayoutContent() {
   }
 
   return (
-    <UIProvider>
-      <WorkoutProvider>
-        <Slot />
-      </WorkoutProvider>
-    </UIProvider>
+    <>
+      <StatusBar barStyle="light-content" backgroundColor={theme.colors.primary} />
+      <UIProvider>
+        <WorkoutProvider>
+          <Slot />
+        </WorkoutProvider>
+      </UIProvider>
+    </>
   );
 }
 

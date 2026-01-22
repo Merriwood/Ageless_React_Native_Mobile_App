@@ -99,6 +99,144 @@ app.get('/api/me', requireAuth, async (req, res) => {
   }
 });
 
+// ---- Entries (GET all, GET by date, POST, DELETE)
+app.get("/api/entries", requireAuth, async (req, res) => {
+  try {
+    const result = await query(
+      "SELECT id, user_id, entry_date, weight, fitness_data, created_at, updated_at FROM entries WHERE user_id=$1 ORDER BY entry_date DESC",
+      [req.user.sub]
+    );
+    const entries = result.rows.map(row => ({
+      id: String(row.id),
+      userId: String(row.user_id),
+      date: row.entry_date,
+      exercises: row.fitness_data || {},
+      weight: row.weight,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    }));
+    res.json({ entries, total: result.rows.length, hasMore: false });
+  } catch (err) {
+    console.error('[GET /api/entries] Error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get("/api/entries/:date", requireAuth, async (req, res) => {
+  try {
+    const { date } = req.params;
+    const result = await query(
+      "SELECT id, user_id, entry_date, weight, fitness_data, created_at, updated_at FROM entries WHERE user_id=$1 AND entry_date=$2",
+      [req.user.sub, date]
+    );
+    if (result.rows.length === 0) {
+      return res.json(null);
+    }
+    const row = result.rows[0];
+    const entry = {
+      id: String(row.id),
+      userId: String(row.user_id),
+      date: row.entry_date,
+      exercises: row.fitness_data || {},
+      weight: row.weight,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    };
+    res.json(entry);
+  } catch (err) {
+    console.error('[GET /api/entries/:date] Error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/entries", requireAuth, async (req, res) => {
+  try {
+    const { date, weight, fitnessData } = req.body || {};
+    if (!date || !fitnessData) {
+      return res.status(400).json({ error: "date and fitnessData required" });
+    }
+    const fitnessDataForDB = typeof fitnessData === 'string' ? fitnessData : JSON.stringify(fitnessData);
+    const result = await query(
+      `INSERT INTO entries(user_id, entry_date, weight, fitness_data)
+       VALUES ($1,$2,$3,$4::jsonb)
+       ON CONFLICT (user_id, entry_date)
+       DO UPDATE SET weight=EXCLUDED.weight, fitness_data=EXCLUDED.fitness_data, updated_at=NOW()
+       RETURNING id, user_id, entry_date, weight, fitness_data, created_at, updated_at`,
+      [req.user.sub, date, weight ?? null, fitnessDataForDB]
+    );
+    const row = result.rows[0];
+    const entry = {
+      id: String(row.id),
+      userId: String(row.user_id),
+      date: row.entry_date,
+      exercises: row.fitness_data || {},
+      weight: row.weight,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    };
+    res.json(entry);
+  } catch (err) {
+    console.error('[POST /api/entries] Error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete("/api/entries/:date", requireAuth, async (req, res) => {
+  try {
+    const { date } = req.params;
+    await query(
+      "DELETE FROM entries WHERE user_id=$1 AND entry_date=$2",
+      [req.user.sub, date]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[DELETE /api/entries/:date] Error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ---- Summary (52-week weekly totals grouped by Sunday)
+app.get("/api/summary", requireAuth, async (req, res) => {
+  try {
+    const { rows } = await query(
+      `with base as (
+          select (entry_date - extract(dow from entry_date)::int * interval '1 day')::date as week_of_sunday,
+                 weight,
+                 fitness_data
+          from entries
+          where user_id = $1
+        ), weight_agg as (
+          select week_of_sunday, avg(weight)::numeric(6,2) as weight_avg
+          from base
+          group by week_of_sunday
+        ), per_key as (
+          select (e.entry_date - extract(dow from e.entry_date)::int * interval '1 day')::date as week_of_sunday,
+                 k.key,
+                 sum((k.value)::int) as sum_val
+          from entries e
+          cross join lateral jsonb_each_text(e.fitness_data) as k(key, value)
+          where e.user_id = $1
+          group by 1, k.key
+        ), totals as (
+          select week_of_sunday, jsonb_object_agg(key, sum_val) as totals
+          from per_key
+          group by week_of_sunday
+        )
+        select w.week_of_sunday,
+               w.weight_avg,
+               coalesce(t.totals, '{}'::jsonb) as totals
+        from weight_agg w
+        left join totals t using (week_of_sunday)
+        order by w.week_of_sunday desc;`,
+      [req.user.sub]
+    );
+    res.json(rows);
+  } catch (error) {
+    console.error("Summary endpoint error:", error);
+    res.status(500).json({ error: "Failed to fetch summary data: " + error.message });
+  }
+});
+
 // ============ STATIC FILES (React Web App) ============
 
 const distPath = path.join(__dirname, 'dist');

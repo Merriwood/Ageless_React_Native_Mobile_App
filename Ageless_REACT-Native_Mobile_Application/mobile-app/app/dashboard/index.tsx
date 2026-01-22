@@ -483,7 +483,7 @@ export default function Dashboard() {
     },
     progressFill: {
       height: '100%',
-      backgroundColor: '#F59E0B',             // YELLOW/GOLD progress fill
+      backgroundColor: theme.colors.primary,  // Red progress fill (#C5282F)
     },
 
     // Weight Input Card - PWA Style
@@ -674,6 +674,7 @@ export default function Dashboard() {
                     styles.progressFill,
                     {
                       width: `${progress.percentage}%`,
+                      backgroundColor: theme.colors.primary,
                     },
                   ]}
                 />

@@ -125,19 +125,16 @@ function RootLayoutContent() {
  * 3. RootLayoutContent (route protection, other providers)
  */
 export default function RootLayout() {
-  useEffect(() => {
-    // Set status bar styling on native platforms
-    StatusBar.setBarStyle('light-content', true);
-    if (StatusBar.setBackgroundColor) {
-      StatusBar.setBackgroundColor(theme.colors.primary);
-    }
-  }, []);
-
   return (
-    <SafeAreaProvider>
-      <AuthProvider>
-        <RootLayoutContent />
-      </AuthProvider>
-    </SafeAreaProvider>
+    <>
+      <StatusBar barStyle="light-content" translucent={true} />
+      <SafeAreaProvider>
+        <View style={{ backgroundColor: theme.colors.primary, flex: 1 }}>
+          <AuthProvider>
+            <RootLayoutContent />
+          </AuthProvider>
+        </View>
+      </SafeAreaProvider>
+    </>
   );
 }

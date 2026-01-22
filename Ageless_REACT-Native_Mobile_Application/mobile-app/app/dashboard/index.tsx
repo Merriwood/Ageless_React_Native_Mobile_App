@@ -403,7 +403,7 @@ export default function Dashboard() {
   const styles = StyleSheet.create({
     safeArea: {
       flex: 1,
-      backgroundColor: theme.colors.background,
+      backgroundColor: theme.colors.background,  // Gray for content area
     },
     header: {
       position: 'absolute',  // Fixed positioning (Web PWA: fixed top-0)
@@ -629,25 +629,27 @@ export default function Dashboard() {
   });
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <Stack.Screen options={{ headerShown: false }} />
+    <View style={{ flex: 1, backgroundColor: theme.colors.primary }}>
+      {/* Status Bar Background - Red extends behind status bar */}
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <Stack.Screen options={{ headerShown: false }} />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Ageless.</Text>
-        <TouchableOpacity
-          onPress={() => setMyAbsDrawerVisible(true)}
-          style={styles.headerMenuButton}
-        >
-          <Ionicons
-            name="menu"
-            size={24}
-            color="#FFFFFF"
-          />
-        </TouchableOpacity>
-      </View>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Ageless.</Text>
+          <TouchableOpacity
+            onPress={() => setMyAbsDrawerVisible(true)}
+            style={styles.headerMenuButton}
+          >
+            <Ionicons
+              name="menu"
+              size={24}
+              color="#FFFFFF"
+            />
+          </TouchableOpacity>
+        </View>
 
-      {/* Content */}
+        {/* Content */}
       <ScrollView style={styles.scrollView}>
         {loading ? (
           <View style={styles.loadingContainer}>
@@ -748,6 +750,7 @@ export default function Dashboard() {
           setWeight(value);
         }}
       />
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }

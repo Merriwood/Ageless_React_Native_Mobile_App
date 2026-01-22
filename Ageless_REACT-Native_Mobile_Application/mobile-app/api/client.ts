@@ -21,7 +21,7 @@ const getApiBaseUrl = (): string => {
   }
 
   // Production default (Render) - use for both web and native
-  return 'https://locali-corp.onrender.com';
+  return 'https://ageless-api.render.com';
 };
 
 const API_BASE_URL = getApiBaseUrl();

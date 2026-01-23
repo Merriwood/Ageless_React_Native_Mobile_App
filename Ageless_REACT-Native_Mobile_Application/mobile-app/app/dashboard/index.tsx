@@ -129,6 +129,7 @@ export default function Dashboard() {
       const dateStr = formatDateForApi(selectedDate);
       let currentWeight = '';
       let currentExercises: Record<string, number> = {};
+      let loadedFromAsyncStorage = false; // Track data source
 
       console.log('[Dashboard] loadWorkoutForDate - Fetching for date:', dateStr);
 
@@ -171,6 +172,8 @@ export default function Dashboard() {
             const savedWeight = await AsyncStorage.getItem(`weight_${user.id}`);
             if (savedWeight) {
               currentWeight = savedWeight;
+              loadedFromAsyncStorage = true;
+              console.log('[Dashboard] Found weight in AsyncStorage, will sync to server:', { dateStr, weight: currentWeight });
             }
           } catch (e) {
             console.error('Weight load error:', e);
@@ -181,12 +184,18 @@ export default function Dashboard() {
       console.log('[Dashboard] Setting state with:', {
         weight: currentWeight,
         exerciseCount: Object.keys(currentExercises).length,
-        exercises: currentExercises
+        exercises: currentExercises,
+        loadedFromAsyncStorage
       });
 
-      // Important: Reset the user-initiated flag BEFORE setting server state
-      // This prevents the save debounce from triggering on server-loaded data
-      isUserInitiatedChange.current = false;
+      // Only reset the user-initiated flag if we loaded from server or offline queue
+      // If we loaded from AsyncStorage, keep the flag true so auto-save will sync it
+      if (!loadedFromAsyncStorage) {
+        isUserInitiatedChange.current = false;
+      } else {
+        console.log('[Dashboard] Loaded from AsyncStorage - keeping isUserInitiatedChange=true to trigger sync');
+        isUserInitiatedChange.current = true;
+      }
 
       setWeight(currentWeight);
       setExercises(currentExercises);
@@ -196,7 +205,21 @@ export default function Dashboard() {
         weight: currentWeight ? parseFloat(currentWeight) : null,
         fitnessData: currentExercises,
       };
-      setLastPayload(JSON.stringify(initialPayload));
+
+      // If loaded from AsyncStorage, set lastPayload to NOT include weight
+      // This forces saveData() to see the weight as a "change" and sync it
+      // If loaded from server/offline, set lastPayload to the actual data to avoid re-saving
+      if (loadedFromAsyncStorage && currentWeight) {
+        const forcedLastPayload = {
+          date: dateStr,
+          weight: null, // Force weight to be seen as changed
+          fitnessData: currentExercises,
+        };
+        setLastPayload(JSON.stringify(forcedLastPayload));
+        console.log('[Dashboard] Set lastPayload to force weight sync on debounce');
+      } else {
+        setLastPayload(JSON.stringify(initialPayload));
+      }
 
       console.log(`[Dashboard] loadWorkoutForDate END - took ${Date.now() - loadStartTime}ms`);
     } catch (error) {

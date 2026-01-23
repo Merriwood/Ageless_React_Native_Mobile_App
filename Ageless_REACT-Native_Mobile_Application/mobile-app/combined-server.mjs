@@ -571,10 +571,27 @@ app.get('/api/summary', requireAuth, async (req, res) => {
 console.log('[startup] ✓ GET /api/summary');
 
 console.log('[startup] All API routes registered!');
+console.log('[startup] Summary:');
+console.log('[startup]   - Auth: register, login, mobile/login, change-password, forgot-password, /me');
+console.log('[startup]   - Entries: GET (all), GET (by date), POST (create/update), DELETE (by date)');
+console.log('[startup]   - Summary: GET (weekly summary)');
+console.log('[startup]   - Debug: health, entries-count, entries-by-user, whoami, users, test-login, reset-password');
 
 // ============ STATIC FILES (React Web App) ============
 
 const distPath = path.join(__dirname, 'dist');
+
+// Check if dist folder exists
+try {
+  const distExists = fs.existsSync(distPath);
+  console.log(`[startup] dist/ folder: ${distExists ? 'EXISTS ✓' : 'MISSING ✗'}`);
+  if (distExists) {
+    const files = fs.readdirSync(distPath);
+    console.log(`[startup] dist/ contains ${files.length} files (first 5: ${files.slice(0, 5).join(', ')})`);
+  }
+} catch (e) {
+  console.warn('[startup] Could not check dist/ folder:', e.message);
+}
 
 // Serve static files
 app.use(express.static(distPath));
@@ -582,9 +599,22 @@ app.use(express.static(distPath));
 // SPA fallback - route all non-API requests to index.html
 app.get('*', (req, res) => {
   if (req.path.startsWith('/api/')) {
-    return res.status(404).json({ error: 'API endpoint not found' });
+    console.warn(`[404] Unmatched API route: ${req.method} ${req.path} from ${req.ip}`);
+    return res.status(404).json({
+      error: 'API endpoint not found',
+      path: req.path,
+      method: req.method,
+      timestamp: new Date().toISOString()
+    });
   }
-  res.sendFile(path.join(distPath, 'index.html'));
+
+  const indexPath = path.join(distPath, 'index.html');
+  try {
+    res.sendFile(indexPath);
+  } catch (err) {
+    console.error(`[ERROR] Failed to serve index.html from ${indexPath}:`, err.message);
+    res.status(500).json({ error: 'Failed to serve application' });
+  }
 });
 
 // ============ START SERVER ============

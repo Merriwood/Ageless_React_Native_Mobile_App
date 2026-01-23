@@ -5,50 +5,139 @@
   <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover" />
   <title>Ageless</title>
-  
-  <!-- Status Bar Color for Web/PWA -->
+
+  <!-- ============ Status Bar & Theme Colors (Web/PWA) ============ -->
+  <!-- Chrome (Android) -->
   <meta name="theme-color" content="#C5282F" />
+  <!-- Edge (Windows) -->
+  <meta name="msapplication-TileColor" content="#C5282F" />
+  <!-- Apple iOS/Safari -->
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  
+  <meta name="apple-mobile-web-app-title" content="Ageless" />
+
+  <!-- ============ PWA Manifest ============ -->
+  <link rel="manifest" href="./manifest.json" />
+
+  <!-- ============ Icons & Favicons ============ -->
+  <link rel="shortcut icon" href="./favicon.ico" />
+  <link rel="apple-touch-icon" href="./assets/icon.png" />
+
+  <!-- ============ Critical Styling (loads before JS) ============ -->
   <style>
-    /* Critical CSS for status bar area - loads before JS */
-    html, body {
+    /* Reset browser defaults and set brand color */
+    * {
       margin: 0;
       padding: 0;
-      height: 100%;
-      background-color: #C5282F; /* Primary red - matches status bar */
+      box-sizing: border-box;
     }
-    
-    /* iOS Safari safe area handling */
+
+    html {
+      width: 100%;
+      height: 100%;
+      background-color: #C5282F; /* Ageless brand red */
+    }
+
     body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: #C5282F; /* Ensures no white flash */
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+
+      /* iOS Safari: Account for notch/safe areas */
       padding-top: env(safe-area-inset-top, 0);
       padding-bottom: env(safe-area-inset-bottom, 0);
       padding-left: env(safe-area-inset-left, 0);
       padding-right: env(safe-area-inset-right, 0);
     }
-    
+
+    /* React root container */
     #root {
       display: flex;
       flex-direction: column;
-      min-height: 100%;
+      width: 100%;
+      height: 100%;
+      min-height: 100vh;
       background-color: #C5282F;
+      overflow: hidden;
     }
-    
-    /* Hide content until app loads to prevent flash */
+
+    /* Prevent layout shift during app load */
+    body.loading {
+      overflow: hidden;
+    }
+
     body.loading #root {
       visibility: hidden;
+      opacity: 0;
+    }
+
+    /* Fade in when app ready */
+    body:not(.loading) #root {
+      animation: fadeIn 200ms ease-in-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* Prevent text selection on interactive elements */
+    button, input, textarea, select {
+      -webkit-user-select: text;
+      user-select: text;
     }
   </style>
 </head>
 <body class="loading">
   <div id="root"></div>
+
   <script>
-    // Remove loading class once app starts
+    /**
+     * Status Bar Color Enhancement for Web/PWA
+     * Ensures brand color is set in browser UI and status bar
+     */
+    function setStatusBarColor() {
+      const brandRed = '#C5282F';
+
+      // Try to set via meta tag (Chrome on Android)
+      let themeColorMeta = document.querySelector('meta[name="theme-color"]');
+      if (!themeColorMeta) {
+        themeColorMeta = document.createElement('meta');
+        themeColorMeta.name = 'theme-color';
+        document.head.appendChild(themeColorMeta);
+      }
+      themeColorMeta.content = brandRed;
+
+      // Ensure body/html background is set
+      document.documentElement.style.backgroundColor = brandRed;
+      document.body.style.backgroundColor = brandRed;
+    }
+
+    // Set color immediately on script load
+    setStatusBarColor();
+
+    // Remove loading overlay once app initializes
     document.addEventListener('DOMContentLoaded', function() {
       setTimeout(function() {
         document.body.classList.remove('loading');
       }, 100);
+    });
+
+    // Re-apply color on app resume (especially for PWA)
+    document.addEventListener('visibilitychange', function() {
+      if (document.visibilityState === 'visible') {
+        setStatusBarColor();
+      }
     });
   </script>
 </body>

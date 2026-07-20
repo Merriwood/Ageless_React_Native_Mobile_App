@@ -8,9 +8,9 @@
 
   <!-- ============ Status Bar & Theme Colors (Web/PWA) ============ -->
   <!-- Chrome (Android) -->
-  <meta name="theme-color" content="#C5282F" />
+  <meta name="theme-color" content="#0B0B0D" />
   <!-- Edge (Windows) -->
-  <meta name="msapplication-TileColor" content="#C5282F" />
+  <meta name="msapplication-TileColor" content="#0B0B0D" />
   <!-- Apple iOS/Safari -->
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -35,7 +35,7 @@
     html {
       width: 100%;
       height: 100%;
-      background-color: #C5282F; /* Ageless brand red */
+      background-color: #0B0B0D; /* Obsidian - .925 palette */
     }
 
     body {
@@ -43,7 +43,7 @@
       height: 100%;
       margin: 0;
       padding: 0;
-      background-color: #C5282F; /* Ensures no white flash */
+      background-color: #0B0B0D; /* Ensures no flash on load */
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       -webkit-user-select: none;
       user-select: none;
@@ -58,7 +58,7 @@
       width: 100%;
       height: 100%;
       min-height: 100vh;
-      background-color: #C5282F;
+      background-color: #0B0B0D;
       overflow: hidden;
     }
 
@@ -102,7 +102,7 @@
      * Ensures brand color is set in browser UI and status bar
      */
     function setStatusBarColor() {
-      const brandRed = '#C5282F';
+      const brandColor = '#0B0B0D';
 
       // Try to set via meta tag (Chrome on Android)
       let themeColorMeta = document.querySelector('meta[name="theme-color"]');
@@ -111,11 +111,11 @@
         themeColorMeta.name = 'theme-color';
         document.head.appendChild(themeColorMeta);
       }
-      themeColorMeta.content = brandRed;
+      themeColorMeta.content = brandColor;
 
       // Ensure body/html background is set
-      document.documentElement.style.backgroundColor = brandRed;
-      document.body.style.backgroundColor = brandRed;
+      document.documentElement.style.backgroundColor = brandColor;
+      document.body.style.backgroundColor = brandColor;
     }
 
     // Set color immediately on script load

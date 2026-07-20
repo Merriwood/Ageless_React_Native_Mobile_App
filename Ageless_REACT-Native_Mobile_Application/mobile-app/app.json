@@ -5,19 +5,19 @@
     "version": "1.0.0",
     "orientation": "default",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#0B0B0D"
     },
     "ios": {
       "supportsTablet": true,
       "orientationLock": "default",
       "bundleIdentifier": "com.ageless.mobile",
       "statusBar": {
-        "backgroundColor": "#C5282F"
+        "backgroundColor": "#0B0B0D"
       },
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
@@ -27,20 +27,20 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#0B0B0D"
       },
       "edgeToEdgeEnabled": true,
       "screenOrientation": "default",
       "statusBar": {
-        "backgroundColor": "#C5282F"
+        "backgroundColor": "#0B0B0D"
       }
     },
     "web": {
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/icon.png",
-      "backgroundColor": "#C5282F",
-      "themeColor": "#C5282F"
+      "backgroundColor": "#0B0B0D",
+      "themeColor": "#0B0B0D"
     },
     "plugins": [
       "expo-router",

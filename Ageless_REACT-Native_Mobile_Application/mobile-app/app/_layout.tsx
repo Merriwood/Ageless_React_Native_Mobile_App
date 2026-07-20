@@ -127,15 +127,15 @@ function RootLayoutContent() {
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      {/* StatusBar only renders on native platforms (iOS/Android) */}
+      {/* StatusBar: Obsidian background, white system icons (battery/time/wifi) */}
       {Platform.OS !== 'web' && (
         <StatusBar
           barStyle="light-content"
-          backgroundColor={theme.colors.primary}
+          backgroundColor={theme.colors.background}
           translucent={true}
         />
       )}
-      <View style={{ flex: 1, backgroundColor: theme.colors.primary }}>
+      <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
         <AuthProvider>
           <RootLayoutContent />
         </AuthProvider>

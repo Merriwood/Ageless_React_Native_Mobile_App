@@ -213,7 +213,7 @@ export function ChangePasswordModal({
               disabled={isLoading}
             >
               {isLoading ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
+                <ActivityIndicator size="small" color={theme.colors.text.onPrimary} />
               ) : (
                 <Text style={styles.submitButtonText}>Change Password</Text>
               )}
@@ -334,7 +334,7 @@ const styles = StyleSheet.create({
   submitButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: theme.colors.text.onPrimary,
   },
   buttonDisabled: {
     opacity: 0.6,

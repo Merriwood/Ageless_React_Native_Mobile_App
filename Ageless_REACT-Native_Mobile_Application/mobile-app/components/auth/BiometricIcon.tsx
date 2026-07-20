@@ -218,7 +218,7 @@ export function BiometricIcon({
     }
   }, [isScanning, scaleAnim, opacityAnim, pulseAnim]);
 
-  const iconColor = disabled ? theme.colors.text.secondary : theme.colors.primary;
+  const iconColor = disabled ? theme.colors.text.secondary : theme.colors.accent;
 
   const content = (
     <View style={[styles.container, { width: size, height: size }]}>
@@ -266,12 +266,12 @@ const styles = StyleSheet.create({
   iconContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.surfaceAlt,
     zIndex: 2,
     // Shadow for iOS
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 6,
     // Shadow for Android
     elevation: 3,

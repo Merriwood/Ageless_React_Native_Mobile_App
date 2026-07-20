@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
   modalContainer: {
     width: '94%',
     maxHeight: '90%',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.background,
     borderRadius: theme.radius.lg,
     overflow: 'hidden',
   },
@@ -471,7 +471,7 @@ const styles = StyleSheet.create({
   expandedContent: {
     padding: 16,
     paddingTop: 0,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: theme.colors.surfaceAlt,
     borderTopWidth: 1,
     borderTopColor: theme.colors.border.light,
   },
@@ -506,7 +506,7 @@ const styles = StyleSheet.create({
   exerciseSets: {
     fontSize: 13,
     fontWeight: '700',
-    color: theme.colors.primary,
+    color: theme.colors.accent,
   },
   skippedTitle: {
     fontSize: 14,
@@ -554,7 +554,7 @@ const styles = StyleSheet.create({
   deleteButton: {
     paddingVertical: 10,
     paddingHorizontal: 20,
-    backgroundColor: '#fee2e2',
+    backgroundColor: `${theme.colors.status.error}20`,
     borderRadius: theme.radius.md,
     alignItems: 'center',
   },
@@ -564,7 +564,7 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#dc2626',
+    color: theme.colors.status.error,
   },
 
   // Loading State

@@ -115,7 +115,7 @@ export default function RegisterScreen() {
           <Text
             style={{
               ...theme.typography.h1,
-              color: theme.colors.primary,
+              color: theme.colors.text.primary,
               marginBottom: theme.spacing.sm,
             }}
           >
@@ -124,10 +124,10 @@ export default function RegisterScreen() {
           <Text
             style={{
               ...theme.typography.body,
-              color: theme.colors.textSecondary,
+              color: theme.colors.text.secondary,
             }}
           >
-            Join Ageless Fitness
+            Join .925 Fitness
           </Text>
         </View>
 
@@ -136,7 +136,7 @@ export default function RegisterScreen() {
           <Text
             style={{
               ...theme.typography.body,
-              color: theme.colors.text,
+              color: theme.colors.text.primary,
               marginBottom: theme.spacing.sm,
               fontWeight: "600",
             }}
@@ -147,16 +147,16 @@ export default function RegisterScreen() {
             testID="register-email-input"
             style={{
               borderWidth: 1,
-              borderColor: error ? theme.colors.error : theme.colors.border,
+              borderColor: error ? theme.colors.status.error : theme.colors.border.light,
               borderRadius: theme.radius.md,
               paddingHorizontal: theme.spacing.md,
               paddingVertical: theme.spacing.md,
               ...theme.typography.body,
-              color: theme.colors.text,
+              color: theme.colors.text.primary,
               backgroundColor: theme.colors.surface,
             }}
             placeholder="your.email@example.com"
-            placeholderTextColor={theme.colors.textSecondary}
+            placeholderTextColor={theme.colors.text.secondary}
             keyboardType="email-address"
             autoCapitalize="none"
             editable={!isLoading}
@@ -178,7 +178,7 @@ export default function RegisterScreen() {
             <Text
               style={{
                 ...theme.typography.body,
-                color: theme.colors.text,
+                color: theme.colors.text.primary,
                 fontWeight: "600",
               }}
             >
@@ -191,10 +191,10 @@ export default function RegisterScreen() {
                   fontSize: 12,
                   color:
                     passwordStrength === "Strong"
-                      ? theme.colors.success
+                      ? theme.colors.status.success
                       : passwordStrength === "Good"
-                      ? theme.colors.warning
-                      : theme.colors.error,
+                      ? theme.colors.status.warning
+                      : theme.colors.status.error,
                   fontWeight: "600",
                 }}
               >
@@ -207,7 +207,7 @@ export default function RegisterScreen() {
               flexDirection: "row",
               alignItems: "center",
               borderWidth: 1,
-              borderColor: error ? theme.colors.error : theme.colors.border,
+              borderColor: error ? theme.colors.status.error : theme.colors.border.light,
               borderRadius: theme.radius.md,
               backgroundColor: theme.colors.surface,
               paddingHorizontal: theme.spacing.md,
@@ -219,10 +219,10 @@ export default function RegisterScreen() {
                 flex: 1,
                 paddingVertical: theme.spacing.md,
                 ...theme.typography.body,
-                color: theme.colors.text,
+                color: theme.colors.text.primary,
               }}
               placeholder="Enter a strong password"
-              placeholderTextColor={theme.colors.textSecondary}
+              placeholderTextColor={theme.colors.text.secondary}
               secureTextEntry={!showPassword}
               editable={!isLoading}
               value={password}
@@ -235,7 +235,7 @@ export default function RegisterScreen() {
               <Ionicons
                 name={showPassword ? "eye-off" : "eye"}
                 size={20}
-                color={theme.colors.textSecondary}
+                color={theme.colors.text.secondary}
               />
             </Pressable>
           </View>
@@ -246,7 +246,7 @@ export default function RegisterScreen() {
           <Text
             style={{
               ...theme.typography.body,
-              color: theme.colors.text,
+              color: theme.colors.text.primary,
               marginBottom: theme.spacing.sm,
               fontWeight: "600",
             }}
@@ -258,7 +258,7 @@ export default function RegisterScreen() {
               flexDirection: "row",
               alignItems: "center",
               borderWidth: 1,
-              borderColor: error ? theme.colors.error : theme.colors.border,
+              borderColor: error ? theme.colors.status.error : theme.colors.border.light,
               borderRadius: theme.radius.md,
               backgroundColor: theme.colors.surface,
               paddingHorizontal: theme.spacing.md,
@@ -269,10 +269,10 @@ export default function RegisterScreen() {
                 flex: 1,
                 paddingVertical: theme.spacing.md,
                 ...theme.typography.body,
-                color: theme.colors.text,
+                color: theme.colors.text.primary,
               }}
               placeholder="Confirm your password"
-              placeholderTextColor={theme.colors.textSecondary}
+              placeholderTextColor={theme.colors.text.secondary}
               secureTextEntry={!showConfirm}
               editable={!isLoading}
               value={confirmPassword}
@@ -285,7 +285,7 @@ export default function RegisterScreen() {
               <Ionicons
                 name={showConfirm ? "eye-off" : "eye"}
                 size={20}
-                color={theme.colors.textSecondary}
+                color={theme.colors.text.secondary}
               />
             </Pressable>
           </View>
@@ -296,7 +296,7 @@ export default function RegisterScreen() {
           <Text
             style={{
               ...theme.typography.body,
-              color: theme.colors.text,
+              color: theme.colors.text.primary,
               marginBottom: theme.spacing.sm,
               fontWeight: "600",
             }}
@@ -306,16 +306,16 @@ export default function RegisterScreen() {
           <TextInput
             style={{
               borderWidth: 1,
-              borderColor: theme.colors.border,
+              borderColor: theme.colors.border.light,
               borderRadius: theme.radius.md,
               paddingHorizontal: theme.spacing.md,
               paddingVertical: theme.spacing.md,
               ...theme.typography.body,
-              color: theme.colors.text,
+              color: theme.colors.text.primary,
               backgroundColor: theme.colors.surface,
             }}
             placeholder="e.g., Build strength, Lose weight"
-            placeholderTextColor={theme.colors.textSecondary}
+            placeholderTextColor={theme.colors.text.secondary}
             editable={!isLoading}
             value={goal}
             onChangeText={setGoal}
@@ -327,7 +327,7 @@ export default function RegisterScreen() {
           <Text
             style={{
               ...theme.typography.body,
-              color: theme.colors.text,
+              color: theme.colors.text.primary,
               marginBottom: theme.spacing.md,
               fontWeight: "600",
             }}
@@ -346,9 +346,9 @@ export default function RegisterScreen() {
               <Ionicons
                 name={goal === "mind" ? "checkbox" : "checkbox-outline"}
                 size={20}
-                color={theme.colors.primary}
+                color={theme.colors.accent}
               />
-              <Text style={{ marginLeft: theme.spacing.md, color: theme.colors.text }}>
+              <Text style={{ marginLeft: theme.spacing.md, color: theme.colors.text.primary }}>
                 Mind
               </Text>
             </TouchableOpacity>
@@ -364,9 +364,9 @@ export default function RegisterScreen() {
               <Ionicons
                 name={goal === "body" ? "checkbox" : "checkbox-outline"}
                 size={20}
-                color={theme.colors.primary}
+                color={theme.colors.accent}
               />
-              <Text style={{ marginLeft: theme.spacing.md, color: theme.colors.text }}>
+              <Text style={{ marginLeft: theme.spacing.md, color: theme.colors.text.primary }}>
                 Body
               </Text>
             </TouchableOpacity>
@@ -382,9 +382,9 @@ export default function RegisterScreen() {
               <Ionicons
                 name={goal === "heart" ? "checkbox" : "checkbox-outline"}
                 size={20}
-                color={theme.colors.primary}
+                color={theme.colors.accent}
               />
-              <Text style={{ marginLeft: theme.spacing.md, color: theme.colors.text }}>
+              <Text style={{ marginLeft: theme.spacing.md, color: theme.colors.text.primary }}>
                 Heart
               </Text>
             </TouchableOpacity>
@@ -400,9 +400,9 @@ export default function RegisterScreen() {
               <Ionicons
                 name={goal === "nutrition" ? "checkbox" : "checkbox-outline"}
                 size={20}
-                color={theme.colors.primary}
+                color={theme.colors.accent}
               />
-              <Text style={{ marginLeft: theme.spacing.md, color: theme.colors.text }}>
+              <Text style={{ marginLeft: theme.spacing.md, color: theme.colors.text.primary }}>
                 Nutrition
               </Text>
             </TouchableOpacity>
@@ -418,9 +418,9 @@ export default function RegisterScreen() {
               <Ionicons
                 name={goal === "other" ? "checkbox" : "checkbox-outline"}
                 size={20}
-                color={theme.colors.primary}
+                color={theme.colors.accent}
               />
-              <Text style={{ marginLeft: theme.spacing.md, color: theme.colors.text }}>
+              <Text style={{ marginLeft: theme.spacing.md, color: theme.colors.text.primary }}>
                 Other
               </Text>
             </TouchableOpacity>
@@ -431,9 +431,9 @@ export default function RegisterScreen() {
         {error && (
           <View
             style={{
-              backgroundColor: `${theme.colors.error}20`,
+              backgroundColor: `${theme.colors.status.error}20`,
               borderLeftWidth: 4,
-              borderLeftColor: theme.colors.error,
+              borderLeftColor: theme.colors.status.error,
               padding: theme.spacing.md,
               marginBottom: theme.spacing.lg,
               borderRadius: theme.radius.sm,
@@ -441,7 +441,7 @@ export default function RegisterScreen() {
           >
             <Text
               style={{
-                color: theme.colors.error,
+                color: theme.colors.status.error,
                 ...theme.typography.body,
               }}
             >
@@ -456,7 +456,7 @@ export default function RegisterScreen() {
           onPress={handleRegister}
           disabled={isLoading}
           style={{
-            backgroundColor: isLoading ? theme.colors.border : theme.colors.primary,
+            backgroundColor: isLoading ? theme.colors.border.light : theme.colors.primary,
             paddingVertical: theme.spacing.base,
             borderRadius: theme.radius.button,
             alignItems: "center",
@@ -466,11 +466,11 @@ export default function RegisterScreen() {
           }}
         >
           {isLoading ? (
-            <ActivityIndicator color={theme.colors.surface} size="small" />
+            <ActivityIndicator color={theme.colors.text.onPrimary} size="small" />
           ) : (
             <Text
               style={{
-                color: theme.colors.surface,
+                color: theme.colors.text.onPrimary,
                 ...theme.typography.button,
                 fontWeight: "600",
               }}
@@ -490,7 +490,7 @@ export default function RegisterScreen() {
         >
           <Text
             style={{
-              color: theme.colors.textSecondary,
+              color: theme.colors.text.secondary,
               ...theme.typography.body,
             }}
           >
@@ -499,7 +499,7 @@ export default function RegisterScreen() {
           <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
             <Text
               style={{
-                color: theme.colors.primary,
+                color: theme.colors.accent,
                 ...theme.typography.body,
                 fontWeight: "600",
               }}

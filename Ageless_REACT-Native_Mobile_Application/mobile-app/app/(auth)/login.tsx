@@ -180,20 +180,6 @@ export default function LoginScreen() {
       alignItems: "center",
       marginBottom: 40,
     },
-    logo: {
-      width: 60,
-      height: 60,
-      backgroundColor: theme.colors.primary,
-      borderRadius: 12,
-      justifyContent: "center",
-      alignItems: "center",
-      marginBottom: 12,
-    },
-    logoText: {
-      fontSize: 32,
-      fontWeight: "700",
-      color: "#FFFFFF",
-    },
     title: {
       fontSize: 32,
       fontWeight: "700",
@@ -212,7 +198,7 @@ export default function LoginScreen() {
     biometricTypeLabel: {
       fontSize: 14,
       fontWeight: "600",
-      color: theme.colors.primary,
+      color: theme.colors.accent,
       marginTop: 4,
     },
     welcomeText: {
@@ -227,7 +213,7 @@ export default function LoginScreen() {
       marginBottom: 20,
     },
     collapsibleSection: {
-      backgroundColor: "#FFF",
+      backgroundColor: theme.colors.surface,
       borderRadius: 12,
       marginBottom: 20,
       overflow: "hidden",
@@ -240,7 +226,7 @@ export default function LoginScreen() {
       alignItems: "center",
       paddingHorizontal: 16,
       paddingVertical: 12,
-      backgroundColor: "#F9F9F9",
+      backgroundColor: theme.colors.surfaceAlt,
       borderBottomWidth: 1,
       borderBottomColor: theme.colors.border.light,
     },
@@ -316,18 +302,23 @@ export default function LoginScreen() {
       backgroundColor: theme.colors.primary,
     },
     btnSecondary: {
-      backgroundColor: "#555",
+      backgroundColor: theme.colors.surfaceAlt,
     },
-    btnText: {
+    btnPrimaryText: {
       fontSize: 14,
       fontWeight: "600",
-      color: "#FFFFFF",
+      color: theme.colors.text.onPrimary,
+    },
+    btnSecondaryText: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: theme.colors.text.primary,
     },
     errorMessage: {
-      backgroundColor: "#FEE",
+      backgroundColor: theme.colors.surfaceAlt,
       borderWidth: 1,
-      borderColor: "#F99",
-      color: "#C33",
+      borderColor: theme.colors.status.error,
+      color: theme.colors.status.error,
       padding: 12,
       borderRadius: 8,
       marginBottom: 16,
@@ -362,7 +353,7 @@ export default function LoginScreen() {
       borderWidth: 1,
       borderColor: theme.colors.border.light,
       borderRadius: 8,
-      backgroundColor: "#FFF",
+      backgroundColor: theme.colors.surface,
       justifyContent: "center",
       alignItems: "center",
     },
@@ -379,10 +370,7 @@ export default function LoginScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={styles.header}>
-          <View style={styles.logo}>
-            <Text style={styles.logoText}>❤️</Text>
-          </View>
-          <Text style={styles.title}>Ageless.</Text>
+          <Text style={styles.title}>.925</Text>
 
           {/* Biometric Login Icon */}
           <View style={styles.biometricContainer}>
@@ -491,9 +479,9 @@ export default function LoginScreen() {
                   disabled={isLoading}
                 >
                   {isLoading ? (
-                    <ActivityIndicator color="#FFFFFF" size="small" />
+                    <ActivityIndicator color={theme.colors.text.onPrimary} size="small" />
                   ) : (
-                    <Text style={styles.btnText}>Sign in</Text>
+                    <Text style={styles.btnPrimaryText}>Sign in</Text>
                   )}
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -501,7 +489,7 @@ export default function LoginScreen() {
                   onPress={() => router.push("/(auth)/register")}
                   disabled={isLoading}
                 >
-                  <Text style={styles.btnText}>Register</Text>
+                  <Text style={styles.btnSecondaryText}>Register</Text>
                 </TouchableOpacity>
               </View>
             </View>

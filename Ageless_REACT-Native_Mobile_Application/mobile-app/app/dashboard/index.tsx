@@ -437,7 +437,7 @@ export default function Dashboard() {
       paddingVertical: 12, // Web PWA: 12px (not 10px)
       borderBottomWidth: 0, // No border in Web PWA header
       borderBottomColor: theme.colors.border.light,
-      backgroundColor: theme.colors.primary, // Red background (#C5282F)
+      backgroundColor: theme.colors.background, // Obsidian background (unified with app)
       flexDirection: 'row',
       justifyContent: 'center', // CENTER the title
       alignItems: 'center',
@@ -445,9 +445,9 @@ export default function Dashboard() {
       zIndex: 400, // CRITICAL FIX: Web PWA uses z-[400], not 10
     },
     headerTitle: {
-      fontSize: 24, // Matches PWA "Ageless." header size
+      fontSize: 24, // Matches PWA ".925" header size
       fontWeight: '700', // Bold
-      color: '#FFFFFF', // White text
+      color: theme.colors.text.primary, // Platinum text
       textAlign: 'center',
       flex: 1,
     },
@@ -474,7 +474,7 @@ export default function Dashboard() {
 
     // Progress Section - PWA Style (WHITE card, not red)
     progressSection: {
-      backgroundColor: theme.colors.surface,  // WHITE background (#FFFFFF)
+      backgroundColor: theme.colors.surface,  // Graphite card background
       borderRadius: theme.radius.card,        // 16px rounded corners (same as exercise cards)
       borderWidth: 1,
       borderColor: theme.colors.border.light,
@@ -486,14 +486,14 @@ export default function Dashboard() {
     progressLabel: {
       fontSize: 20,                           // PWA: "Today's Workout" title
       fontWeight: '700',                      // Bold
-      color: theme.colors.text.primary,       // BLACK text (#111)
+      color: theme.colors.text.primary,       // Platinum text
       marginBottom: 8,
       textAlign: 'center',
     },
     progressText: {
       fontSize: 14,                           // PWA: Smaller progress text
       fontWeight: '400',                      // Normal weight
-      color: theme.colors.text.secondary,     // Gray text (#666)
+      color: theme.colors.text.secondary,     // Pewter text
       marginBottom: 16,
       textAlign: 'center',
     },
@@ -506,7 +506,7 @@ export default function Dashboard() {
     },
     progressFill: {
       height: '100%',
-      backgroundColor: theme.colors.primary,  // Red progress fill (#C5282F)
+      backgroundColor: theme.colors.accent,  // Steel blue progress fill
     },
 
     // Weight Input Card - PWA Style
@@ -553,7 +553,7 @@ export default function Dashboard() {
     exerciseCard: {
       backgroundColor: theme.colors.surface,
       borderWidth: 1,
-      borderColor: theme.colors.border.light,      // #E2E3E6
+      borderColor: theme.colors.border.light,      // Dark hairline
       borderRadius: theme.radius.card,             // 16px
       paddingTop: 18,                              // PWA: padding: 18px 16px 20px
       paddingHorizontal: 16,
@@ -562,7 +562,7 @@ export default function Dashboard() {
       // NO flex:1 or minWidth - wrapper View handles sizing
     },
     exerciseCardCompleted: {
-      borderColor: theme.colors.status.success,    // Green border (#31a24c)
+      borderColor: theme.colors.status.success,    // Steel border
       ...theme.shadows.completedCard,              // Green-tinted shadow
     },
     // PWA: .station-name { font-size:18px; font-weight:600; margin:0 0 6px; }
@@ -572,11 +572,11 @@ export default function Dashboard() {
       color: theme.colors.text.primary,
       marginBottom: 6,
     },
-    // PWA: .station-info { font-size:13px; color:#555; margin:0 0 10px; }
+    // PWA: .station-info { font-size:13px; margin:0 0 10px; }
     exerciseTarget: {
       fontSize: 13,
       fontWeight: '400',
-      color: '#555555',
+      color: theme.colors.text.secondary,
       marginBottom: 10,
     },
 
@@ -617,14 +617,14 @@ export default function Dashboard() {
       fontWeight: '600',
       color: theme.colors.text.primary,
     },
-    // PWA: .btn:disabled { background:#ccc; cursor:not-allowed; box-shadow:none; }
+    // PWA: .btn:disabled { cursor:not-allowed; box-shadow:none; }
     controlBtnDisabled: {
-      backgroundColor: '#CCCCCC',
+      backgroundColor: theme.colors.border.strong,
       shadowOpacity: 0,
       elevation: 0,
     },
     controlBtnDisabledText: {
-      color: '#999999',
+      color: theme.colors.text.secondary,
     },
     countDisplay: {
       width: 40,                                   // PWA: .count width:40px
@@ -652,14 +652,14 @@ export default function Dashboard() {
   });
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.primary }}>
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       {/* Status Bar Background - Red extends behind status bar */}
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <Stack.Screen options={{ headerShown: false }} />
 
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Ageless.</Text>
+          <Text style={styles.headerTitle}>.925</Text>
           <TouchableOpacity
             onPress={() => setMyAbsDrawerVisible(true)}
             style={styles.headerMenuButton}
@@ -667,7 +667,7 @@ export default function Dashboard() {
             <Ionicons
               name="menu"
               size={24}
-              color="#FFFFFF"
+              color={theme.colors.text.primary}
             />
           </TouchableOpacity>
         </View>
@@ -699,7 +699,7 @@ export default function Dashboard() {
                     styles.progressFill,
                     {
                       width: `${progress.percentage}%`,
-                      backgroundColor: theme.colors.primary,
+                      backgroundColor: theme.colors.accent,
                     },
                   ]}
                 />

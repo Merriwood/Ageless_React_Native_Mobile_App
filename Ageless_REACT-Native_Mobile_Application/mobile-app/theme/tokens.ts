@@ -4,8 +4,8 @@
  * Single source of truth for all design values.
  * Import as: import { theme } from '../../theme';
  *
+ * Palette: Obsidian & Rhodium (black and platinum, steel blue accent)
  * Reference: Old_Ageless_Web_PWA/fitness-app-next/tailwind.config.ts
- * Based on: Benjamin Moore Design System
  */
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -13,39 +13,44 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const colors = {
-  // Primary brand color (Benjamin Moore Red)
-  primary: '#C5282F',
-  primaryHover: '#b12228',    // Darker for press states
-  primaryLight: '#f5d5d6',    // Light variant for backgrounds
+  // Primary brand color (Rhodium Silver) - used as fill for primary buttons/controls
+  primary: '#D4D6D9',
+  primaryHover: '#B9BBBE',    // Darker platinum for press states
+  primaryLight: '#1E2830',    // Muted steel tint, for selected/highlighted backgrounds
 
-  // Neutral backgrounds
-  background: '#F7F7F9',      // Main app background
-  surface: '#FFFFFF',         // Card/modal white
-  surfaceAlt: '#F2F2F7',      // Alternative surface
+  // Accent (Steel Blue) - links, icon accents, emphasis values, progress fill
+  accent: '#5B7A93',
+  accentHover: '#4A6478',     // Darker steel for press states / mid-tone borders
+  accentMuted: '#9FB4C4',     // Soft steel - save confirmations, legible accent text on dark
+
+  // Neutral backgrounds (Obsidian & Rhodium)
+  background: '#0B0B0D',      // Main app background (Obsidian)
+  surface: '#18181B',         // Card/modal background (Graphite Black)
+  surfaceAlt: '#212124',      // Header/nav/input elevated surface
 
   // Text colors
   text: {
-    primary: '#111111',       // Main body text
-    secondary: '#666666',     // Muted/secondary text
-    onPrimary: '#FFFFFF',     // Text on red backgrounds
+    primary: '#D4D6D9',       // Main body text (Rhodium Silver)
+    secondary: '#909295',     // Muted/secondary text (Pewter Grey)
+    onPrimary: '#0B0B0D',     // Text on platinum-filled buttons
   },
 
   // Border colors
   border: {
-    light: '#E2E3E6',         // Subtle dividers
-    strong: '#D0D1D4',        // Prominent dividers
+    light: '#3A3B3E',         // Subtle dividers
+    strong: '#4A4B4E',        // Prominent dividers
   },
 
   // Status colors
   status: {
-    success: '#31a24c',       // Completed exercises (green) - Web PWA color
-    warning: '#F59E0B',       // Pending/in progress (amber)
-    error: '#EF4444',         // Missed/errors (red)
-    info: '#3B82F6',          // Information (blue)
+    success: '#4A6478',       // Completed exercises (mid steel) - was green
+    warning: '#8B7355',       // Pending/in progress (muted brass) - was amber
+    error: '#8B4A46',         // Missed/errors/destructive (muted brick red) - was bright red
+    info: '#5B7A93',          // Information (steel blue) - was bright blue
   },
 
   // Interactive
-  overlay: 'rgba(0,0,0,0.5)', // Modal overlay (semi-transparent black)
+  overlay: 'rgba(0,0,0,0.65)', // Modal overlay (semi-transparent black)
 } as const;
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -124,9 +129,9 @@ export const shadows = {
     elevation: 3,
   },
   // Completed card shadow: Web PWA "0 4px 18px rgba(49,162,76,0.25)"
-  // (green-tinted shadow for completed exercises)
+  // (steel-tinted shadow for completed exercises)
   completedCard: {
-    shadowColor: '#31a24c',     // GREEN color for completed state
+    shadowColor: '#4A6478',     // STEEL color for completed state
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,        // NEW: Much darker for emphasis
     shadowRadius: 4.5,          // NEW: Larger blur radius (18px approximation)

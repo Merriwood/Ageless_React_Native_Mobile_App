@@ -161,13 +161,13 @@ export function SummaryModal({
         <View style={styles.modalContainer}>
           {/* Header */}
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Ageless.</Text>
+            <Text style={styles.modalTitle}>.925</Text>
             <TouchableOpacity
               style={styles.headerMenuButton}
               onPress={onClose}
               activeOpacity={0.7}
             >
-              <Ionicons name="menu" size={24} color="#FFFFFF" />
+              <Ionicons name="menu" size={24} color={theme.colors.text.primary} />
             </TouchableOpacity>
           </View>
 
@@ -228,15 +228,15 @@ export function SummaryModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: '#f5f5f5',  // Light grey background (matching HTML)
+    backgroundColor: theme.colors.background,  // Obsidian background
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.background,
     flexDirection: 'column',
   },
   modalHeader: {
-    backgroundColor: theme.colors.primary,  // Red header (#C5282F)
+    backgroundColor: theme.colors.background,  // Unified dark header (was red)
     paddingHorizontal: 16,
     paddingVertical: 12,
     flexDirection: 'row',
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: theme.colors.text.primary,
     textAlign: 'center',
     flex: 1,
   },
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   headerCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   statCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.surface,
     borderRadius: 12,
     padding: 10,
     ...theme.shadows.sm,
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   weeklyCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
   completionPercent: {
     fontSize: 24,
     fontWeight: '700',
-    color: theme.colors.primary,
+    color: theme.colors.accent,
   },
   completionLabel: {
     fontSize: 11,
@@ -367,9 +367,9 @@ const styles = StyleSheet.create({
     marginVertical: 12,
     paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: theme.colors.border.light,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: theme.colors.border.light,
   },
   weekStat: {
     flex: 1,
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text.primary,
   },
   topExercises: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: theme.colors.surfaceAlt,
     borderRadius: 6,
     padding: 10,
     marginTop: 10,
@@ -411,27 +411,27 @@ const styles = StyleSheet.create({
   exerciseSets: {
     fontSize: 12,
     fontWeight: '600',
-    color: theme.colors.primary,
+    color: theme.colors.accent,
   },
   progressBar: {
     width: '100%',
     height: 6,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: theme.colors.border.light,
     borderRadius: 3,
     overflow: 'hidden',
     marginTop: 8,
   },
   progressFill: {
     height: '100%',
-    backgroundColor: theme.colors.primary,
+    backgroundColor: theme.colors.accent,
     borderRadius: 3,
   },
   navBar: {
     borderTopWidth: 1,
-    borderTopColor: '#e5e5e5',
+    borderTopColor: theme.colors.border.light,
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.surfaceAlt,
     paddingVertical: 8,
   },
   navItem: {

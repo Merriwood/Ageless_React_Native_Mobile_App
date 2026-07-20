@@ -111,7 +111,7 @@ export default function ForgotPasswordScreen() {
         {/* Success Message */}
         {success && (
           <View style={styles.successBox}>
-            <Ionicons name="checkmark-circle" size={24} color="#10B981" />
+            <Ionicons name="checkmark-circle" size={24} color={theme.colors.accentMuted} />
             <Text style={styles.successText}>
               Password reset successful! Redirecting to login...
             </Text>
@@ -201,7 +201,7 @@ export default function ForgotPasswordScreen() {
           disabled={isLoading || success}
         >
           {isLoading ? (
-            <ActivityIndicator color="#FFFFFF" size="small" />
+            <ActivityIndicator color={theme.colors.text.onPrimary} size="small" />
           ) : (
             <Text style={styles.buttonText}>Reset Password</Text>
           )}
@@ -247,25 +247,25 @@ const styles = StyleSheet.create({
   successBox: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#ECFDF5",
+    backgroundColor: theme.colors.primaryLight,
     borderLeftWidth: 4,
-    borderLeftColor: "#10B981",
+    borderLeftColor: theme.colors.status.success,
     padding: 12,
     borderRadius: 8,
     marginBottom: 20,
   },
   successText: {
     marginLeft: 12,
-    color: "#10B981",
+    color: theme.colors.accentMuted,
     fontSize: 13,
     fontWeight: "500",
     flex: 1,
   },
   errorMessage: {
-    backgroundColor: "#FEE",
+    backgroundColor: theme.colors.surfaceAlt,
     borderWidth: 1,
-    borderColor: "#F99",
-    color: "#C33",
+    borderColor: theme.colors.status.error,
+    color: theme.colors.status.error,
     padding: 12,
     borderRadius: 8,
     marginBottom: 16,
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#FFFFFF",
+    color: theme.colors.text.onPrimary,
   },
   backToLogin: {
     flexDirection: "row",
@@ -338,6 +338,6 @@ const styles = StyleSheet.create({
   backLink: {
     fontSize: 14,
     fontWeight: "600",
-    color: theme.colors.primary,
+    color: theme.colors.accent,
   },
 });

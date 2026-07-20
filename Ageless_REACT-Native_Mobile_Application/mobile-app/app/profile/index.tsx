@@ -93,9 +93,9 @@ export default function ProfileScreen() {
 
       {/* Red Header - matches PWA design - Centered */}
       <View style={styles.header}>
-        <Text style={styles.headerText}>Ageless.</Text>
+        <Text style={styles.headerText}>.925</Text>
         <TouchableOpacity onPress={() => router.back()} style={styles.headerMenuButton}>
-          <Ionicons name="menu" size={24} color="#FFFFFF" />
+          <Ionicons name="menu" size={24} color={theme.colors.text.primary} />
         </TouchableOpacity>
       </View>
 
@@ -120,7 +120,7 @@ export default function ProfileScreen() {
             <Card style={styles.card}>
               <View style={styles.infoRow}>
                 <View style={styles.infoLeft}>
-                  <Ionicons name="mail-outline" size={20} color={theme.colors.primary} />
+                  <Ionicons name="mail-outline" size={20} color={theme.colors.accent} />
                   <View style={{ marginLeft: theme.spacing.base }}>
                     <Text style={styles.infoLabel}>Email</Text>
                     <Text style={styles.infoValue}>{userEmail}</Text>
@@ -132,7 +132,7 @@ export default function ProfileScreen() {
 
               <View style={styles.infoRow}>
                 <View style={styles.infoLeft}>
-                  <Ionicons name="person-outline" size={20} color={theme.colors.primary} />
+                  <Ionicons name="person-outline" size={20} color={theme.colors.accent} />
                   <View style={{ marginLeft: theme.spacing.base }}>
                     <Text style={styles.infoLabel}>User ID</Text>
                     <Text style={styles.infoValue}>{userId}</Text>
@@ -184,7 +184,7 @@ export default function ProfileScreen() {
             <Card style={styles.card}>
               <View style={styles.infoRow}>
                 <View style={styles.infoLeft}>
-                  <Ionicons name="information-circle-outline" size={20} color={theme.colors.primary} />
+                  <Ionicons name="information-circle-outline" size={20} color={theme.colors.accent} />
                   <View style={{ marginLeft: theme.spacing.base }}>
                     <Text style={styles.infoLabel}>App Version</Text>
                     <Text style={styles.infoValue}>{appVersion}</Text>
@@ -199,7 +199,7 @@ export default function ProfileScreen() {
                 onPress={() => openLink('https://example.com/terms')}
               >
                 <Text style={styles.linkText}>Terms of Service</Text>
-                <Ionicons name="open-outline" size={16} color={theme.colors.primary} />
+                <Ionicons name="open-outline" size={16} color={theme.colors.accent} />
               </TouchableOpacity>
 
               <View style={styles.divider} />
@@ -209,7 +209,7 @@ export default function ProfileScreen() {
                 onPress={() => openLink('https://example.com/privacy')}
               >
                 <Text style={styles.linkText}>Privacy Policy</Text>
-                <Ionicons name="open-outline" size={16} color={theme.colors.primary} />
+                <Ionicons name="open-outline" size={16} color={theme.colors.accent} />
               </TouchableOpacity>
             </Card>
           </View>
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
   header: {
-    backgroundColor: '#C5282F',
+    backgroundColor: theme.colors.background,
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: theme.spacing.lg,
     flexDirection: 'row',
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: theme.colors.text.primary,
     textAlign: 'center',
     flex: 1,
   },
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
   linkText: {
     fontSize: 15,
     fontWeight: '500',
-    color: theme.colors.primary,
+    color: theme.colors.accent,
   },
   divider: {
     height: 1,

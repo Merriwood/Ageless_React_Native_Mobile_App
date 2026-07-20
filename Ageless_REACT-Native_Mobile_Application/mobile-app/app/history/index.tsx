@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
   exerciseItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: '#f9f9f9',
+    backgroundColor: theme.colors.surfaceAlt,
     paddingHorizontal: theme.spacing.sm,
     paddingVertical: theme.spacing.sm,
     borderRadius: theme.radius.md,
@@ -526,7 +526,7 @@ const styles = StyleSheet.create({
   exerciseSets: {
     fontSize: 14,
     fontWeight: '700',
-    color: theme.colors.primary,
+    color: theme.colors.accent,
   },
   skippedTitle: {
     fontSize: 14,
@@ -541,7 +541,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   skippedTag: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: theme.colors.surfaceAlt,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: theme.radius.md,
@@ -561,7 +561,7 @@ const styles = StyleSheet.create({
     paddingVertical: 11,
     paddingHorizontal: 16,
     height: 40,
-    backgroundColor: '#E8E8E8',
+    backgroundColor: theme.colors.surfaceAlt,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
@@ -569,13 +569,13 @@ const styles = StyleSheet.create({
   editText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#111111',
+    color: theme.colors.text.primary,
   },
   deleteButton: {
     paddingVertical: 11,
     paddingHorizontal: 22,
     height: 40,
-    backgroundColor: '#C5282F',
+    backgroundColor: theme.colors.status.error,
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
@@ -583,7 +583,7 @@ const styles = StyleSheet.create({
   deleteText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: theme.colors.text.primary,
   },
   loadMoreButton: {
     paddingVertical: theme.spacing.md,
@@ -593,7 +593,7 @@ const styles = StyleSheet.create({
   loadMoreText: {
     fontSize: 14,
     fontWeight: '600',
-    color: theme.colors.primary,
+    color: theme.colors.accent,
   },
   emptyContainer: {
     flex: 1,

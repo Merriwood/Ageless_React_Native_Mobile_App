@@ -302,14 +302,14 @@ export function ProgressSummaryScreen({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.background,
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContainer: {
     width: '96%',
     height: '92%',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.background,
     borderRadius: 0,
     overflow: 'hidden',
     flexDirection: 'column',
@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     paddingHorizontal: 20,
     paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.surface,
     borderRadius: 12,
     ...theme.shadows.sm,
     flexDirection: 'row',
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 12,
     marginBottom: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.surface,
     borderRadius: 8,
     overflow: 'hidden',
     ...theme.shadows.sm,
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRightWidth: 1,
-    borderRightColor: 'rgba(255, 255, 255, 0.2)',
+    borderRightColor: 'rgba(11, 11, 13, 0.15)',
   },
   headerCellText: {
     color: theme.colors.text.onPrimary,
@@ -404,10 +404,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: theme.colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: theme.colors.border.light,
   },
   dataRowAlt: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: theme.colors.surfaceAlt,
   },
   dataCell: {
     paddingVertical: 10,
@@ -415,7 +415,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRightWidth: 1,
-    borderRightColor: '#f0f0f0',
+    borderRightColor: theme.colors.border.light,
   },
   dataCellText: {
     color: theme.colors.text.primary,

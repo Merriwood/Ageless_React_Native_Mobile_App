@@ -20,6 +20,7 @@ import { login as loginApi } from "../../api/auth";
 import { useAuth } from "../../hooks/useAuth";
 import { useBiometric } from "../../hooks/useBiometric";
 import { BiometricIcon } from "../../components/auth/BiometricIcon";
+import BiometricLogin from "../../components/auth/BiometricLogin";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -28,7 +29,6 @@ export default function LoginScreen() {
     isAvailable: isBiometricAvailable,
     biometricType,
     isLoading: isBiometricLoading,
-    authenticate,
     getBiometricCredentials,
     saveCredentials,
   } = useBiometric();
@@ -51,61 +51,6 @@ export default function LoginScreen() {
     };
     checkSavedCredentials();
   }, [isBiometricAvailable, getBiometricCredentials]);
-
-  // Handle biometric login
-  const handleBiometricLogin = async () => {
-    if (!isBiometricAvailable) {
-      Alert.alert(
-        "Biometric Not Available",
-        "Please sign in with your email and password."
-      );
-      return;
-    }
-
-    const credentials = await getBiometricCredentials();
-    if (!credentials) {
-      Alert.alert(
-        "Setup Required",
-        "Please sign in with your email and password first. You can then enable biometric login for future sessions."
-      );
-      setSignInCollapsed(false); // Expand the sign-in form
-      return;
-    }
-
-    // Authenticate with biometrics
-    const success = await authenticate();
-    if (!success) {
-      return; // Error is handled by useBiometric hook
-    }
-
-    // Use saved credentials to log in
-    setIsLoading(true);
-    setError("");
-
-    try {
-      const response = await loginApi(credentials.email, credentials.password);
-
-      if (!response || !response.token) {
-        throw new Error("Invalid response from server");
-      }
-
-      const { token, user } = response;
-      const normalizedUser = user ? { ...user, id: String(user.id) } : undefined;
-      await setToken(token, normalizedUser);
-      router.replace("/dashboard");
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Login failed. Please try again.";
-      setError(errorMsg);
-      // If biometric login fails, prompt for password
-      Alert.alert(
-        "Login Failed",
-        "Your saved credentials may be outdated. Please sign in with your password.",
-        [{ text: "OK", onPress: () => setSignInCollapsed(false) }]
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleLogin = async () => {
     // Clear previous errors
@@ -372,16 +317,36 @@ export default function LoginScreen() {
         <View style={styles.header}>
           <Text style={styles.title}>.925</Text>
 
-          {/* Biometric Login Icon */}
+          {/* Biometric Login — wraps bracket pad; traces checkmark on success */}
           <View style={styles.biometricContainer}>
-            <BiometricIcon
-              testID="biometric-login-button"
-              biometricType={biometricType as 'Face ID' | 'Touch ID' | null}
-              isScanning={isBiometricLoading || isLoading}
-              size={90}
-              onPress={handleBiometricLogin}
-              disabled={!isBiometricAvailable || isLoading}
-            />
+            <BiometricLogin
+              onSuccess={async ({ credentials }) => {
+                setIsLoading(true);
+                setError("");
+                try {
+                  const response = await loginApi(credentials.email, credentials.password);
+                  if (!response || !response.token) throw new Error("Invalid response from server");
+                  const { token, user } = response;
+                  const normalizedUser = user ? { ...user, id: String(user.id) } : undefined;
+                  await setToken(token, normalizedUser);
+                  router.replace("/dashboard");
+                } catch (err) {
+                  const errorMsg = err instanceof Error ? err.message : "Login failed. Please try again.";
+                  setError(errorMsg);
+                  setSignInCollapsed(false);
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
+              onError={() => setSignInCollapsed(false)}
+            >
+              <BiometricIcon
+                testID="biometric-login-button"
+                biometricType={biometricType as 'Face ID' | 'Touch ID' | null}
+                isScanning={isBiometricLoading || isLoading}
+                size={90}
+              />
+            </BiometricLogin>
             {isBiometricAvailable ? (
               <>
                 <Text style={styles.biometricLabel}>

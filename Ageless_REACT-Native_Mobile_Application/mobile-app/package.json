@@ -21,6 +21,7 @@
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-community/netinfo": "^11.4.1",
     "@sentry/react-native": "7.2.0",
+    "@simplewebauthn/server": "^13.3.2",
     "axios": "^1.13.2",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.1",

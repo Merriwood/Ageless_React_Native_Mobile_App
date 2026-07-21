@@ -26,3 +26,17 @@ CREATE TABLE IF NOT EXISTS entries (
 CREATE INDEX IF NOT EXISTS idx_entries_user_date ON entries(user_id, entry_date);
 CREATE INDEX IF NOT EXISTS idx_entries_date ON entries(entry_date);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+
+-- Create webauthn_credentials table for passkey/biometric login
+CREATE TABLE IF NOT EXISTS webauthn_credentials (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  credential_id TEXT UNIQUE NOT NULL,
+  public_key TEXT NOT NULL,
+  counter BIGINT DEFAULT 0,
+  transports TEXT DEFAULT '[]',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_webauthn_user ON webauthn_credentials(user_id);
+CREATE INDEX IF NOT EXISTS idx_webauthn_credential ON webauthn_credentials(credential_id);

@@ -3,286 +3,348 @@ import { Platform } from "react-native";
 import * as LocalAuthentication from "expo-local-authentication";
 import * as SecureStore from "expo-secure-store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { webauthnAPI } from "../api/webauthn";
 
 /**
  * useBiometric Hook
- * Manages biometric authentication (Face ID, Touch ID)
  *
- * Features:
- * - Detect device biometric capability
- * - Trigger Face ID/Touch ID prompt
- * - Store/retrieve biometric credentials securely (platform-aware)
- * - Fallback to password authentication
- * - Retry logic with 3 attempts before fallback
+ * Platform-aware biometric authentication:
+ * - **Web/PWA**: WebAuthn passkeys (Face ID / Touch ID via browser)
+ * - **Native**: expo-local-authentication (Face ID / Touch ID via OS)
+ *
+ * Key method: `biometricLogin()` — handles the full flow on both platforms
+ * and returns { token, user } ready for session storage.
  */
 
-/**
- * Helper: Store biometric credentials securely (platform-aware)
- * Uses SecureStore on native platforms, AsyncStorage on web
- */
-const storeBiometricCredentials = async (
-  key: string,
-  value: string
-): Promise<void> => {
-  try {
-    if (Platform.OS === "web") {
-      // On web, use AsyncStorage (no native secure storage available)
-      await AsyncStorage.setItem(key, value);
-    } else {
-      // On native platforms, use SecureStore for encryption
-      await SecureStore.setItemAsync(key, value);
-    }
-  } catch (err) {
-    console.error(`[useBiometric] Failed to store ${key}:`, err);
-    throw err;
-  }
-};
+// ── Base64URL helpers for WebAuthn browser API ──────────────────────
 
-/**
- * Helper: Retrieve biometric credentials securely (platform-aware)
- */
-const retrieveBiometricCredentials = async (
-  key: string
-): Promise<string | null> => {
-  try {
-    if (Platform.OS === "web") {
-      // On web, use AsyncStorage
-      return await AsyncStorage.getItem(key);
-    } else {
-      // On native platforms, use SecureStore
-      return await SecureStore.getItemAsync(key);
-    }
-  } catch (err) {
-    console.error(`[useBiometric] Failed to retrieve ${key}:`, err);
-    return null;
-  }
-};
+function base64urlToBuffer(b64url: string): ArrayBuffer {
+  const b64 = b64url.replace(/-/g, "+").replace(/_/g, "/");
+  const pad = b64.length % 4;
+  const padded = pad ? b64 + "=".repeat(4 - pad) : b64;
+  const bin = atob(padded);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes.buffer;
+}
 
-/**
- * Helper: Delete biometric credentials securely (platform-aware)
- */
-const deleteBiometricCredentials = async (key: string): Promise<void> => {
-  try {
-    if (Platform.OS === "web") {
-      // On web, use AsyncStorage
-      await AsyncStorage.removeItem(key);
-    } else {
-      // On native platforms, use SecureStore
-      await SecureStore.deleteItemAsync(key);
-    }
-  } catch (err) {
-    console.error(`[useBiometric] Failed to delete ${key}:`, err);
-    throw err;
-  }
-};
+function bufferToBase64url(buf: ArrayBuffer): string {
+  const bytes = new Uint8Array(buf);
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+}
+
+const WEBAUTHN_REGISTERED_KEY = "webauthn_registered";
 
 export const useBiometric = () => {
   const [isAvailable, setIsAvailable] = useState(false);
   const [biometricType, setBiometricType] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [retryCount, setRetryCount] = useState(0);
+  const [hasRegisteredCredential, setHasRegisteredCredential] = useState(false);
 
-  const MAX_RETRIES = 3;
+  // ── Availability check ────────────────────────────────────────────
 
-  /**
-   * Check if device supports biometric authentication
-   * Checks both hardware availability AND enrollment status
-   */
   const checkBiometricAvailable = useCallback(async (): Promise<boolean> => {
     try {
-      // Skip biometric check on web
       if (Platform.OS === "web") {
-        console.log("[useBiometric] Web platform - biometrics not supported");
-        setIsAvailable(false);
-        return false;
+        const available =
+          typeof window !== "undefined" &&
+          !!window.PublicKeyCredential &&
+          typeof window.PublicKeyCredential === "function";
+
+        if (!available) {
+          console.log("[useBiometric] WebAuthn not supported in this browser");
+          setIsAvailable(false);
+          return false;
+        }
+
+        // Check for platform authenticator (Face ID / Touch ID / Windows Hello)
+        const platform =
+          await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+        console.log("[useBiometric] Platform authenticator available:", platform);
+        setIsAvailable(platform);
+
+        if (platform) {
+          setBiometricType("Biometric");
+          const registered = await AsyncStorage.getItem(WEBAUTHN_REGISTERED_KEY);
+          setHasRegisteredCredential(!!registered);
+        }
+        return platform;
       }
 
-      // Check if device has biometric hardware
+      // ── Native path ────────────────────────────────────────────────
       const hasHardware = await LocalAuthentication.hasHardwareAsync();
-      console.log("[useBiometric] Has hardware:", hasHardware);
-
       if (!hasHardware) {
         setIsAvailable(false);
         return false;
       }
 
-      // Check if biometrics are enrolled (Face ID/Touch ID set up)
       const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-      console.log("[useBiometric] Is enrolled:", isEnrolled);
-
       if (!isEnrolled) {
         setIsAvailable(false);
         setError("Please set up Face ID or Touch ID in your device settings");
         return false;
       }
 
-      // Get supported biometric types
-      const supportedTypes =
+      const types =
         await LocalAuthentication.supportedAuthenticationTypesAsync();
-      console.log("[useBiometric] Supported types:", supportedTypes);
-
-      // Determine which type is available
-      if (
-        supportedTypes.includes(
-          LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION
-        )
-      ) {
+      if (types.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION)) {
         setBiometricType("Face ID");
-      } else if (
-        supportedTypes.includes(
-          LocalAuthentication.AuthenticationType.FINGERPRINT
-        )
-      ) {
+      } else if (types.includes(LocalAuthentication.AuthenticationType.FINGERPRINT)) {
         setBiometricType("Touch ID");
+      }
+
+      // Check for saved credentials on native
+      try {
+        const creds = await SecureStore.getItemAsync("biometric_credentials");
+        setHasRegisteredCredential(!!creds);
+      } catch {
+        setHasRegisteredCredential(false);
       }
 
       setIsAvailable(true);
       setError(null);
       return true;
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to check biometric";
-      console.error("[useBiometric] Error:", message);
-      setError(message);
+      console.error("[useBiometric] Availability check error:", err);
       setIsAvailable(false);
       return false;
     }
   }, []);
 
-  /**
-   * Trigger biometric authentication prompt
-   * Returns boolean indicating success
-   */
-  const authenticate = useCallback(async (): Promise<boolean> => {
-    if (!isAvailable) {
-      setError("Biometric authentication not available on this device");
-      return false;
-    }
+  // ── Native-only: trigger OS biometric prompt ──────────────────────
 
+  const authenticate = useCallback(async (): Promise<boolean> => {
+    if (Platform.OS === "web" || !isAvailable) return false;
     setIsLoading(true);
     setError(null);
-
     try {
       const result = await LocalAuthentication.authenticateAsync({
-        reason: "Authenticate to access your fitness data",
+        promptMessage: "Authenticate to access your fitness data",
         fallbackLabel: "Use passcode instead",
-        disableDeviceFallback: false, // Allow fallback to device password
+        disableDeviceFallback: false,
         requireConfirmation: true,
       });
-
-      if (result.success) {
-        setRetryCount(0);
-        return true;
-      } else if (result.error === "user_cancel") {
-        setError("Authentication cancelled");
-        return false;
-      } else if (result.error === "user_fallback") {
-        // User chose to use password instead
-        setError("Please use password authentication");
-        return false;
-      } else {
-        // Authentication failed, increment retry count
-        const newRetryCount = retryCount + 1;
-        setRetryCount(newRetryCount);
-
-        if (newRetryCount >= MAX_RETRIES) {
-          setError(
-            `Maximum authentication attempts (${MAX_RETRIES}) exceeded. Please use password instead.`
-          );
-          return false;
-        } else {
-          setError(
-            `Authentication failed. ${MAX_RETRIES - newRetryCount} attempts remaining.`
-          );
-          return false;
-        }
-      }
+      if (result.success) return true;
+      if (result.error === "user_cancel") setError("Authentication cancelled");
+      else if (result.error === "user_fallback") setError("Please use password");
+      else setError("Authentication failed");
+      return false;
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Biometric authentication failed";
-      setError(message);
+      setError(err instanceof Error ? err.message : "Biometric failed");
       return false;
     } finally {
       setIsLoading(false);
     }
-  }, [isAvailable, retryCount]);
+  }, [isAvailable]);
 
-  /**
-   * Store biometric credentials (encrypted)
-   * Used for quick login with Face ID after initial password login
-   */
-  const saveCredentials = useCallback(
-    async (email: string, password: string): Promise<void> => {
-      if (!isAvailable) {
-        return;
-      }
+  // ── Full biometric login (both platforms) ─────────────────────────
+  //
+  // Returns { token, user } on success, null on failure/cancel.
+  // Web:    WebAuthn passkey flow → server returns JWT
+  // Native: OS biometric → replay stored credentials → server returns JWT
+
+  const biometricLogin = useCallback(
+    async (): Promise<{ token: string; user: any } | null> => {
+      if (!isAvailable) return null;
+      setIsLoading(true);
+      setError(null);
 
       try {
-        // Store credentials in SecureStore (encrypted) - platform-aware
-        // In production, only store a hash or token, not the plain password
-        await storeBiometricCredentials(
+        if (Platform.OS === "web") {
+          // ── WebAuthn authentication ──
+          // Step 1 — get challenge from server
+          const options = await webauthnAPI.getAuthOptions();
+
+          // Step 2 — convert for browser API
+          const publicKey: PublicKeyCredentialRequestOptions = {
+            ...options,
+            challenge: base64urlToBuffer(options.challenge),
+            allowCredentials: (options.allowCredentials || []).map(
+              (c: any) => ({
+                ...c,
+                id: base64urlToBuffer(c.id),
+              })
+            ),
+          };
+
+          // Step 3 — browser biometric prompt
+          const cred = (await navigator.credentials.get({
+            publicKey,
+          })) as PublicKeyCredential;
+          const resp = cred.response as AuthenticatorAssertionResponse;
+
+          // Step 4 — send signed assertion to server
+          const authResp = {
+            id: cred.id,
+            rawId: bufferToBase64url(cred.rawId),
+            type: cred.type,
+            response: {
+              authenticatorData: bufferToBase64url(resp.authenticatorData),
+              clientDataJSON: bufferToBase64url(resp.clientDataJSON),
+              signature: bufferToBase64url(resp.signature),
+              userHandle: resp.userHandle
+                ? bufferToBase64url(resp.userHandle)
+                : null,
+            },
+            clientExtensionResults: cred.getClientExtensionResults(),
+          };
+
+          const result = await webauthnAPI.verifyAuth(authResp);
+          return result; // { token, user }
+        }
+
+        // ── Native: credential replay ──
+        const json = await SecureStore.getItemAsync("biometric_credentials");
+        if (!json) {
+          setError("Sign in with password first to enable.");
+          return null;
+        }
+        const credentials = JSON.parse(json);
+
+        const ok = await authenticate();
+        if (!ok) return null;
+
+        // Call login API with stored credentials
+        const { login: loginApi } = await import("../api/auth");
+        return await loginApi(credentials.email, credentials.password);
+      } catch (err: any) {
+        const msg = err?.message || "Biometric login failed";
+        // Handle user cancellation gracefully
+        if (msg.includes("NotAllowedError") || msg.includes("cancelled") || msg.includes("cancel")) {
+          setError("Cancelled");
+        } else {
+          setError(msg);
+        }
+        return null;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [isAvailable, authenticate]
+  );
+
+  // ── Register biometric credential ─────────────────────────────────
+  //
+  // Web:    registers a WebAuthn passkey (requires auth token set first)
+  // Native: stores email+password in SecureStore
+
+  const registerBiometric = useCallback(
+    async (email?: string, password?: string): Promise<boolean> => {
+      if (!isAvailable) return false;
+
+      try {
+        if (Platform.OS === "web") {
+          // Skip if already registered
+          const existing = await AsyncStorage.getItem(WEBAUTHN_REGISTERED_KEY);
+          if (existing) return true;
+
+          // Step 1 — get registration options
+          const options = await webauthnAPI.getRegisterOptions();
+
+          // Step 2 — convert for browser API
+          const publicKey: PublicKeyCredentialCreationOptions = {
+            ...options,
+            challenge: base64urlToBuffer(options.challenge),
+            user: {
+              ...options.user,
+              id: base64urlToBuffer(options.user.id),
+            },
+            excludeCredentials: (options.excludeCredentials || []).map(
+              (c: any) => ({
+                ...c,
+                id: base64urlToBuffer(c.id),
+              })
+            ),
+          };
+
+          // Step 3 — browser creates credential (biometric prompt)
+          const cred = (await navigator.credentials.create({
+            publicKey,
+          })) as PublicKeyCredential;
+          const resp = cred.response as AuthenticatorAttestationResponse;
+
+          // Step 4 — send to server for storage
+          const regResp = {
+            id: cred.id,
+            rawId: bufferToBase64url(cred.rawId),
+            type: cred.type,
+            response: {
+              attestationObject: bufferToBase64url(resp.attestationObject),
+              clientDataJSON: bufferToBase64url(resp.clientDataJSON),
+              transports:
+                typeof resp.getTransports === "function"
+                  ? resp.getTransports()
+                  : [],
+            },
+            clientExtensionResults: cred.getClientExtensionResults(),
+          };
+
+          await webauthnAPI.verifyRegistration(regResp);
+          await AsyncStorage.setItem(WEBAUTHN_REGISTERED_KEY, "true");
+          setHasRegisteredCredential(true);
+          console.log("[useBiometric] WebAuthn credential registered");
+          return true;
+        }
+
+        // ── Native ──
+        if (!email || !password) return false;
+        await SecureStore.setItemAsync(
           "biometric_credentials",
           JSON.stringify({ email, password })
         );
-        setError(null);
+        setHasRegisteredCredential(true);
+        return true;
       } catch (err) {
-        const message =
-          err instanceof Error
-            ? err.message
-            : "Failed to store biometric credentials";
-        setError(message);
-        // Don't throw - biometric credentials are optional
+        console.log("[useBiometric] Registration skipped/failed:", err);
+        return false;
       }
     },
     [isAvailable]
   );
 
-  /**
-   * Retrieve stored biometric credentials
-   */
-  const getBiometricCredentials = useCallback(
-    async (): Promise<{ email: string; password: string } | null> => {
-      try {
-        const credentialsJson = await retrieveBiometricCredentials(
-          "biometric_credentials"
-        );
-        if (!credentialsJson) return null;
+  // ── Clear credentials (logout) ────────────────────────────────────
 
-        return JSON.parse(credentialsJson);
-      } catch (err) {
-        const message =
-          err instanceof Error
-            ? err.message
-            : "Failed to retrieve biometric credentials";
-        setError(message);
-        return null;
-      }
-    },
-    []
-  );
-
-  /**
-   * Clear stored biometric credentials (on logout)
-   */
   const clearBiometricCredentials = useCallback(async (): Promise<void> => {
     try {
-      await deleteBiometricCredentials("biometric_credentials");
-      setRetryCount(0);
+      if (Platform.OS === "web") {
+        await AsyncStorage.removeItem(WEBAUTHN_REGISTERED_KEY);
+      } else {
+        await SecureStore.deleteItemAsync("biometric_credentials");
+      }
+      setHasRegisteredCredential(false);
       setError(null);
     } catch (err) {
-      const message =
-        err instanceof Error
-            ? err.message
-            : "Failed to clear biometric credentials";
-      setError(message);
-      // Don't throw - clearing is best-effort
+      console.error("[useBiometric] Clear failed:", err);
     }
   }, []);
 
-  /**
-   * Check biometric availability on hook mount
-   */
+  // ── Legacy compat wrappers ────────────────────────────────────────
+
+  const saveCredentials = useCallback(
+    async (email: string, password: string) => {
+      return registerBiometric(email, password);
+    },
+    [registerBiometric]
+  );
+
+  const getBiometricCredentials = useCallback(async () => {
+    if (Platform.OS === "web") {
+      const reg = await AsyncStorage.getItem(WEBAUTHN_REGISTERED_KEY);
+      return reg ? { email: "", password: "" } : null;
+    }
+    try {
+      const json = await SecureStore.getItemAsync("biometric_credentials");
+      return json ? JSON.parse(json) : null;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  // ── Init ──────────────────────────────────────────────────────────
+
   useEffect(() => {
     checkBiometricAvailable();
   }, [checkBiometricAvailable]);
@@ -293,14 +355,21 @@ export const useBiometric = () => {
     biometricType,
     isLoading,
     error,
-    retryCount,
-    attemptsRemaining: Math.max(0, MAX_RETRIES - retryCount),
+    hasRegisteredCredential,
 
-    // Methods
-    authenticate,
+    // Primary methods
+    biometricLogin,
+    registerBiometric,
+    clearBiometricCredentials,
     checkBiometricAvailable,
+
+    // Legacy compat (used by existing components)
+    authenticate,
     saveCredentials,
     getBiometricCredentials,
-    clearBiometricCredentials,
+
+    // Legacy compat (unused but kept for API surface)
+    retryCount: 0,
+    attemptsRemaining: 3,
   };
 };

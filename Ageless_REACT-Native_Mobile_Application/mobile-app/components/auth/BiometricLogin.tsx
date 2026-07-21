@@ -11,7 +11,7 @@ import Svg, { Path } from "react-native-svg";
 import { useBiometric } from "../../hooks/useBiometric";
 
 /* ================================================================== *
- * BiometricLogin  —  React Native (Expo)
+ * BiometricLogin  —  React Native (Expo) + PWA WebAuthn
  * ------------------------------------------------------------------
  * Wrap YOUR OWN bracket pad as children. On tap it runs Face ID /
  * Touch ID; on success the check traces itself in over your pad
@@ -21,7 +21,10 @@ import { useBiometric } from "../../hooks/useBiometric";
  *     <BiometricIcon />
  *   </BiometricLogin>
  *
- * Uses expo-local-authentication via the useBiometric hook.
+ * Web/PWA:  uses WebAuthn passkeys via navigator.credentials
+ * Native:   uses expo-local-authentication via the useBiometric hook
+ *
+ * onSuccess receives { token, user } — ready for session storage.
  * ================================================================== */
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
@@ -39,10 +42,10 @@ const S = {
   ERROR: "error",
 } as const;
 
-type State = typeof S[keyof typeof S];
+type State = (typeof S)[keyof typeof S];
 
 interface BiometricLoginProps {
-  onSuccess?: (payload: any) => void;
+  onSuccess?: (payload: { token: string; user: any }) => void;
   onError?: (error: any) => void;
   showStatus?: boolean;
   checkColor?: string;
@@ -61,18 +64,29 @@ export default function BiometricLogin({
   const {
     isAvailable,
     biometricType,
-    authenticate,
-    getBiometricCredentials,
+    biometricLogin,
+    hasRegisteredCredential,
   } = useBiometric();
 
   // subtle pulse on your pad while the sensor waits
   const pulse = useRef(new Animated.Value(1)).current;
   useEffect(() => {
-    if (state !== S.PROMPTING) { pulse.setValue(1); return; }
+    if (state !== S.PROMPTING) {
+      pulse.setValue(1);
+      return;
+    }
     const loop = Animated.loop(
       Animated.sequence([
-        Animated.timing(pulse, { toValue: 1.06, duration: 550, useNativeDriver: true }),
-        Animated.timing(pulse, { toValue: 1.0, duration: 550, useNativeDriver: true }),
+        Animated.timing(pulse, {
+          toValue: 1.06,
+          duration: 550,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulse, {
+          toValue: 1.0,
+          duration: 550,
+          useNativeDriver: true,
+        }),
       ])
     );
     loop.start();
@@ -102,44 +116,49 @@ export default function BiometricLogin({
     else setMessage("");
   }, [isAvailable]);
 
-  const fail = useCallback((e: any) => {
-    setState(S.ERROR);
-    setMessage(e?.message || "Cancelled or failed. Try again.");
-    onError(e);
-  }, [onError]);
+  const fail = useCallback(
+    (e: any) => {
+      setState(S.ERROR);
+      setMessage(e?.message || "Cancelled or failed. Try again.");
+      onError(e);
+    },
+    [onError]
+  );
 
-  const succeed = useCallback((payload: any) => {
-    setState(S.SUCCESS);
-    setMessage("Signed in");
-    onSuccess(payload);
-  }, [onSuccess]);
+  const succeed = useCallback(
+    (payload: { token: string; user: any }) => {
+      setState(S.SUCCESS);
+      setMessage("Signed in");
+      onSuccess(payload);
+    },
+    [onSuccess]
+  );
 
   const handleTap = useCallback(async () => {
-    if ([S.CHECKING, S.UNAVAILABLE, S.PROMPTING].includes(state)) return;
-    setState(S.PROMPTING);
-    setMessage("Waiting for sensor…");
-    try {
-      // Check for saved credentials first
-      const credentials = await getBiometricCredentials();
-      if (!credentials) {
-        setState(S.ERROR);
-        setMessage("Sign in with password first to enable.");
-        return;
-      }
+    if (state === S.CHECKING || state === S.UNAVAILABLE || state === S.PROMPTING) return;
 
-      // Trigger biometric prompt
-      const success = await authenticate();
-      if (!success) {
+    // If no credential registered yet, nudge toward password login
+    if (!hasRegisteredCredential) {
+      setState(S.ERROR);
+      setMessage("Sign in with password first to enable.");
+      return;
+    }
+
+    setState(S.PROMPTING);
+    setMessage("Waiting for sensor\u2026");
+
+    try {
+      const result = await biometricLogin();
+      if (!result) {
         throw new Error("Not verified");
       }
-
-      succeed({ credentials, biometricType });
+      succeed(result);
     } catch (e) {
       fail(e);
     }
-  }, [state, authenticate, getBiometricCredentials, biometricType, fail, succeed]);
+  }, [state, hasRegisteredCredential, biometricLogin, fail, succeed]);
 
-  const disabled = [S.CHECKING, S.UNAVAILABLE, S.PROMPTING].includes(state);
+  const disabled = state === S.CHECKING || state === S.UNAVAILABLE || state === S.PROMPTING;
 
   return (
     <View style={styles.wrap}>
@@ -182,7 +201,7 @@ function Mark({ anim, color }: { anim: Animated.Value; color: string }) {
     outputRange: [CHECK_LEN, 0],
   });
   return (
-    <Svg width={54} height={54} viewBox="0 0 52 52">
+    <Svg width={92} height={92} viewBox="0 0 52 52">
       <AnimatedPath
         d="M12 28 L21 39 L40 8"
         stroke={color}
@@ -199,6 +218,16 @@ function Mark({ anim, color }: { anim: Animated.Value; color: string }) {
 
 const styles = StyleSheet.create({
   wrap: { alignItems: "center", justifyContent: "center", gap: 14 },
-  overlay: { ...StyleSheet.absoluteFillObject, alignItems: "center", justifyContent: "center" },
-  msg: { color: "#cbd5e1", fontSize: 14, fontWeight: "500", textAlign: "center", minHeight: 18 },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  msg: {
+    color: "#cbd5e1",
+    fontSize: 14,
+    fontWeight: "500",
+    textAlign: "center",
+    minHeight: 18,
+  },
 });

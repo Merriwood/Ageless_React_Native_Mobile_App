@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -29,8 +29,8 @@ export default function LoginScreen() {
     isAvailable: isBiometricAvailable,
     biometricType,
     isLoading: isBiometricLoading,
-    getBiometricCredentials,
-    saveCredentials,
+    hasRegisteredCredential,
+    registerBiometric,
   } = useBiometric();
 
   const [email, setEmail] = useState("");
@@ -39,18 +39,6 @@ export default function LoginScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [signInCollapsed, setSignInCollapsed] = useState(false);
-  const [hasSavedCredentials, setHasSavedCredentials] = useState(false);
-
-  // Check if user has saved biometric credentials
-  useEffect(() => {
-    const checkSavedCredentials = async () => {
-      if (isBiometricAvailable) {
-        const credentials = await getBiometricCredentials();
-        setHasSavedCredentials(!!credentials);
-      }
-    };
-    checkSavedCredentials();
-  }, [isBiometricAvailable, getBiometricCredentials]);
 
   const handleLogin = async () => {
     // Clear previous errors
@@ -94,9 +82,13 @@ export default function LoginScreen() {
 
       await setToken(token, normalizedUser);
 
-      // Save credentials for biometric login (if available)
+      // Register biometric credential for future logins (non-blocking)
       if (isBiometricAvailable) {
-        await saveCredentials(email, password);
+        try {
+          await registerBiometric(email, password);
+        } catch (e) {
+          console.log('[LoginScreen] Biometric registration skipped:', e);
+        }
       }
 
       // Redirect to dashboard
@@ -320,13 +312,11 @@ export default function LoginScreen() {
           {/* Biometric Login — wraps bracket pad; traces checkmark on success */}
           <View style={styles.biometricContainer}>
             <BiometricLogin
-              onSuccess={async ({ credentials }) => {
+              onSuccess={async ({ token, user }) => {
                 setIsLoading(true);
                 setError("");
                 try {
-                  const response = await loginApi(credentials.email, credentials.password);
-                  if (!response || !response.token) throw new Error("Invalid response from server");
-                  const { token, user } = response;
+                  if (!token) throw new Error("Invalid response from server");
                   const normalizedUser = user ? { ...user, id: String(user.id) } : undefined;
                   await setToken(token, normalizedUser);
                   router.replace("/dashboard");
@@ -350,7 +340,7 @@ export default function LoginScreen() {
             {isBiometricAvailable ? (
               <>
                 <Text style={styles.biometricLabel}>
-                  {hasSavedCredentials ? "Tap to sign in with" : "Sign in to enable"}
+                  {hasRegisteredCredential ? "Tap to sign in with" : "Sign in to enable"}
                 </Text>
                 <Text style={styles.biometricTypeLabel}>
                   {biometricType || "Biometrics"}

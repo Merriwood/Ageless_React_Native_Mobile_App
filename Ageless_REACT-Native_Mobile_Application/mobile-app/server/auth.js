@@ -34,7 +34,7 @@ async function loginUser(email, password) {
   return issueToken(user);
 }
 
-function issueToken(user) {
+export function issueToken(user) {
   let parsedGoal = null;
   if (user.goal) {
     try {

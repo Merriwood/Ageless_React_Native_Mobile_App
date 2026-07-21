@@ -19,8 +19,14 @@ import fs from 'fs';
 import bcrypt from "bcryptjs";
 
 // Load server auth/db modules
-import { register, login, changePassword, requireAuth } from "./server/auth.js";
+import { register, login, changePassword, requireAuth, issueToken } from "./server/auth.js";
 import { query } from "./server/db.js";
+import {
+  generateRegistrationOptions,
+  verifyRegistrationResponse,
+  generateAuthenticationOptions,
+  verifyAuthenticationResponse,
+} from '@simplewebauthn/server';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,6 +37,25 @@ dotenv.config({ path: envPath });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// ============ WebAuthn Helpers ============
+const challengeStore = new Map();
+function storeChallenge(key, challenge) {
+  challengeStore.set(key, challenge);
+  setTimeout(() => challengeStore.delete(key), 5 * 60 * 1000); // 5 min TTL
+}
+function popChallenge(key) {
+  const c = challengeStore.get(key);
+  challengeStore.delete(key);
+  return c;
+}
+function getRPConfig(req) {
+  const host = req.get('host') || 'localhost:3000';
+  const rpID = host.split(':')[0]; // strip port
+  const proto = req.get('x-forwarded-proto') || req.protocol || (rpID === 'localhost' ? 'http' : 'https');
+  const origin = `${proto}://${host}`;
+  return { rpID, origin, rpName: '.925 Fitness' };
+}
 
 // Middleware
 // Helmet with CSP disabled for Expo web bundles (which use inline scripts)
@@ -126,6 +151,26 @@ async function runMigrationsOnce() {
       }
     }
     
+    // Ensure webauthn_credentials table
+    try {
+      await query(`
+        CREATE TABLE IF NOT EXISTS webauthn_credentials (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+          credential_id TEXT UNIQUE NOT NULL,
+          public_key TEXT NOT NULL,
+          counter BIGINT DEFAULT 0,
+          transports TEXT DEFAULT '[]',
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+      await query('CREATE INDEX IF NOT EXISTS idx_webauthn_user ON webauthn_credentials(user_id)');
+      await query('CREATE INDEX IF NOT EXISTS idx_webauthn_credential ON webauthn_credentials(credential_id)');
+      console.log('[startup] webauthn_credentials table ensured ✓');
+    } catch (e) {
+      console.warn('[startup] webauthn table setup (non-fatal):', e.message);
+    }
+
     migrated = true;
     console.log('[startup] Database schema ensured ✓');
   } catch (e) {
@@ -373,6 +418,180 @@ app.post('/api/auth/forgot-password', async (req, res) => {
   }
 });
 console.log('[startup] ✓ POST /api/auth/forgot-password');
+
+// ============ WebAuthn ENDPOINTS ============
+
+// POST /api/webauthn/register-options — generate passkey registration challenge (requires auth)
+app.post('/api/webauthn/register-options', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.sub || req.user.id;
+    const { rpID, rpName } = getRPConfig(req);
+
+    // Fetch existing credentials to exclude (prevent duplicate registrations)
+    const { rows: existing } = await query(
+      'SELECT credential_id, transports FROM webauthn_credentials WHERE user_id = $1',
+      [userId]
+    );
+    const excludeCredentials = existing.map(r => ({
+      id: r.credential_id,
+      type: 'public-key',
+      transports: JSON.parse(r.transports || '[]'),
+    }));
+
+    const options = await generateRegistrationOptions({
+      rpName,
+      rpID,
+      userName: req.user.email,
+      userID: new TextEncoder().encode(String(userId)),
+      attestationType: 'none',
+      authenticatorSelection: {
+        residentKey: 'required',
+        userVerification: 'required',
+        authenticatorAttachment: 'platform', // only platform authenticators (Face ID, Touch ID, Windows Hello)
+      },
+      excludeCredentials,
+    });
+
+    // Store challenge for verification
+    storeChallenge(`reg_${userId}`, options.challenge);
+    console.log('[webauthn] Registration options generated for user:', userId);
+    res.json(options);
+  } catch (err) {
+    console.error('[webauthn] register-options error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+console.log('[startup] ✓ POST /api/webauthn/register-options');
+
+// POST /api/webauthn/register-verify — verify and store passkey credential (requires auth)
+app.post('/api/webauthn/register-verify', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.sub || req.user.id;
+    const { rpID, origin } = getRPConfig(req);
+    const expectedChallenge = popChallenge(`reg_${userId}`);
+
+    if (!expectedChallenge) {
+      return res.status(400).json({ error: 'Challenge expired or not found. Please try again.' });
+    }
+
+    const { response: regResponse } = req.body;
+    const verification = await verifyRegistrationResponse({
+      response: regResponse,
+      expectedChallenge,
+      expectedOrigin: origin,
+      expectedRPID: rpID,
+    });
+
+    if (!verification.verified || !verification.registrationInfo) {
+      return res.status(400).json({ error: 'Verification failed' });
+    }
+
+    const { credential } = verification.registrationInfo;
+    const publicKeyBase64 = Buffer.from(credential.publicKey).toString('base64');
+    const transports = JSON.stringify(regResponse.response?.transports || []);
+
+    await query(
+      `INSERT INTO webauthn_credentials (user_id, credential_id, public_key, counter, transports)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (credential_id) DO UPDATE SET
+         public_key = EXCLUDED.public_key,
+         counter = EXCLUDED.counter,
+         transports = EXCLUDED.transports`,
+      [userId, credential.id, publicKeyBase64, credential.counter, transports]
+    );
+
+    console.log('[webauthn] Credential registered for user:', userId, 'credentialId:', credential.id.substring(0, 16) + '...');
+    res.json({ verified: true });
+  } catch (err) {
+    console.error('[webauthn] register-verify error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+console.log('[startup] ✓ POST /api/webauthn/register-verify');
+
+// POST /api/webauthn/auth-options — generate passkey authentication challenge (public)
+app.post('/api/webauthn/auth-options', async (req, res) => {
+  try {
+    const { rpID } = getRPConfig(req);
+
+    // Use discoverable credentials — browser will show all passkeys for this RP
+    const options = await generateAuthenticationOptions({
+      rpID,
+      userVerification: 'required',
+    });
+
+    // Store challenge keyed by the challenge itself (we don't know the user yet)
+    storeChallenge(`auth_${options.challenge}`, options.challenge);
+    console.log('[webauthn] Auth options generated');
+    res.json(options);
+  } catch (err) {
+    console.error('[webauthn] auth-options error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+console.log('[startup] ✓ POST /api/webauthn/auth-options');
+
+// POST /api/webauthn/auth-verify — verify passkey and return JWT (public)
+app.post('/api/webauthn/auth-verify', async (req, res) => {
+  try {
+    const { rpID, origin } = getRPConfig(req);
+    const { response: authResponse } = req.body;
+
+    // Look up the credential in the database
+    const { rows: credRows } = await query(
+      'SELECT wc.*, u.id as uid, u.email, u.goal FROM webauthn_credentials wc JOIN users u ON wc.user_id = u.id WHERE wc.credential_id = $1',
+      [authResponse.id]
+    );
+
+    if (!credRows.length) {
+      return res.status(401).json({ error: 'Credential not found. Please sign in with password.' });
+    }
+
+    const cred = credRows[0];
+    const publicKeyUint8 = new Uint8Array(Buffer.from(cred.public_key, 'base64'));
+
+    // Recover the challenge from clientDataJSON
+    const clientDataJSON = JSON.parse(
+      Buffer.from(authResponse.response.clientDataJSON, 'base64url').toString('utf-8')
+    );
+    const expectedChallenge = popChallenge(`auth_${clientDataJSON.challenge}`);
+
+    if (!expectedChallenge) {
+      return res.status(400).json({ error: 'Challenge expired or not found. Please try again.' });
+    }
+
+    const verification = await verifyAuthenticationResponse({
+      response: authResponse,
+      expectedChallenge,
+      expectedOrigin: origin,
+      expectedRPID: rpID,
+      credential: {
+        id: cred.credential_id,
+        publicKey: publicKeyUint8,
+        counter: parseInt(cred.counter, 10),
+      },
+    });
+
+    if (!verification.verified) {
+      return res.status(401).json({ error: 'Authentication failed' });
+    }
+
+    // Update counter
+    await query(
+      'UPDATE webauthn_credentials SET counter = $1 WHERE credential_id = $2',
+      [verification.authenticationInfo.newCounter, cred.credential_id]
+    );
+
+    // Issue JWT using the same function as password login
+    const result = issueToken({ id: cred.uid, email: cred.email, goal: cred.goal });
+    console.log('[webauthn] Auth verified for user:', cred.email);
+    res.json(result);
+  } catch (err) {
+    console.error('[webauthn] auth-verify error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+console.log('[startup] ✓ POST /api/webauthn/auth-verify');
 
 // Protected endpoint - get current user
 app.get('/api/me', requireAuth, async (req, res) => {

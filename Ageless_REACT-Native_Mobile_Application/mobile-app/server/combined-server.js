@@ -121,7 +121,7 @@ runMigrationsOnce().then(() => {
   app.listen(PORT, () => {
     console.log(`
 ╔════════════════════════════════════╗
-║   Ageless App Server Running       ║
+║   SterlingFit App Server Running   ║
 ╠════════════════════════════════════╣
 ║ Frontend: http://localhost:${PORT}        ║
 ║ API:      http://localhost:${PORT}/api  ║

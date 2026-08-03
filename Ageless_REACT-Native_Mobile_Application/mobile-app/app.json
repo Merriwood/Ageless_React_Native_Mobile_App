@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "mobile-app",
+    "name": "SterlingFit",
     "slug": "mobile-app",
     "version": "1.0.0",
     "orientation": "default",
@@ -21,7 +21,7 @@
       },
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSFaceIDUsageDescription": "Ageless uses Face ID to securely sign you in to your account."
+        "NSFaceIDUsageDescription": "SterlingFit uses Face ID to securely sign you in to your account."
       }
     },
     "android": {
@@ -47,7 +47,7 @@
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "Ageless uses Face ID to securely sign you in to your account."
+          "faceIDPermission": "SterlingFit uses Face ID to securely sign you in to your account."
         }
       ]
     ],

@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Override Tailwind Preflight white background — .925 Obsidian palette
+/* Override Tailwind Preflight white background — SterlingFit Obsidian palette
    Preflight sets html/body to #fff which bleeds through behind
    the Dynamic Island / status bar area on iOS PWA */
 html, body, #root {

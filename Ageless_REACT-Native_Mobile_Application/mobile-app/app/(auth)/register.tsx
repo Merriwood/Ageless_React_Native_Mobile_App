@@ -127,7 +127,7 @@ export default function RegisterScreen() {
               color: theme.colors.text.secondary,
             }}
           >
-            Join .925 Fitness
+            Join SterlingFit
           </Text>
         </View>
 

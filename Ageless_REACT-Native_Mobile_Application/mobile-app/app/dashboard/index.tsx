@@ -445,7 +445,7 @@ export default function Dashboard() {
       zIndex: 400, // CRITICAL FIX: Web PWA uses z-[400], not 10
     },
     headerTitle: {
-      fontSize: 24, // Matches PWA ".925" header size
+      fontSize: 24, // Matches PWA "SterlingFit" header size
       fontWeight: '700', // Bold
       color: theme.colors.text.primary, // Platinum text
       textAlign: 'center',
@@ -659,7 +659,7 @@ export default function Dashboard() {
 
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>.925</Text>
+          <Text style={styles.headerTitle}>SterlingFit</Text>
           <TouchableOpacity
             onPress={() => setMyAbsDrawerVisible(true)}
             style={styles.headerMenuButton}

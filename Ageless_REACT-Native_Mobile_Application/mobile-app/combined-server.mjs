@@ -54,7 +54,7 @@ function getRPConfig(req) {
   const rpID = host.split(':')[0]; // strip port
   const proto = req.get('x-forwarded-proto') || req.protocol || (rpID === 'localhost' ? 'http' : 'https');
   const origin = `${proto}://${host}`;
-  return { rpID, origin, rpName: '.925 Fitness' };
+  return { rpID, origin, rpName: 'SterlingFit' };
 }
 
 // Middleware
@@ -843,7 +843,7 @@ runMigrationsOnce().then(() => {
   app.listen(PORT, () => {
     console.log(`
 ╔════════════════════════════════════╗
-║   Ageless App Server Running       ║
+║   SterlingFit App Server Running   ║
 ╠════════════════════════════════════╣
 ║ Frontend: http://localhost:${PORT}        ║
 ║ API:      http://localhost:${PORT}/api  ║

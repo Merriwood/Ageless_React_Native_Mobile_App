@@ -93,7 +93,7 @@ export default function ProfileScreen() {
 
       {/* Red Header - matches PWA design - Centered */}
       <View style={styles.header}>
-        <Text style={styles.headerText}>.925</Text>
+        <Text style={styles.headerText}>SterlingFit</Text>
         <TouchableOpacity onPress={() => router.back()} style={styles.headerMenuButton}>
           <Ionicons name="menu" size={24} color={theme.colors.text.primary} />
         </TouchableOpacity>

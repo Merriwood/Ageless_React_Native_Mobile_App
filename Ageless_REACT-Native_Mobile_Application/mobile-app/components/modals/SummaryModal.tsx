@@ -161,7 +161,7 @@ export function SummaryModal({
         <View style={styles.modalContainer}>
           {/* Header */}
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>.925</Text>
+            <Text style={styles.modalTitle}>SterlingFit</Text>
             <TouchableOpacity
               style={styles.headerMenuButton}
               onPress={onClose}

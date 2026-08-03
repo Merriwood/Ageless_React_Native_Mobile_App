@@ -1,8 +1,8 @@
 #!/bin/bash
 # Backend Deployment Script for Render
-# This script helps deploy the Ageless backend API to Render
+# This script helps deploy the SterlingFit backend API to Render
 
-echo "🚀 Ageless Backend Deployment Setup"
+echo "🚀 SterlingFit Backend Deployment Setup"
 echo "===================================="
 echo ""
 echo "This script will guide you through deploying the backend API to Render."

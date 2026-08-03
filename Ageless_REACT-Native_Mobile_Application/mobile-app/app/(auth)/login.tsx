@@ -307,7 +307,7 @@ export default function LoginScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>.925</Text>
+          <Text style={styles.title}>SterlingFit</Text>
 
           {/* Biometric Login — wraps bracket pad; traces checkmark on success */}
           <View style={styles.biometricContainer}>

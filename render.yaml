@@ -1,6 +1,13 @@
 services:
   - type: web
     name: ageless-mobile-web
+    # Deploy source. Without this key Render falls back to the repo default
+    # branch (main), which trails this branch by 100+ commits and does NOT
+    # contain the SterlingFit rebrand or the biometric login work. The live
+    # service already tracks 925_Branch_refactor via its dashboard setting;
+    # pinning it here means a service recreated from this blueprint gets the
+    # same branch instead of silently deploying stale main.
+    branch: 925_Branch_refactor
     runtime: node
     buildCommand: cd Ageless_REACT-Native_Mobile_Application/mobile-app && npm install && npm run build
     startCommand: cd Ageless_REACT-Native_Mobile_Application/mobile-app && npx serve -s dist -p 8081

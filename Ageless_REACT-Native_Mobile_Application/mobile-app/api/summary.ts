@@ -7,6 +7,7 @@
  */
 
 import { client } from './client';
+import { toLocalDateKey } from '../lib/date-utils';
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -179,20 +180,19 @@ export const summaryAPI = {
    * @param referenceDate - Center date for week calculation (defaults to today)
    */
   async getWeekSummary(referenceDate?: Date): Promise<SummaryResponse['data']> {
-    const today = referenceDate || new Date();
+    // Copy so the caller's Date is not mutated
+    const today = new Date(referenceDate || new Date());
 
     // Find start of week (Sunday - day 0)
-    const day = today.getDay();
-    const diff = today.getDate() - day;
-    const startOfWeek = new Date(today.setDate(diff));
-    startOfWeek.setHours(0, 0, 0, 0);
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay());
 
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(endOfWeek.getDate() + 6); // Saturday
-    endOfWeek.setHours(23, 59, 59, 999);
 
-    const startDate = startOfWeek.toISOString().split('T')[0];
-    const endDate = endOfWeek.toISOString().split('T')[0];
+    // Local calendar dates (toISOString would shift to UTC)
+    const startDate = toLocalDateKey(startOfWeek);
+    const endDate = toLocalDateKey(endOfWeek);
 
     return this.getSummary(startDate, endDate);
   },
@@ -209,8 +209,8 @@ export const summaryAPI = {
     const startDate = new Date(year, month, 1);
     const endDate = new Date(year, month + 1, 0);
 
-    const startDateStr = startDate.toISOString().split('T')[0];
-    const endDateStr = endDate.toISOString().split('T')[0];
+    const startDateStr = toLocalDateKey(startDate);
+    const endDateStr = toLocalDateKey(endDate);
 
     return this.getSummary(startDateStr, endDateStr);
   },
@@ -221,85 +221,69 @@ export const summaryAPI = {
    *
    * @param referenceDate - Center date for 52-week calculation (defaults to today)
    * @returns Array of week data matching WeekData interface structure
+   * @throws If the request fails or the response is not a list. Callers show
+   *         their error/Retry state — we deliberately do NOT return zero-filled
+   *         weeks, because that looks exactly like "all my data is gone".
    */
   async get52WeekSummary(referenceDate?: Date) {
     const today = referenceDate || new Date();
 
-    try {
-      // Single API call - backend returns all weeks with data
-      interface SummaryRow { week_of_sunday: string; weight_avg: string | null; totals: Record<string, number> }
-      const rows = await client.get<SummaryRow[]>('/api/summary') || [];
-
-      // Create a map of week data from API response
-      const weekDataMap = new Map<string, any>();
-      for (const row of rows) {
-        const weekSunday = row.week_of_sunday;
-        weekDataMap.set(weekSunday, row);
-      }
-
-      // Generate 52 weeks of data
-      const weeks = [];
-      for (let i = 0; i < 52; i++) {
-        const weekDate = new Date(today);
-        weekDate.setDate(weekDate.getDate() - i * 7);
-
-        // Get Sunday of this week
-        const day = weekDate.getDay();
-        const sundayDate = new Date(weekDate);
-        sundayDate.setDate(sundayDate.getDate() - day);
-        const sundayStr = sundayDate.toISOString().split('T')[0];
-
-        // Check if we have data for this week
-        const apiData = weekDataMap.get(sundayStr);
-        const totals = apiData?.totals || {};
-
-        const weekData = {
-          dateRange: this._formatWeekRange(weekDate),
-          avgWeight: apiData?.weight_avg ? parseFloat(apiData.weight_avg) : null,
-          bike: totals['bike'] || 0,
-          abs: totals['abs'] || 0,
-          chestPress: totals['chest press'] || totals['chestPress'] || 0,
-          legPress: totals['leg press'] || totals['legPress'] || 0,
-          lat: totals['lat'] || 0,
-          military: totals['military'] || 0,
-          crunch: totals['crunch'] || 0,
-          bicepCurls: totals['bicep curls'] || totals['bicepCurls'] || 0,
-          triceps: totals['triceps'] || 0,
-          overheadPull: totals['overhead pull'] || totals['overheadPull'] || 0,
-          row: totals['row'] || 0,
-          totalSets: Object.values(totals).reduce((sum: number, val: any) => sum + (Number(val) || 0), 0),
-        };
-
-        weeks.push(weekData);
-      }
-
-      return weeks;
-    } catch (error) {
-      console.error('Failed to fetch 52-week summary:', error);
-      // Return empty placeholder data on error
-      const weeks = [];
-      for (let i = 0; i < 52; i++) {
-        const weekDate = new Date(today);
-        weekDate.setDate(weekDate.getDate() - i * 7);
-        weeks.push({
-          dateRange: this._formatWeekRange(weekDate),
-          avgWeight: null,
-          bike: 0,
-          abs: 0,
-          chestPress: 0,
-          legPress: 0,
-          lat: 0,
-          military: 0,
-          crunch: 0,
-          bicepCurls: 0,
-          triceps: 0,
-          overheadPull: 0,
-          row: 0,
-          totalSets: 0,
-        });
-      }
-      return weeks;
+    // Single API call - backend returns all weeks with data
+    interface SummaryRow { week_of_sunday: string; weight_avg: string | null; totals: Record<string, number> }
+    const response = await client.get<SummaryRow[]>('/api/summary');
+    if (response != null && !Array.isArray(response)) {
+      throw new Error('Unexpected progress summary response from server');
     }
+    const rows: SummaryRow[] = response || [];
+
+    // Create a map of week data from API response
+    const weekDataMap = new Map<string, any>();
+    for (const row of rows) {
+      const weekSunday = row.week_of_sunday;
+      weekDataMap.set(weekSunday, row);
+    }
+
+    // Generate 52 weeks of data
+    const weeks = [];
+    for (let i = 0; i < 52; i++) {
+      const weekDate = new Date(today);
+      weekDate.setDate(weekDate.getDate() - i * 7);
+
+      // Get Sunday of this week as a LOCAL calendar date, to match the
+      // server's week_of_sunday (built from entries saved with local dates).
+      // Previously toISOString() was used here, which converts to UTC: after
+      // 8 pm EDT / 7 pm EST the key became Monday, nothing matched, and every
+      // week showed zero.
+      const day = weekDate.getDay();
+      const sundayDate = new Date(weekDate);
+      sundayDate.setDate(sundayDate.getDate() - day);
+      const sundayStr = toLocalDateKey(sundayDate);
+
+      // Check if we have data for this week
+      const apiData = weekDataMap.get(sundayStr);
+      const totals = apiData?.totals || {};
+
+      const weekData = {
+        dateRange: this._formatWeekRange(weekDate),
+        avgWeight: apiData?.weight_avg ? parseFloat(apiData.weight_avg) : null,
+        bike: totals['bike'] || 0,
+        abs: totals['abs'] || 0,
+        chestPress: totals['chest press'] || totals['chestPress'] || 0,
+        legPress: totals['leg press'] || totals['legPress'] || 0,
+        lat: totals['lat'] || 0,
+        military: totals['military'] || 0,
+        crunch: totals['crunch'] || 0,
+        bicepCurls: totals['bicep curls'] || totals['bicepCurls'] || 0,
+        triceps: totals['triceps'] || 0,
+        overheadPull: totals['overhead pull'] || totals['overheadPull'] || 0,
+        row: totals['row'] || 0,
+        totalSets: Object.values(totals).reduce((sum: number, val: any) => sum + (Number(val) || 0), 0),
+      };
+
+      weeks.push(weekData);
+    }
+
+    return weeks;
   },
 
   /**

@@ -115,6 +115,9 @@ export default function Dashboard() {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to load progress data';
       setSummaryError(errorMessage);
+      // Drop any previous weeks so the summary shows the error/Retry state
+      // rather than stale or zero-filled rows.
+      setSummaryWeekData([]);
       console.error('Error fetching progress summary:', error);
     } finally {
       setSummaryLoading(false);

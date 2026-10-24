@@ -9,6 +9,25 @@
  */
 
 /**
+ * Format a date as YYYY-MM-DD using the device's LOCAL calendar date.
+ *
+ * Use this (not toISOString) for any date sent to or matched against the API.
+ * toISOString() converts to UTC first, so in US Eastern time any moment after
+ * 8 pm EDT / 7 pm EST becomes the NEXT day — which made the Progress Summary
+ * look up Monday-keyed weeks that don't exist and show all zeros.
+ *
+ * @example
+ * // 2026-10-23 21:00 EDT
+ * toLocalDateKey(new Date(2026, 9, 23, 21)) // '2026-10-23' (toISOString gives '2026-10-24')
+ */
+export function toLocalDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
  * Get the Sunday of the week for a given date
  * Weeks run Sunday (0) to Saturday (6)
  *

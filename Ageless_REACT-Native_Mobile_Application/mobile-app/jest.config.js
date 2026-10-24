@@ -1,6 +1,8 @@
 module.exports = {
   preset: 'react-native',
   testEnvironment: 'node',
+  // Run every test in US Eastern time (see __tests__/global-setup.js)
+  globalSetup: '<rootDir>/__tests__/global-setup.js',
   setupFilesAfterEnv: ['<rootDir>/__tests__/setup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
@@ -15,7 +17,7 @@ module.exports = {
     '<rootDir>/__tests__/**/*.test.ts',
     '<rootDir>/__tests__/**/*.test.tsx',
   ],
-  testPathIgnorePatterns: ['/node_modules/', '/__tests__/setup.ts'],
+  testPathIgnorePatterns: ['/node_modules/', '/__tests__/setup.ts', '/__tests__/global-setup.js'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   collectCoverageFrom: [
     'api/**/*.ts',

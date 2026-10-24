@@ -166,8 +166,10 @@ export function ProgressSummaryScreen({
       setFetchedData(data);
     } catch (err) {
       console.error('Failed to load summary:', err);
-      setInternalError('Unable to load progress data. Showing placeholder.');
-      setFetchedData(generatePlaceholderData());
+      // Show the error + Retry state. Do NOT fill with zero placeholder rows:
+      // all-zero weeks are indistinguishable from "my data was lost".
+      setInternalError('Unable to load progress data. Check your connection and tap Retry.');
+      setFetchedData([]);
     } finally {
       setInternalLoading(false);
     }
@@ -220,7 +222,7 @@ export function ProgressSummaryScreen({
                 <ActivityIndicator size="large" color={theme.colors.primary} />
                 <Text style={styles.loadingText}>Loading progress data...</Text>
               </View>
-            ) : error && fetchedData.length === 0 ? (
+            ) : error && fetchedData.length === 0 && !(weeks && weeks.length > 0) ? (
               <View style={styles.errorContainer}>
                 <Text style={styles.errorTitle}>Unable to Load Data</Text>
                 <Text style={styles.errorMessage}>{error}</Text>

@@ -127,7 +127,7 @@ export default function RegisterScreen() {
               color: theme.colors.text.secondary,
             }}
           >
-            Join SterlingFit
+            Join Sterling Fitness
           </Text>
         </View>
 

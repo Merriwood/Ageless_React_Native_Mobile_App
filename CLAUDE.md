@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SterlingFit is a React Native fitness tracking mobile app built with Expo. It tracks 11 specific exercises with workout history and progress summaries. The app is a port from an existing PWA (reference in `Old_Ageless_Web_PWA/`).
+Sterling Fitness is a React Native fitness tracking mobile app built with Expo. It tracks 11 specific exercises with workout history and progress summaries. The app is a port from an existing PWA (reference in `Old_Ageless_Web_PWA/`).
 
 ## Development Commands
 

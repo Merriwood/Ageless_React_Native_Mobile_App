@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ################################################################################
-# SterlingFit Maestro Testing Setup Script
+# Sterling Fitness Maestro Testing Setup Script
 #
 # Purpose: Automate Maestro preliminary testing setup without Expo Go or EAS Build
 # Requirements: Xcode, Node.js, npm, Maestro CLI
@@ -26,7 +26,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-PROJECT_NAME="SterlingFit"
+PROJECT_NAME="Sterling Fitness"
 PROJECT_SLUG="ageless-fitness"
 APP_NAME="mobile-app"
 BUNDLE_ID="com.ageless.fitnessapp"
@@ -305,7 +305,7 @@ full_reset() {
 show_help() {
     cat << EOF
 
-${BLUE}SterlingFit Maestro Testing Setup${NC}
+${BLUE}Sterling Fitness Maestro Testing Setup${NC}
 
 ${GREEN}Usage:${NC}
   ./setup-maestro-testing.sh [action]

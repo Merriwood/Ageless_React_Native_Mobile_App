@@ -228,7 +228,7 @@ describe('Ops Test 3: registerBiometric (credential enrollment)', () => {
 
     webauthnAPI.getRegisterOptions.mockResolvedValue({
       challenge: 'cmVnLWNoYWxsZW5nZQ',
-      rp: { name: 'SterlingFit', id: 'localhost' },
+      rp: { name: 'Sterling Fitness', id: 'localhost' },
       user: { id: 'dXNlci0x', name: 'user@test.com', displayName: 'user@test.com' },
       pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
       excludeCredentials: [],

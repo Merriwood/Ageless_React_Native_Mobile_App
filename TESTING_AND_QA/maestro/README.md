@@ -1,4 +1,4 @@
-# Maestro iOS Testing - SterlingFit React Native
+# Maestro iOS Testing - Sterling Fitness React Native
 
 **Date**: 2026-01-14
 **Status**: ✅ Ready for Production Testing

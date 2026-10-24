@@ -121,7 +121,7 @@ runMigrationsOnce().then(() => {
   app.listen(PORT, () => {
     console.log(`
 ╔════════════════════════════════════╗
-║   SterlingFit App Server Running   ║
+║   Sterling Fitness Server Running  ║
 ╠════════════════════════════════════╣
 ║ Frontend: http://localhost:${PORT}        ║
 ║ API:      http://localhost:${PORT}/api  ║

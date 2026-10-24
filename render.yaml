@@ -3,7 +3,7 @@ services:
     name: ageless-mobile-web
     # Deploy source. Without this key Render falls back to the repo default
     # branch (main), which trails this branch by 100+ commits and does NOT
-    # contain the SterlingFit rebrand or the biometric login work. The live
+    # contain the Sterling Fitness rebrand or the biometric login work. The live
     # service already tracks 925_Branch_refactor via its dashboard setting;
     # pinning it here means a service recreated from this blueprint gets the
     # same branch instead of silently deploying stale main.

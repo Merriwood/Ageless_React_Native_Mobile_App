@@ -1,7 +1,7 @@
 {
-  "name": "SterlingFit - Fitness Tracking",
-  "short_name": "SterlingFit",
-  "description": "Track your fitness progress with SterlingFit, the personal fitness tracking app.",
+  "name": "Sterling Fitness - Fitness Tracking",
+  "short_name": "Sterling Fitness",
+  "description": "Track your fitness progress with Sterling Fitness, the personal fitness tracking app.",
   "start_url": "/",
   "display": "standalone",
   "scope": "/",

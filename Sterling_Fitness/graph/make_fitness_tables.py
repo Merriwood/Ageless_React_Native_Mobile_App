@@ -4,7 +4,7 @@ technique tables (FIT-T) in fitness_spec.py to one HTML page, the companion to
 make_fitness_diagram.py. Generated, never edited by hand: change the spec and
 run this again.
 
-The HTML page goes to archive/v<VERSION>_<DATE>/. It is printed with Chrome to
+The HTML page goes to ../archive/graph/v<VERSION>_<DATE>/. It is printed with Chrome to
 a PDF in this folder, which is the copy to read.
 """
 import html
@@ -103,7 +103,7 @@ def build():
 
 HERE = pathlib.Path(__file__).resolve().parent
 NAME = f"{DATE.replace('-', '')}_FIT-T_technique-tables_v{VERSION}"
-OUT = HERE / "archive" / f"v{VERSION}_{DATE}" / f"{NAME}.html"
+OUT = HERE.parent / "archive" / "graph" / f"v{VERSION}_{DATE}" / f"{NAME}.html"
 PDF = HERE / f"{NAME}.pdf"
 CHROME = pathlib.Path(r"C:\Program Files\Google\Chrome\Application\chrome.exe")
 

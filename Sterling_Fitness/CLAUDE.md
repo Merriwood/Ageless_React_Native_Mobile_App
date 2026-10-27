@@ -9,10 +9,11 @@ all member data live in the separate `Local LM Models` repository.
   exercise model, technique tables, sources, deviations, owner decisions.
 - `graph/make_fitness_diagram.py` — draws the diagram from the spec.
 - `graph/make_fitness_tables.py` — writes the technique tables from the spec as
-  HTML in `graph/archive/<version>_<date>/`, then prints the PDF into `graph/`.
+  HTML in `archive/graph/<version>_<date>/`, then prints the PDF into `graph/`.
   Needs Chrome.
 - `graph/*.svg`, `graph/*.pdf` and the tables HTML — generated. Never edit by hand.
-- `graph/archive/` — old versions, plus the current tables HTML that
+- `archive/` — the master archive for files no longer in use. `archive/graph/`
+  holds old graph versions, plus the current tables HTML that
   `make_fitness_tables.py` writes. A record only; never edit by hand.
 
 ## Commands

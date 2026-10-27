@@ -15,11 +15,11 @@ the app.
 | `CLAUDE.md` | v0.2 (2026-10-27) | Instructions for coding agents: commands, rules, change order, when to stop and ask |
 | `graph/fitness_spec.py` | draft v0.2 (2026-10-27) | The agent graph spec: 7 lanes, 28 agents, gates, control services, the glossary, the exercise model (body part, movement, exercise) and the technique tables (FIT-T) with their sources, deviations and open decisions. The single source of truth for the drawing and the tables |
 | `graph/make_fitness_diagram.py` | draft v0.2 | Draws the diagram from the spec. Adapted from `make_diagram.py` in `Merriwood/propertydd-graph` v2.8 |
-| `graph/make_fitness_tables.py` | draft v0.2 | Writes the technique tables from the spec as one HTML page in `graph/archive/<version>_<date>/`, then prints it with Chrome to the PDF in `graph/` |
+| `graph/make_fitness_tables.py` | draft v0.2 | Writes the technique tables from the spec as one HTML page in `archive/graph/<version>_<date>/`, then prints it with Chrome to the PDF in `graph/` |
 | `graph/20261027_sterling-fitness-agent-graph_v0.2.svg` | draft v0.2 | The drawing. Generated, never edited by hand |
-| `graph/20261027_FIT-T_technique-tables_v0.2.pdf` | draft v0.2 | The technique tables. Generated, never edited by hand. ST1 is the first; the other agents follow. Printed from the HTML page in `graph/archive/v0.2_2026-10-27/` |
+| `graph/20261027_FIT-T_technique-tables_v0.2.pdf` | draft v0.2 | The technique tables. Generated, never edited by hand. ST1 is the first; the other agents follow. Printed from the HTML page in `archive/graph/v0.2_2026-10-27/` |
 
-Earlier versions are kept, unchanged, in `graph/archive/<version>_<date>/`.
+Earlier versions are kept, unchanged, in `archive/graph/<version>_<date>/`.
 They are a record only; nothing reads them.
 
 Planned: the program document (FIT-ARCH) and a technique table for every

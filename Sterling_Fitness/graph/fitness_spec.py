@@ -364,7 +364,7 @@ EXERCISE_MODEL = [
          muscles="Upper back (upper trapezius)",
          exercises=[("crunch", "Shoulder Crunch", "app", "App name today: Crunch. Also "
                                                          "called a dumbbell shrug. Not a "
-                                                         "stomach crunch. O3")]),
+                                                         "stomach crunch. O3, O7")]),
     # Core
     dict(part="core", side="", movement="Trunk curl",
          muscles="Front stomach muscles (rectus abdominis)",
@@ -466,12 +466,13 @@ TECHNIQUES = {
             dict(id="ST1.4", step="Count days",
                  does="Counts the days each body part was trained. Rule: 2 or more.",
                  sources=["WHO2020", "PAG2018"], status="proposed",
-                 note="Same rule for every age band. How a body part trained on one day "
-                      "affects the program score: see O6. Not counted today: D2."),
+                 note="Same rule for every age band. A body part trained on one day earns "
+                      "at most half credit in ST1.5 (O6). Not counted today: D2."),
             dict(id="ST1.5", step="Program score",
                  does="Per assigned exercise: sets done of that exercise / sets assigned, "
-                      "capped at 1. Program score = 100 x the average over the assigned "
-                      "exercises. The member's strength score.",
+                      "capped at 1, or at 0.5 if its body part was trained on only one day "
+                      "(O6). Program score = 100 x the average over the assigned exercises. "
+                      "The member's strength score.",
                  sources=[], status="proposed",
                  note="Matched by exercise id, so a substitute earns nothing here. The cap "
                       "stops extra sets of one exercise from making up for one that was "
@@ -542,8 +543,11 @@ OPEN_DECISIONS = [
               "or above target, so falling short of the program scores lower. Program "
               "changes start on Sunday. The program is weekly sets per exercise, with "
               "each body part on 2 or more days."),
-    dict(id="O6", agent="ST1", status="open",
-         text="A body part trained on only one day in a week. Recommended: its exercises "
-              "earn at most half their program credit that week, so the 2-day rule counts "
+    dict(id="O6", agent="ST1", status="decided 2026-10-27",
+         text="A body part trained on only one day in a week. Decided: its exercises earn "
+              "at most half their program credit that week, so the 2-day rule counts "
               "without a separate score."),
+    dict(id="O7", agent="ST1", status="open",
+         text="Shoulder lift has one exercise (Shoulder Crunch), so N3 cannot rotate it. "
+              "The owner will name a second exercise later in the build."),
 ]

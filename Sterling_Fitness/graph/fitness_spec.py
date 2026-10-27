@@ -515,9 +515,11 @@ DEVIATIONS = [
          text="The scoring code matches logs by the app's names (e.g. 'Military'), not by id. "
               "Switch matching to ids before any app name changes, or logged sets stop counting."),
     dict(id="D7", agent="ST1",
-         text="The scoring code scores sets against targets (ST1.6). The method scores the "
-              "program (ST1.5). Until the code changes, the strength score is the target "
-              "score, and no program is stored."),
+         text="The code scores the program (ST1.5) for any week with an approved program, "
+              "and the target score, labelled 'target score (no program)', for any week "
+              "without one. No program is stored yet, so every week is the target score. "
+              "N3 is a placeholder (fitness_program.py, 8 sets per group); the code's "
+              "targets are still the placeholder table (D3)."),
 ]
 
 # status: "open", or the date the owner decided it.

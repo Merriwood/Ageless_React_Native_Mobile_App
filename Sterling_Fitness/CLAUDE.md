@@ -15,6 +15,10 @@ all member data live in the separate `Local LM Models` repository.
 - `archive/` — the master archive for files no longer in use. `archive/graph/`
   holds old graph versions, plus the current tables HTML that
   `make_fitness_tables.py` writes. A record only; never edit by hand.
+- `.claude/Coding Agents/langGraph-builder.md` — coding rules for LangGraph
+  work. Copied unchanged from the Property DD graph folder.
+- `.claude/skills/graph-agent-engineering/` — the check to run before building
+  any graph: does this work need a graph at all. Copied unchanged.
 
 ## Commands
 
@@ -41,6 +45,25 @@ Scoring tests (in `Local LM Models`): `python -m pytest tests/test_fitness_analy
    current, measured, and covering ages 50 and up. Cite it by id from `SOURCES`.
 7. No member data in this folder: no results, names or test dates.
 8. Use the terms in `GLOSSARY` exactly. Do not invent synonyms.
+
+## Frameworks
+
+- The agent graph is built on LangChain and LangGraph only. Follow
+  `.claude/Coding Agents/langGraph-builder.md` for all LangGraph code.
+- Before building an agent or a lane, run the check in
+  `.claude/skills/graph-agent-engineering/SKILL.md`. If the steps all feed each
+  other, build a plain function or one loop, not a graph.
+- Confirm installed versions of `langgraph`, `langchain-core` and `langsmith`
+  before writing code. Do not rely on tutorials or memory.
+- LangGraph runs the steps. It never sets a score. Scores, pass or fail and
+  program checks stay in plain, tested Python (rule 1).
+- LangSmith (the service that records each run) is for development with test
+  data only. Hosted tracing is never on when member data is loaded, because it
+  would send health data off the member's machine. The graph code must check
+  `LANGSMITH_TRACING` and `LANGCHAIN_TRACING_V2` at start and stops if either is
+  on with member data. Test fixtures hold no real member data.
+- The graph code goes in `Local LM Models` with the scoring code, not in this
+  folder.
 
 ## Change order
 

@@ -1,0 +1,36 @@
+# run-contract.yaml — copy this file beside your graph code and replace every value.
+#
+# Written by the implementing agent BEFORE the first node is written.
+# A required field that is missing, empty, or still holding the example value below
+# blocks dispatch: the orchestrator refuses to run. It does not warn and proceed.
+# A field that does not apply takes  N/A: "<reason>"  — never silence.
+#
+# The numbers here belong to the example run, not to yours. Derive CAP from what the
+# task needs, BUDGET from a recorded estimate, MAX_IN_FLIGHT from the endpoint's real
+# limit, TIMEOUT from a measured node. Reusing them unexamined is cargo-culting.
+#
+# Scaffolding: a field describing a band not yet built takes  PENDING: "<node that sets it>".
+# It blocks dispatch of that band only. PENDING is not N/A, and none may remain at final merge.
+# Required for every graph
+GOAL:          "40 competitor prices, each anchored to a live pricing page, surviving three-lens veto"
+FAN_OUT:       [{node: price_scan, tier: cheap, count: 40, tools: [fetch]}]
+RULE:          schemas/price.json
+MERGE:         {dedupe_key: [competitor, plan], rank_by: date}
+CAP:           {items: 40, agents: 200, checkers_counted: true}
+BUDGET:        {estimate_tokens: 900000, abort_at_tokens: 1800000}
+MAX_IN_FLIGHT: 8
+TIMEOUT:       {per_attempt_s: 90, per_node_s: 400}
+RETRY:         {attempts: 2, backoff: exponential_jitter, terminal: ERROR}
+CHECKPOINT:    {key: [node_id, prompt_hash, schema_hash, input_hash, model_id]}
+RUN_LOG:       {path: runs/2026-08-24.jsonl, per_node: [run_id, status, duration, tokens, veto_reason]}
+ON_FAIL:       {count: returns_against_dispatches, mismatch: flag_and_continue, report_to: runs/flags.md}
+EGRESS:        {allow: [acme.com], max_bytes: 2000000}
+UNTRUSTED:     {fence: per_call_nonce, strip_fence_from_content: true, restate_instruction_after: true}
+SAVE:          {path: report.md, show_human: top_findings}
+HUMAN_GATE:    {before: [write, send, commit, spend],
+                show: table_before_recommendation,
+                after_run: change_nothing_without_asking}
+
+# Required for claim-gathering graphs (§5, §6). Other shapes set N/A with a reason.
+VERIFY:        {lenses: [correct, current, real], tier: same_as_source}
+ANCHOR:        {allow: [vendor_pricing_page, signed_contract]}

@@ -19,6 +19,12 @@ the app.
 | `graph/20261027_sterling-fitness-agent-graph_v0.2.svg` | draft v0.2 | The drawing. Generated, never edited by hand |
 | `graph/20261027_FIT-T_technique-tables_v0.2.pdf` | draft v0.2 | The technique tables. Generated, never edited by hand. ST1 is the first; the other agents follow. Printed from the HTML page in `archive/graph/v0.2_2026-10-27/` |
 
+Coding rules for building the graph with LangChain, LangGraph and LangSmith
+are in `.claude/Coding Agents/langGraph-builder.md`, with the pre-build check in
+`.claude/skills/graph-agent-engineering/`. The Frameworks section of
+`CLAUDE.md` adds the rules for this program, including keeping LangSmith
+tracing off whenever member data is loaded.
+
 Earlier versions are kept, unchanged, in `archive/graph/<version>_<date>/`.
 They are a record only; nothing reads them.
 

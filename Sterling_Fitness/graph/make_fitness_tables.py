@@ -88,8 +88,9 @@ def build():
     o.append(table(["Id", "Agent", "Detail"],
                    [(r["id"], r["agent"], esc(r["text"])) for r in DEVIATIONS]))
     o.append("<h2>Owner decisions (not build instructions)</h2>")
-    o.append(table(["Id", "Agent", "Decision"],
-                   [(r["id"], r["agent"], esc(r["text"])) for r in OPEN_DECISIONS]))
+    o.append(table(["Id", "Agent", "Status", "Decision"],
+                   [(r["id"], r["agent"], esc(r["status"]), esc(r["text"]))
+                    for r in OPEN_DECISIONS]))
     o.append("<h2>Appendix A: step notes</h2>")
     o.append(table(["Step", "Note"], notes))
     o.append("<h2>Appendix B: sources</h2>")

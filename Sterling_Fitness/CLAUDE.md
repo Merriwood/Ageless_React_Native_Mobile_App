@@ -28,11 +28,14 @@ Scoring tests (in `Local LM Models`): `python -m pytest tests/test_fitness_analy
 ## Rules
 
 1. Code sets every score and every pass or fail. A language model never does.
-2. Score by body part. Log by exercise.
+2. Log by exercise. Score the program by exercise. Check and report targets
+   by body part.
 3. Each exercise has a permanent id. Never match logs by name.
 4. Compare weight and progress only within the same exercise.
-5. Code builds the program from written rules (N3). The member approves it
-   (G1). Score against targets, never against the program.
+5. Code builds the program from written rules (N3). Code checks it against the
+   targets and limits, and the member approves it (G1). The member is scored on
+   the program (ST1.5), never the targets. Only the assigned exercise counts.
+   A program change starts on a Sunday; each score stores its program version.
 6. Every target, test, norm, movement and exercise needs a published source,
    current, measured, and covering ages 50 and up. Cite it by id from `SOURCES`.
 7. No member data in this folder: no results, names or test dates.

@@ -18,6 +18,10 @@ age and only the weekly target changes, so the age band is a parameter N1
 supplies, not a second agent. Agents split by age only where the test itself
 differs (ST2 grip at 50-59, ST3 Senior Fitness Test from 60).
 
+Owner decisions 2026-10-27: O1, O2, O4 as recommended; O5 reversed. The member
+is scored on the program (ST1.5). Targets check the program at N3 and G1, and
+ST1.6 reports them, unscored.
+
 status: "built" = runs today in fitness-analytics / the diary app;
         "data"  = the data is recorded but nothing scores it;
         "proposed" = not built.
@@ -73,8 +77,10 @@ INTAKE = [
     dict(code="N3", name="Program Builder", status="proposed",
          mandate="Picks the member's exercises for each movement from EXERCISE_MODEL, by "
                  "written rules: limits (N0), age band (N1), rotation schedule. Code only. "
-                 "Starts from S4's proposal after the first period.",
-         output="Program (exercises per movement, per week)"),
+                 "Starts from S4's proposal after the first period. Each body part gets "
+                 "from its target up to the band's limit in sets a week (upper body: push "
+                 "and pull each), on 2 or more days.",
+         output="Program (exercises and sets per week, versioned)"),
 ]
 
 # ---------------------------------------------------------------------------
@@ -193,7 +199,8 @@ DELIVERABLE = ("DIARY WIKI  ->  Sterling Status  ·  925 Score  ·  Fitness Asse
 # ---------------------------------------------------------------------------
 GATES = [
     dict(code="G1", name="Plan Approval Gate",
-         rule="The member approves the program, agent roster, tests due and targets before anything runs"),
+         rule="The member approves the program, roster, tests due and targets. Code first checks "
+              "each body part is within target and limit, on 2+ days. Programs start on Sundays"),
     dict(code="G2", name="Screen Review Gate",
          rule="A qualified reviewer confirms any positive health screen before it is reported"),
     dict(code="G3", name="Status Gate",
@@ -288,10 +295,15 @@ GLOSSARY = [
     ("Exercise", "exercise_id", "What the member does and logs, e.g. Leg Press (legPress). The id never changes; the name may."),
     ("Set", "sets", "One round of an exercise, as logged in the app."),
     ("Age band", "age_band", "The member's age range. It picks targets and tests."),
-    ("Target", "target", "The weekly amount a body part should get. Same for everyone in "
-                         "an age band."),
-    ("Program", "program", "The exercises assigned to one member for a period. Built by "
-                           "code (N3), approved by the member (G1)."),
+    ("Target", "target", "The weekly sets a body part should get. Same for everyone in "
+                         "an age band. Every program must meet it."),
+    ("Limit", "limit", "The most weekly sets a program may assign a body part. Same for "
+                       "everyone in an age band."),
+    ("Program", "program", "The exercises and weekly sets assigned to one member for a "
+                           "period. Built by code (N3), approved by the member (G1). Each "
+                           "version starts on a Sunday."),
+    ("Program score", "program_score", "How much of the week's program the member did. "
+                                       "The member's strength score."),
 ]
 
 CODE_KEY = [
@@ -404,13 +416,17 @@ EXERCISE_MODEL = [
 ]
 
 EXERCISE_RULES = [
-    "Score by body part. Log by exercise.",
+    "Log by exercise. Score the program by exercise. Check and report targets by body part.",
     "Each exercise has a permanent id. Never match logs by name.",
     "Compare weight and progress only within the same exercise (ST4).",
     "Code builds the program from written rules (N3). A language model never does.",
     "The member approves the program before it starts (G1).",
-    "Score against targets, never against the program, so changing exercises keeps "
-    "the score consistent.",
+    "Score against the program. Every program meets the targets, so a member who "
+    "falls short of the program scores lower.",
+    "Only the assigned exercise counts toward the program score. A substitute is "
+    "logged and counts toward the target report, but earns no program score.",
+    "A program change starts on a Sunday. Each week is scored against the program "
+    "version in force that week, and the score stores that version.",
     "Every movement and exercise needs a published source before it ships.",
 ]
 
@@ -421,48 +437,57 @@ EXERCISE_RULES = [
 # ---------------------------------------------------------------------------
 TECHNIQUES = {
     "ST1": dict(
-        purpose="Checks that each body part gets enough strength work, often enough, "
-                "for the member's age band. One agent for all ages: only the target "
-                "changes, and N1 supplies the band.",
+        purpose="Scores how much of the week's program the member did, and reports "
+                "whether each body part got enough strength work, often enough, for the "
+                "member's age band. One agent for all ages: only the target changes, and "
+                "N1 supplies the band.",
         steps=[
-            dict(id="ST1.1", step="Load target and program",
-                 does="Reads the age band from N1 and loads that band's weekly targets, and "
-                      "the member's approved program from N3. Stops and reports if the band "
-                      "has no approved target.",
+            dict(id="ST1.1", step="Load program and target",
+                 does="Loads the program version in force this week (approved at G1, "
+                      "started on a Sunday), and the targets for the age band from N1. Stops "
+                      "and reports if there is no approved program or target.",
                  sources=["NSCA2019", "BORDE2015"], status="proposed",
-                 note="First, because the band is known before ST1 runs. 65+: 2-3 sets per "
-                      "body part per session, 2-3 sessions a week, so 4-9 sets a week. "
-                      "Today one placeholder table for all ages: legs 10, push 8, pull 8, "
-                      "core 5. See D3, O1, O2."),
+                 note="First, because the band is known before ST1 runs. Range: 2-3 sets "
+                      "per body part per session, 2-3 sessions a week, so 4-9 sets a week. "
+                      "Target 6 sets a week per body part; upper body counts push 6 and "
+                      "pull 6. Limit 9. Ages 50-64 use the 65+ range, labelled 'not "
+                      "validated under 65'. The code still uses a placeholder table. See "
+                      "D3, O1, O2, O4."),
             dict(id="ST1.2", step="Find body part",
                  does="Looks up the body part of each logged exercise in the exercise model.",
                  sources=[], status="built",
                  note="The guidelines (WHO2020, PAG2018) ask for all major muscle groups; "
                       "the three body parts are the program's own split. See D4, D5, O3."),
             dict(id="ST1.3", step="Count sets",
-                 does="Adds up sets per body part, Sunday to Saturday.",
+                 does="Adds up sets per exercise and per body part, Sunday to Saturday.",
                  sources=[], status="built",
-                 note="Every logged set counts. See D1."),
+                 note="Every logged set counts, substitutes included. See D1."),
             dict(id="ST1.4", step="Count days",
-                 does="Counts the days each body part was trained. Target: 2 or more.",
+                 does="Counts the days each body part was trained. Rule: 2 or more.",
                  sources=["WHO2020", "PAG2018"], status="proposed",
-                 note="Same target for every age band. Not scored today. See D2."),
-            dict(id="ST1.5", step="Score",
-                 does="Per body part: sets / target, capped at 1. Score = 100 x the "
-                      "average of the three.",
-                 sources=[], status="built",
-                 note="The cap stops extra work on one body part from making up for one "
-                      "that was skipped."),
-            dict(id="ST1.6", step="Compare with program",
-                 does="Counts how many of the program's exercises were done this week.",
+                 note="Same rule for every age band. How a body part trained on one day "
+                      "affects the program score: see O6. Not counted today: D2."),
+            dict(id="ST1.5", step="Program score",
+                 does="Per assigned exercise: sets done of that exercise / sets assigned, "
+                      "capped at 1. Program score = 100 x the average over the assigned "
+                      "exercises. The member's strength score.",
                  sources=[], status="proposed",
-                 note="Reported, not scored, so rotating exercises never changes the score. "
-                      "See O5."),
+                 note="Matched by exercise id, so a substitute earns nothing here. The cap "
+                      "stops extra sets of one exercise from making up for one that was "
+                      "skipped, and gives no reason to overtrain. Sets only: the app records "
+                      "no weight or effort (ST4). See O5, D7."),
+            dict(id="ST1.6", step="Target report",
+                 does="Per body part: sets / target, capped at 1 (upper body: push and pull "
+                      "each). Reported, not scored.",
+                 sources=["NSCA2019", "BORDE2015"], status="built",
+                 note="Built today as the score itself (D7). Shows whether the body got "
+                      "enough work whatever the program said."),
             dict(id="ST1.7", step="Report",
-                 does="Sends sets, days, age band, target, the target's sources and the "
-                      "program count to R-ST.",
+                 does="Sends the program score, the program version, sets, days, age band, "
+                      "the target report and the target's sources to R-ST.",
                  sources=[], status="proposed",
-                 note="X0 needs the sources to check every result."),
+                 note="X0 needs the sources to check every result. The program version "
+                      "keeps old scores fixed when the program changes."),
         ]),
 }
 
@@ -475,34 +500,48 @@ DEVIATIONS = [
     dict(id="D2", agent="ST1",
          text="Training days per body part (ST1.4) are not counted or scored."),
     dict(id="D3", agent="ST1",
-         text="The weekly targets are one placeholder table for every age, with no source."),
+         text="The weekly targets in the code are one placeholder table for every age (legs "
+              "10, push 8, pull 8, core 5), with no source. Decided: 6 a week per body part, "
+              "push and pull 6 each, limit 9 (O1, O2, O4)."),
     dict(id="D4", agent="ST1",
          text="Squats and push-ups are logged but skipped by the code (EXCLUDED_EXERCISES). "
               "The exercise model counts them."),
     dict(id="D5", agent="ST1",
          text="The scoring code uses four groups (lower_body, upper_push, upper_pull, core) "
-              "and averages four. The model has three body parts (legs, upper_body, core)."),    dict(id="D6", agent="ST1",
+              "and averages four. The model has three body parts (legs, upper_body, core)."),
+    dict(id="D6", agent="ST1",
          text="The scoring code matches logs by the app's names (e.g. 'Military'), not by id. "
               "Switch matching to ids before any app name changes, or logged sets stop counting."),
+    dict(id="D7", agent="ST1",
+         text="The scoring code scores sets against targets (ST1.6). The method scores the "
+              "program (ST1.5). Until the code changes, the strength score is the target "
+              "score, and no program is stored."),
 ]
 
+# status: "open", or the date the owner decided it.
 OPEN_DECISIONS = [
-    dict(id="O1", agent="ST1",
-         text="Ages 50-64: no study on weekly sets was found for this age group. "
-              "Recommended: use the 65+ range (4-9) and label it 'not validated under 65'. "
-              "It is the lower, safer dose."),
-    dict(id="O2", agent="ST1",
-         text="The weekly target. Recommended: 6 sets per body part, e.g. 3 sets on 2 days "
-              "or 2 sets on 3 days."),
-    dict(id="O3", agent="ST1",
+    dict(id="O1", agent="ST1", status="decided 2026-10-27",
+         text="Ages 50-64: no study on weekly sets was found for this age group. Decided: "
+              "use the 65+ range (4-9) and label it 'not validated under 65'. It is the "
+              "lower, safer dose."),
+    dict(id="O2", agent="ST1", status="decided 2026-10-27",
+         text="The weekly target. Decided: 6 sets per body part, e.g. 3 sets on 2 days or 2 "
+              "sets on 3 days. Limit: 9, the top of the range."),
+    dict(id="O3", agent="ST1", status="open",
          text="Which movement are Overhead Pull and Crunch (shoulder crunch)? Both count "
-              "as upper body, pull today."),
-    dict(id="O4", agent="ST1",
-         text="Upper body now holds both push and pull. One target for the whole upper body "
-              "could be met by pull work alone. Recommended: the upper body target counts "
+              "as upper body, pull, until the owner confirms."),
+    dict(id="O4", agent="ST1", status="decided 2026-10-27",
+         text="Upper body holds both push and pull. Decided: the upper body target counts "
               "push and pull separately (6 sets each), using each movement's side."),
-    dict(id="O5", agent="ST1",
-         text="Should following the program count toward the score? Recommended: no. "
-              "Report it only (ST1.6), so the score means the same thing whichever "
-              "exercises a member is assigned."),
+    dict(id="O5", agent="ST1", status="decided 2026-10-27",
+         text="Does following the program count toward the score? Decided: yes, it is the "
+              "only score (ST1.5), and future points build on it. Assigned exercises are "
+              "program components; a substitute earns nothing. N3 builds every program at "
+              "or above target, so falling short of the program scores lower. Program "
+              "changes start on Sunday. The program is weekly sets per exercise, with "
+              "each body part on 2 or more days."),
+    dict(id="O6", agent="ST1", status="open",
+         text="A body part trained on only one day in a week. Recommended: its exercises "
+              "earn at most half their program credit that week, so the 2-day rule counts "
+              "without a separate score."),
 ]

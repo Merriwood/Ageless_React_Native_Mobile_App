@@ -250,7 +250,8 @@ def build():
                   "never read back as evidence.", 9.2, MUTED, "italic"))
     s.append(text(RAIL_X, DEL_Y + 82,
                   "Loops: the re-test loop runs inside a period; the program loop runs once per "
-                  "period, so a single run has no cycle. Scores use targets, never the program.",
+                  "period, so a single run has no cycle. The member is scored on the program; "
+                  "G1 checks every program against the targets first.",
                   9.2, MUTED, "italic"))
     s.append(text(RAIL_X, DEL_Y + 94, OFFLINE_JOBS, 9.2, MUTED, "italic"))
     s.append("</svg>")

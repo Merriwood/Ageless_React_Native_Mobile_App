@@ -17,7 +17,7 @@ the app.
 | `graph/make_fitness_diagram.py` | draft v0.2 | Draws the diagram from the spec. Adapted from `make_diagram.py` in `Merriwood/propertydd-graph` v2.8 |
 | `graph/make_fitness_tables.py` | draft v0.2 | Writes the technique tables from the spec as one HTML page |
 | `graph/20261027_sterling-fitness-agent-graph_v0.2.svg` | draft v0.2 | The drawing. Generated, never edited by hand |
-| `graph/20261027_FIT-T_technique-tables_v0.2.html` | draft v0.2 | The technique tables. Generated, never edited by hand. ST1 is the first; the other agents follow |
+| `graph/20261027_FIT-T_technique-tables_v0.2.pdf` | draft v0.2 | The technique tables. Generated, never edited by hand. ST1 is the first; the other agents follow. The HTML page it is printed from is in `graph/archive/v0.2_2026-10-27/` |
 
 Earlier versions are kept, unchanged, in `graph/archive/<version>_<date>/`.
 They are a record only; nothing reads them.

@@ -362,7 +362,8 @@ EXERCISE_MODEL = [
                     ("hammerCurl", "Hammer Curl", "new", "")]),
     dict(part="upper_body", side="pull", movement="Shoulder lift",
          muscles="Upper back (upper trapezius)",
-         exercises=[("crunch", "Shoulder Crunch", "app", "App name today: Crunch. Not a "
+         exercises=[("crunch", "Shoulder Crunch", "app", "App name today: Crunch. Also "
+                                                         "called a dumbbell shrug. Not a "
                                                          "stomach crunch. O3")]),
     # Core
     dict(part="core", side="", movement="Trunk curl",
@@ -530,7 +531,7 @@ OPEN_DECISIONS = [
     dict(id="O3", agent="ST1", status="decided 2026-10-27",
          text="Which movement are Overhead Pull and Crunch (shoulder crunch)? Decided: both "
               "are upper body, pull. Overhead Pull works the lats (Pull down). Shoulder "
-              "Crunch works the upper back, upper trapezius (Shoulder lift)."),
+              "Crunch (a dumbbell shrug) works the upper back, upper trapezius (Shoulder lift)."),
     dict(id="O4", agent="ST1", status="decided 2026-10-27",
          text="Upper body holds both push and pull. Decided: the upper body target counts "
               "push and pull separately (6 sets each), using each movement's side."),

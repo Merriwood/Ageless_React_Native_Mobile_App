@@ -3,8 +3,13 @@ make_fitness_tables.py — renders the glossary, the exercise model and the
 technique tables (FIT-T) in fitness_spec.py to one HTML page, the companion to
 make_fitness_diagram.py. Generated, never edited by hand: change the spec and
 run this again.
+
+The HTML page goes to archive/v<VERSION>_<DATE>/. It is printed with Chrome to
+a PDF in this folder, which is the copy to read.
 """
 import html
+import pathlib
+import subprocess
 from fitness_spec import (VERSION, DATE, ORG, CONFIDENTIAL, NODES, GLOSSARY, CODE_KEY,
                           BODY_PARTS, EXERCISE_MODEL, EXERCISE_RULES, TECHNIQUES, SOURCES,
                           DEVIATIONS, OPEN_DECISIONS)
@@ -14,6 +19,7 @@ NODE = {n["code"]: n for n in NODES}
 TAG = {"app": "· in app", "logged": "· logged, skipped (D4)", "new": ""}
 
 CSS = """
+@page { size: letter landscape; margin: 0.5in; }
 body { font-family: Helvetica, Arial, sans-serif; color: #1B2430; margin: 0; font-size: 10.5pt; }
 h1 { font-size: 17pt; margin: 0 0 2pt; }
 h2 { font-size: 13pt; margin: 16pt 0 4pt; border-bottom: 1px solid #C3CBD4; padding-bottom: 3pt; }
@@ -94,9 +100,19 @@ def build():
     return "".join(o)
 
 
-OUT = f"{DATE.replace('-', '')}_FIT-T_technique-tables_v{VERSION}.html"
+HERE = pathlib.Path(__file__).resolve().parent
+NAME = f"{DATE.replace('-', '')}_FIT-T_technique-tables_v{VERSION}"
+OUT = HERE / "archive" / f"v{VERSION}_{DATE}" / f"{NAME}.html"
+PDF = HERE / f"{NAME}.pdf"
+CHROME = pathlib.Path(r"C:\Program Files\Google\Chrome\Application\chrome.exe")
 
 if __name__ == "__main__":
-    open(OUT, "w", encoding="utf-8").write(build())
-    print(f"{OUT} written — {len(TECHNIQUES)} agent table(s), {len(EXERCISE_MODEL)} movements, "
-          f"{len(SOURCES)} sources")
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    OUT.write_text(build(), encoding="utf-8")
+    print(f"{OUT.name} written to archive — {len(TECHNIQUES)} agent table(s), "
+          f"{len(EXERCISE_MODEL)} movements, {len(SOURCES)} sources")
+    if not CHROME.exists():
+        raise SystemExit(f"Chrome not found at {CHROME}; {PDF.name} not printed")
+    subprocess.run([str(CHROME), "--headless=new", "--disable-gpu", "--no-pdf-header-footer",
+                    f"--print-to-pdf={PDF}", OUT.as_uri()], check=True, capture_output=True)
+    print(f"{PDF.name} printed")

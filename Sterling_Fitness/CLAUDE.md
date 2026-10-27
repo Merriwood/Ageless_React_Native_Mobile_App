@@ -8,8 +8,10 @@ all member data live in the separate `Local LM Models` repository.
 - `graph/fitness_spec.py` — the single source of truth: agents, glossary,
   exercise model, technique tables, sources, deviations, owner decisions.
 - `graph/make_fitness_diagram.py` — draws the diagram from the spec.
-- `graph/make_fitness_tables.py` — writes the technique tables from the spec.
-- `graph/*.svg`, `graph/*.html` — generated. Never edit by hand.
+- `graph/make_fitness_tables.py` — writes the technique tables from the spec as
+  HTML in `graph/archive/<version>_<date>/`, then prints the PDF into `graph/`.
+  Needs Chrome.
+- `graph/*.svg`, `graph/*.pdf` and the tables HTML — generated. Never edit by hand.
 - `graph/archive/` — old versions. A record only; never read or edit.
 
 ## Commands

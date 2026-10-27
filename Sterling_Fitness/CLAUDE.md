@@ -12,7 +12,8 @@ all member data live in the separate `Local LM Models` repository.
   HTML in `graph/archive/<version>_<date>/`, then prints the PDF into `graph/`.
   Needs Chrome.
 - `graph/*.svg`, `graph/*.pdf` and the tables HTML — generated. Never edit by hand.
-- `graph/archive/` — old versions. A record only; never read or edit.
+- `graph/archive/` — old versions, plus the current tables HTML that
+  `make_fitness_tables.py` writes. A record only; never edit by hand.
 
 ## Commands
 

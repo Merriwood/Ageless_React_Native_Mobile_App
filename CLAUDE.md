@@ -153,3 +153,4 @@ Default: `http://localhost:3000` (dev), `https://ageless-api.render.com` (prod)
 - `C_TESTING_AND_VALIDATION/` - QA docs, HTML mockups for visual reference
 - `D_PROJECT_INFORMATION/` - Project status, session history
 - `Old_Ageless_Web_PWA/` - Original PWA source (reference for parity)
+- `Sterling_Fitness/` - 925 Program documents and the agent graph (method and sources only, never member results). Not part of the app build. Scoring code and member data live in the separate `Local LM Models` repo; see `Sterling_Fitness/README.md`

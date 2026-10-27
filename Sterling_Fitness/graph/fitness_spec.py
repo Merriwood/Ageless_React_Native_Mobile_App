@@ -350,6 +350,7 @@ EXERCISE_MODEL = [
     dict(part="upper_body", side="pull", movement="Pull down",
          muscles="Upper back (lats), biceps",
          exercises=[("lat", "Lat Pulldown", "app", "App name today: Lat"),
+                    ("overheadPull", "Overhead Pull", "app", "Works the lats (O3)"),
                     ("assistedPullUp", "Assisted Pull-up", "new", "")]),
     dict(part="upper_body", side="pull", movement="Pull back",
          muscles="Middle back, rear shoulders, biceps",
@@ -359,10 +360,9 @@ EXERCISE_MODEL = [
          muscles="Biceps",
          exercises=[("bicepCurls", "Biceps Curl", "app", ""),
                     ("hammerCurl", "Hammer Curl", "new", "")]),
-    dict(part="upper_body", side="pull", movement="To confirm (O3)",
-         muscles="To confirm",
-         exercises=[("overheadPull", "Overhead Pull", "app", "What this exercise is: O3"),
-                    ("crunch", "Shoulder Crunch", "app", "App name today: Crunch. Not a "
+    dict(part="upper_body", side="pull", movement="Shoulder lift",
+         muscles="Upper back (upper trapezius)",
+         exercises=[("crunch", "Shoulder Crunch", "app", "App name today: Crunch. Not a "
                                                          "stomach crunch. O3")]),
     # Core
     dict(part="core", side="", movement="Trunk curl",
@@ -457,7 +457,7 @@ TECHNIQUES = {
                  does="Looks up the body part of each logged exercise in the exercise model.",
                  sources=[], status="built",
                  note="The guidelines (WHO2020, PAG2018) ask for all major muscle groups; "
-                      "the three body parts are the program's own split. See D4, D5, O3."),
+                      "the three body parts are the program's own split. See D4, D5."),
             dict(id="ST1.3", step="Count sets",
                  does="Adds up sets per exercise and per body part, Sunday to Saturday.",
                  sources=[], status="built",
@@ -527,9 +527,10 @@ OPEN_DECISIONS = [
     dict(id="O2", agent="ST1", status="decided 2026-10-27",
          text="The weekly target. Decided: 6 sets per body part, e.g. 3 sets on 2 days or 2 "
               "sets on 3 days. Limit: 9, the top of the range."),
-    dict(id="O3", agent="ST1", status="open",
-         text="Which movement are Overhead Pull and Crunch (shoulder crunch)? Both count "
-              "as upper body, pull, until the owner confirms."),
+    dict(id="O3", agent="ST1", status="decided 2026-10-27",
+         text="Which movement are Overhead Pull and Crunch (shoulder crunch)? Decided: both "
+              "are upper body, pull. Overhead Pull works the lats (Pull down). Shoulder "
+              "Crunch works the upper back, upper trapezius (Shoulder lift)."),
     dict(id="O4", agent="ST1", status="decided 2026-10-27",
          text="Upper body holds both push and pull. Decided: the upper body target counts "
               "push and pull separately (6 sets each), using each movement's side."),

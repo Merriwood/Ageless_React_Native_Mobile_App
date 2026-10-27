@@ -12,18 +12,25 @@ the app.
 
 | File | Version | What it is |
 | --- | --- | --- |
-| `graph/fitness_spec.py` | draft v0.1 (2026-10-26) | The agent graph spec: 7 lanes, 28 agents, gates, control services. The single source of truth for the drawing |
-| `graph/make_fitness_diagram.py` | draft v0.1 | Draws the diagram from the spec. Adapted from `make_diagram.py` in `Merriwood/propertydd-graph` v2.8 |
-| `graph/20261026_sterling-fitness-agent-graph_v0.1.svg` | draft v0.1 | The drawing. Generated, never edited by hand |
+| `CLAUDE.md` | v0.2 (2026-10-27) | Instructions for coding agents: commands, rules, change order, when to stop and ask |
+| `graph/fitness_spec.py` | draft v0.2 (2026-10-27) | The agent graph spec: 7 lanes, 28 agents, gates, control services, the glossary, the exercise model (body part, movement, exercise) and the technique tables (FIT-T) with their sources, deviations and open decisions. The single source of truth for the drawing and the tables |
+| `graph/make_fitness_diagram.py` | draft v0.2 | Draws the diagram from the spec. Adapted from `make_diagram.py` in `Merriwood/propertydd-graph` v2.8 |
+| `graph/make_fitness_tables.py` | draft v0.2 | Writes the technique tables from the spec as one HTML page |
+| `graph/20261027_sterling-fitness-agent-graph_v0.2.svg` | draft v0.2 | The drawing. Generated, never edited by hand |
+| `graph/20261027_FIT-T_technique-tables_v0.2.html` | draft v0.2 | The technique tables. Generated, never edited by hand. ST1 is the first; the other agents follow |
 
-Planned: the program document (FIT-ARCH) and one technique table per lane
-(FIT-T), setting each agent's tests, protocols and published sources.
+Earlier versions are kept, unchanged, in `graph/archive/<version>_<date>/`.
+They are a record only; nothing reads them.
 
-To redraw after a spec change:
+Planned: the program document (FIT-ARCH) and a technique table for every
+agent, setting its tests, protocols and published sources.
+
+To regenerate after a spec change:
 
 ```bash
 cd Sterling_Fitness/graph
 python make_fitness_diagram.py
+python make_fitness_tables.py
 ```
 
 ## Where the code and data live

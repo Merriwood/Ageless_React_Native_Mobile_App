@@ -5,9 +5,9 @@ computed from the spec, not hand-placed: adding an agent or a lane re-flows the
 picture. Never edit the SVG by hand; change the spec and run this again.
 """
 import textwrap
-from fitness_spec import (ORG, DOC_REF, CONFIDENTIAL, TITLE, SUBTITLE, CLUSTERS,
-                     INTAKE, NODES, CROSS, SYNTH, DELIVERABLE, GATES, CONTROL,
-                     OFFLINE_JOBS)
+from fitness_spec import (VERSION, DATE, ORG, DOC_REF, CONFIDENTIAL, TITLE, SUBTITLE,
+                     CLUSTERS, INTAKE, NODES, CROSS, SYNTH, DELIVERABLE, GATES,
+                     CONTROL, OFFLINE_JOBS, TECHNIQUES)
 
 # ---------------------------------------------------------------- palette
 INK, MUTED, LINE, GATE = "#1B2430", "#5A6672", "#C3CBD4", "#B5761B"
@@ -16,7 +16,7 @@ BG, PANEL = "#FFFFFF", "#F5F7F9"
 # ---------------------------------------------------------------- layout
 W = 1500
 RAIL_X, RAIL_W = 16, 96
-COL_X0, GAP, RIGHT = 132, 12, 52
+COL_X0, GAP, RIGHT = 132, 12, 72   # right margin holds the re-test and program loops
 NCOL = len(CLUSTERS)
 COL_W = int((W - COL_X0 - RIGHT - (NCOL - 1) * GAP) / NCOL)
 BANDW = W - COL_X0 - RIGHT
@@ -35,7 +35,7 @@ SYN_Y = G3_Y + 34
 G3A_Y = SYN_Y + 52                 # G3A sits under S3 only
 G4_Y = G3A_Y + 28
 DEL_Y = G4_Y + 32
-H = DEL_Y + 112
+H = DEL_Y + 124
 
 esc = lambda s: s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
@@ -59,12 +59,16 @@ def text(x, y, s, size=12, fill=INK, weight="normal", anchor="start", ls=0):
 TAG = {"built": "BUILT", "data": "DATA ONLY", "proposed": ""}
 
 
-def node_box(x, y, w, h, code, name, color, status="proposed"):
+def node_box(x, y, w, h, code, name, color, status="proposed", bands=""):
     proposed = status == "proposed"
     o = [box(x, y, w, h, color if not proposed else BG, color, rx=6, sw=1.1,
              dash="4 3" if proposed else None, op=0.10 if not proposed else 1.0),
          f'<rect x="{x}" y="{y}" width="3.5" height="{h}" rx="1.5" fill="{color}"/>',
          text(x + 9, y + 14, code, 9.2, color, "bold", ls=0.4)]
+    # Age bands and the technique-table marker share the code line.
+    meta = " · ".join(t for t in (bands, "FIT-T" if code in TECHNIQUES else "") if t)
+    if meta:
+        o.append(text(x + 9 + 7 * len(code), y + 14, meta, 7.6, MUTED, "bold"))
     if TAG[status]:
         o.append(text(x + w - 6, y + 14, TAG[status], 7.4, color, "bold", "end", ls=0.5))
     for i, ln in enumerate(wrap(name, int((w - 16) / 6.5))[:2]):
@@ -124,7 +128,7 @@ def build():
 
     # ---- band 1: intake --------------------------------------------------
     s.append(band_label(COL_X0, 84, "1 · INTAKE & SCOPING"))
-    iw = int((BANDW - 2 * GAP) / 3)
+    iw = int((BANDW - (len(INTAKE) - 1) * GAP) / len(INTAKE))
     for i, n in enumerate(INTAKE):
         x = COL_X0 + i * (iw + GAP)
         s.append(box(x, 92, iw, 64, "#E9ECF5", "#8B93B8", rx=7))
@@ -137,7 +141,7 @@ def build():
     # ---- band 2: fan-out -------------------------------------------------
     s.append(band_label(COL_X0, 200, "2 · FAN-OUT — PARALLEL LANE AGENTS"))
     s.append(text(W - RIGHT, 200,
-                  f"{len(NODES)} agents ({sum(n['status'] == 'built' for n in NODES)} built) · roster by age band · isolated context  |  solid = built or recorded · dashed = proposed",
+                  f"{len(NODES)} agents ({sum(n['status'] == 'built' for n in NODES)} built) · roster by age band · isolated context  |  solid = built or recorded · dashed = proposed · FIT-T = technique table written",
                   9.4, MUTED, "italic", anchor="end"))
     hub = (COL_X0 + BANDW / 2, 184)
     for ci, c in enumerate(CLUSTERS):
@@ -151,7 +155,8 @@ def build():
         lane = [n for n in NODES if n["cluster"] == c["key"]]
         for ni, n in enumerate(lane):
             y = NODES_Y + ni * (NH + NGAP)
-            s.append(node_box(x, y, COL_W, NH, n["code"], n["name"], c["color"], n["status"]))
+            s.append(node_box(x, y, COL_W, NH, n["code"], n["name"], c["color"], n["status"],
+                              n.get("bands", "")))
         last = NODES_Y + (len(lane) - 1) * (NH + NGAP) + NH
         s.append(f'<line x1="{x+COL_W/2}" y1="{last}" x2="{x+COL_W/2}" y2="{G2_Y-4}" '
                  f'stroke="{c["color"]}" stroke-width="0.9" stroke-dasharray="3 3" '
@@ -184,14 +189,14 @@ def build():
             ax = x - GAP / 2
             s.append(f'<path d="M{ax-4} {CROSS_Y+20} l 8 4 l -8 4 Z" fill="{GATE}"/>')
     RE = W - RIGHT
-    s.append(f'<path d="M{RE} {CROSS_Y+24} C {W-12} {CROSS_Y+24}, {W-12} {TOP_Y+8}, '
+    s.append(f'<path d="M{RE} {CROSS_Y+24} C {W-34} {CROSS_Y+24}, {W-34} {TOP_Y+8}, '
              f'{RE} {TOP_Y+8}" fill="none" stroke="{GATE}" stroke-width="1.2" '
              f'stroke-dasharray="6 4"/>')
     s.append(f'<path d="M{RE} {TOP_Y+8} l 9 -4 l 0 8 Z" fill="{GATE}"/>')
     mid = (TOP_Y + CROSS_Y) / 2
-    s.append(f'<text x="{W-14}" y="{mid}" font-family="Helvetica,Arial,sans-serif" font-size="9" '
+    s.append(f'<text x="{W-36}" y="{mid}" font-family="Helvetica,Arial,sans-serif" font-size="9" '
              f'fill="{GATE}" font-weight="bold" text-anchor="middle" '
-             f'transform="rotate(90 {W-14} {mid})">CONDITIONAL RE-TEST — '
+             f'transform="rotate(90 {W-36} {mid})">CONDITIONAL RE-TEST — '
              f'old test or thin evidence</text>')
     # ---- evidence return path: everything durable re-enters through N2 ----
     EV = "#2C6E8F"
@@ -221,6 +226,16 @@ def build():
                               label="G3A  Report Sign-Off — owner approves the pages"))
     s.append(gate_bar(COL_X0, G4_Y, BANDW, gate["G4"]))
 
+    # ---- program loop: S4 proposes next period's program, back to N3 -----
+    PG, LX, RE = "#2E7D52", W - 10, W - RIGHT
+    s.append(f'<path d="M{RE} {SYN_Y+23} H {LX} V 124 H {RE+8}" fill="none" stroke="{PG}" '
+             f'stroke-width="1.2" stroke-dasharray="6 4"/>')
+    s.append(f'<path d="M{RE} 124 l 9 -4 l 0 8 Z" fill="{PG}"/>')
+    pmid = (124 + SYN_Y) / 2
+    s.append(f'<text x="{LX-15}" y="{pmid}" font-family="Helvetica,Arial,sans-serif" font-size="9" '
+             f'fill="{PG}" font-weight="bold" text-anchor="middle" '
+             f'transform="rotate(90 {LX-15} {pmid})">NEXT PROGRAM — S4 -&gt; N3</text>')
+
     # ---- deliverable -----------------------------------------------------
     s.append(box(RAIL_X, DEL_Y, W - RIGHT - RAIL_X + 26, 40, INK, INK, rx=7, op=0.94))
     s.append(text((W - RIGHT + 26 + RAIL_X) / 2, DEL_Y + 25, DELIVERABLE, 11.4,
@@ -233,12 +248,16 @@ def build():
                   "Scoring invariant: code, never a language model, sets every score, z-score and "
                   "pass or fail. The wiki is output only: it is rebuilt from the evidence and "
                   "never read back as evidence.", 9.2, MUTED, "italic"))
-    s.append(text(RAIL_X, DEL_Y + 82, OFFLINE_JOBS, 9.2, MUTED, "italic"))
+    s.append(text(RAIL_X, DEL_Y + 82,
+                  "Loops: the re-test loop runs inside a period; the program loop runs once per "
+                  "period, so a single run has no cycle. Scores use targets, never the program.",
+                  9.2, MUTED, "italic"))
+    s.append(text(RAIL_X, DEL_Y + 94, OFFLINE_JOBS, 9.2, MUTED, "italic"))
     s.append("</svg>")
     return "".join(s)
 
 
-OUT = "20261026_sterling-fitness-agent-graph_v0.1.svg"
+OUT = f"{DATE.replace('-', '')}_sterling-fitness-agent-graph_v{VERSION}.svg"
 
 if __name__ == "__main__":
     open(OUT, "w", encoding="utf-8").write(build())
